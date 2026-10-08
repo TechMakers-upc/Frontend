@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'http://localhost:3000',
+  apiBaseUrl: '/demo-api',
   usersEndpointPath: '/users',
   plantsEndpointPath: '/plants',
   assetsEndpointPath: '/assets',

@@ -4,10 +4,12 @@ import { UserAccount } from '../domain/model/user-account.entity';
 
 const DEMO_ROLE_KEY = 'fixcore.demo-role';
 
-const DEMO_ACCOUNTS: Record<Role, { name: string; title: string }> = {
-  'plant-manager': { name: 'Jefe de planta', title: 'Jefe de planta' },
-  'operations-manager': { name: 'Gerente de operaciones', title: 'Gerente de operaciones' },
-  technician: { name: 'Técnico de mantenimiento', title: 'Técnico de mantenimiento' },
+// Identificadores de demostración correspondientes al conjunto de datos ficticio.
+// No se comprueban contraseñas ni se autentica al usuario en Sprint 2.
+const DEMO_ACCOUNTS: Record<Role, { id: string; name: string; title: string; plantId: string | null }> = {
+  'plant-manager': { id: 'u1', name: 'Jefe de planta', title: 'Jefe de planta', plantId: 'p1' },
+  'operations-manager': { id: 'u2', name: 'Gerente de operaciones', title: 'Gerente de operaciones', plantId: null },
+  technician: { id: 'u3', name: 'Técnico de mantenimiento', title: 'Técnico de mantenimiento', plantId: 'p1' },
 };
 
 @Injectable({ providedIn: 'root' })
@@ -38,7 +40,7 @@ export class SessionStore {
 
   private demoAccount(role: Role): UserAccount {
     const account = DEMO_ACCOUNTS[role];
-    return new UserAccount(`demo-${role}`, account.name, '', role, null, account.title);
+    return new UserAccount(account.id, account.name, '', role, account.plantId, account.title);
   }
 
   private restoreDemoAccount(): UserAccount | null {

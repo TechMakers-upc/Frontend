@@ -10,3 +10,13 @@
 .figma-order-options .chips { margin: 7px 0; }
 .figma-order-options .toolbar { margin-bottom: 7px; }
 @media (min-width: 1024px) { :host > .toolbar .search { max-width: 350px; flex-basis: 310px; } }
+
+/* Auditoría integral: evitar que el nombre y código queden en columnas separadas. */
+.order-primary__content { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; min-width: 0; }
+.order-primary__content .cell-sub { line-height: 1.35; overflow-wrap: break-word; }
+@media (max-width: 700px) {
+  .mobile-cards td.order-primary { display: block; padding: 12px 0; }
+  .mobile-cards td.order-primary::before { content: none; }
+  .mobile-cards td.order-primary .cell-main { font-size: 1rem; font-weight: 700; }
+  .mobile-cards td.order-primary .cell-sub { color: #475569; font-size: .86rem; }
+}

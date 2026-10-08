@@ -63,7 +63,7 @@
               </div>
             </td>
             <td [attr.data-label]="'inventory.location' | translate">{{ part.location }}</td>
-            <td [attr.data-label]="'inventory.stock' | translate" class="right num cell-main">{{ part.stock }} <span class="cell-sub">{{ 'unit.' + part.unit | translate }}</span></td>
+            <td [attr.data-label]="'inventory.stock' | translate" class="right num cell-main"><span class="stock-amount">{{ part.stock }} <span class="cell-sub">{{ 'unit.' + part.unit | translate }}</span></span></td>
             <td [attr.data-label]="'inventory.min' | translate" class="right num">{{ part.minStock }}</td>
             <td [attr.data-label]="'inventory.level' | translate"><app-status-badge [label]="'stockLevel.' + part.level | translate" [tone]="levelTone[part.level]" /></td>
           </tr>

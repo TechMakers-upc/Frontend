@@ -104,9 +104,11 @@
       <tbody>
         @for (order of sorted(); track order.id) {
           <tr>
-            <td [attr.data-label]="'workOrders.order' | translate">
-              <a class="cell-main" [routerLink]="['/work-orders', order.id]"><span class="code">{{ order.code }}</span></a>
-              <div class="cell-sub">{{ order.title }} · {{ 'workOrderType.' + order.type | translate }}</div>
+            <td class="order-primary" [attr.data-label]="'workOrders.order' | translate">
+              <div class="order-primary__content">
+                <a class="cell-main" [routerLink]="['/work-orders', order.id]"><span class="code">{{ order.code }}</span></a>
+                <div class="cell-sub">{{ order.title }} · {{ 'workOrderType.' + order.type | translate }}</div>
+              </div>
             </td>
             <td [attr.data-label]="'workOrders.machine' | translate">
               {{ assetLabel(order.assetId) }}
