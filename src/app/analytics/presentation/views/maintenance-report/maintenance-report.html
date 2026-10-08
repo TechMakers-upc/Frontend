@@ -1,0 +1,129 @@
+<div class="no-print">
+  <app-page-header [heading]="'reports.title' | translate" [subtitle]="'reports.subtitle' | translate">
+    <button type="button" class="btn btn--ghost" (click)="downloadCsv()">
+      <app-icon name="download" [size]="18" />
+      {{ 'reports.csv' | translate }}
+    </button>
+    <button type="button" class="btn btn--primary" (click)="print()">
+      <app-icon name="printer" [size]="18" />
+      {{ 'reports.pdf' | translate }}
+    </button>
+  </app-page-header>
+
+  <div class="card card__body filters">
+    @if (canPickPlant()) {
+      <div class="field field--filled">
+        <select id="report-plant" class="field__input" [value]="plantId()" (change)="plantId.set(value($event))">
+          @for (p of plantStore.plants(); track p.id) {
+            <option [value]="p.id" [selected]="p.id === plantId()">{{ p.displayName }}</option>
+          }
+        </select>
+        <label class="field__label" for="report-plant">{{ 'reports.client' | translate }}</label>
+      </div>
+    }
+    <div class="field field--filled">
+      <input id="report-from" class="field__input" type="date" [value]="from()" [max]="to()" (change)="from.set(value($event))" />
+      <label class="field__label" for="report-from">{{ 'reports.from' | translate }}</label>
+    </div>
+    <div class="field field--filled">
+      <input id="report-to" class="field__input" type="date" [value]="to()" [min]="from()" (change)="to.set(value($event))" />
+      <label class="field__label" for="report-to">{{ 'reports.to' | translate }}</label>
+    </div>
+  </div>
+</div>
+
+<article class="report card">
+  <header class="report__head">
+    <div class="report__brand">
+      <app-brand-mark [size]="28" />
+      <span class="report__wordmark">FIX<span>CORE</span></span>
+    </div>
+    <div>
+      <h2>{{ 'reports.docTitle' | translate }}</h2>
+      <p class="muted">
+        {{ plant()?.displayName }} · {{ from() | localizedDate }} – {{ to() | localizedDate }}
+      </p>
+    </div>
+  </header>
+
+  <section class="report__kpis">
+    <div><span>{{ 'kpi.availability' | translate }}</span><strong class="num">{{ summary().availability ?? '—' }}{{ summary().availability !== null ? '%' : '' }}</strong></div>
+    <div><span>{{ 'kpi.downtime' | translate }}</span><strong class="num">{{ summary().downtimeHours | hours }}</strong></div>
+    <div><span>{{ 'kpi.mttr' | translate }}</span><strong class="num">{{ summary().mttrHours | hours }}</strong></div>
+    <div><span>{{ 'kpi.compliance' | translate }}</span><strong class="num">{{ summary().compliance ?? '—' }}{{ summary().compliance !== null ? '%' : '' }}</strong></div>
+    <div><span>{{ 'reports.ordersCreated' | translate }}</span><strong class="num">{{ orders().length }}</strong></div>
+    <div><span>{{ 'reports.failuresReported' | translate }}</span><strong class="num">{{ failures().length }}</strong></div>
+  </section>
+
+  <section class="report__section">
+    <h3>{{ 'reports.workDone' | translate }}</h3>
+    @if (orders().length === 0) {
+      <p class="muted">{{ 'reports.noOrders' | translate }}</p>
+    } @else {
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">{{ 'workOrders.order' | translate }}</th>
+              <th scope="col">{{ 'workOrders.machine' | translate }}</th>
+              <th scope="col">{{ 'workOrders.status' | translate }}</th>
+              <th scope="col">{{ 'workOrders.technician' | translate }}</th>
+              <th scope="col" class="right">{{ 'workOrders.repairTime' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (order of orders(); track order.id) {
+              <tr>
+                <td><span class="code">{{ order.code }}</span><div class="cell-sub">{{ order.title }}</div></td>
+                <td>{{ assetLabel(order.assetId) }}</td>
+                <td>{{ 'workOrderStatus.' + order.status | translate }}</td>
+                <td>{{ directory.find(order.technicianId)?.fullName ?? '—' }}</td>
+                <td class="right num">{{ order.repairHours() | hours }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <div class="report__columns">
+    <section class="report__section">
+      <h3>{{ 'reports.downtimeByMachine' | translate }}</h3>
+      <ul class="plain">
+        @for (row of downtime(); track row.assetId) {
+          <li><span>{{ row.asset?.code }} · {{ row.asset?.name }}</span><strong class="num">{{ row.hours | hours }}</strong></li>
+        } @empty {
+          <li class="muted">{{ 'dashboard.noDowntime' | translate }}</li>
+        }
+      </ul>
+    </section>
+
+    <section class="report__section">
+      <h3>{{ 'reports.partsConsumed' | translate }}</h3>
+      <ul class="plain">
+        @for (row of consumption(); track row.part?.id) {
+          <li><span>{{ row.part?.sku }} · {{ row.part?.name }}</span><strong class="num">{{ row.quantity }}</strong></li>
+        } @empty {
+          <li class="muted">{{ 'reports.noParts' | translate }}</li>
+        }
+      </ul>
+    </section>
+  </div>
+
+  <section class="report__section">
+    <h3>{{ 'reports.failures' | translate }}</h3>
+    <ul class="plain">
+      @for (failure of failures(); track failure.id) {
+        <li>
+          <span>{{ failure.reportedAt | localizedDate: 'datetime' }} · {{ assetLabel(failure.assetId) }} · {{ 'failureKind.' + failure.kind | translate }}</span>
+          <strong>{{ 'failureStatus.' + failure.status | translate }}</strong>
+        </li>
+      } @empty {
+        <li class="muted">{{ 'failures.none' | translate }}</li>
+      }
+    </ul>
+  </section>
+
+  <footer class="report__foot muted">{{ 'reports.generated' | translate: { date: (generatedAt() | localizedDate: 'datetime') } }}</footer>
+</article>
