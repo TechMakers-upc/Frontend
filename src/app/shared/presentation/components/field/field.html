@@ -1,0 +1,9 @@
+<div class="field" [class.field--filled]="floating()">
+  <ng-content />
+  <label class="field__label" [for]="for()">{{ label() }}</label>
+</div>
+@if (error(); as error) {
+  <p class="field__error" [id]="for() + '-error'">{{ error.key | translate: error.params }}</p>
+} @else if (hint()) {
+  <p class="field__hint">{{ hint() }}</p>
+}

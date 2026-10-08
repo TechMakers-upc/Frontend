@@ -1,0 +1,241 @@
+@if (asset(); as asset) {
+  <app-page-header [heading]="asset.name" [meta]="asset.code + ' · ' + (plant()?.displayName ?? '')" backLink="/assets">
+    @if (role() !== 'operations-manager') {
+      <a class="btn btn--danger" routerLink="/failures/report" [queryParams]="{ assetId: asset.id }">
+        <app-icon name="alert" [size]="18" />
+        {{ 'nav.reportFailure' | translate }}
+      </a>
+    }
+    @if (canManage()) {
+      <a class="btn btn--ghost" [routerLink]="['/assets', asset.id, 'edit']">
+        <app-icon name="pencil" [size]="18" />
+        {{ 'common.edit' | translate }}
+      </a>
+    }
+  </app-page-header>
+
+  <section class="summary card">
+    <div class="summary__item">
+      <span class="summary__label">{{ 'assets.status' | translate }}</span>
+      <app-status-badge [label]="'assetStatus.' + asset.status | translate" [tone]="statusTone[asset.status]" />
+      <span class="cell-sub">{{ 'assets.since' | translate: { date: (asset.statusChangedAt | localizedDate: 'datetime') } }}</span>
+    </div>
+    <div class="summary__item">
+      <span class="summary__label">{{ 'assets.criticality' | translate }}</span>
+      <app-status-badge [label]="'criticality.' + asset.criticality | translate" [tone]="criticalityTone[asset.criticality]" [icon]="false" />
+    </div>
+    <div class="summary__item">
+      <span class="summary__label">{{ 'assets.openFailures' | translate }}</span>
+      <span class="summary__value num">{{ openFailures().length }}</span>
+    </div>
+    <div class="summary__item">
+      <span class="summary__label">{{ 'assets.downtime' | translate }}</span>
+      <span class="summary__value num">{{ downtime() | hours }}</span>
+    </div>
+    <div class="summary__item summary__item--days">
+      <span class="summary__label">{{ 'assets.lastDays' | translate }}</span>
+      <app-day-strip [cells]="days()" [label]="asset.code" size="lg" />
+    </div>
+  </section>
+
+  @if (myPendingOrder(); as order) {
+    <div class="accept card">
+      <app-icon name="clipboard" />
+      <p>{{ 'assets.pendingForYou' | translate: { code: order.code } }}</p>
+      <a class="btn btn--primary btn--sm" [routerLink]="['/work-orders', order.id]">{{ 'assets.openOrder' | translate }}</a>
+    </div>
+  }
+
+  <div class="tabs" role="tablist">
+    @for (option of ['sheet', 'history', 'manuals']; track option) {
+      <button
+        type="button"
+        class="tab"
+        role="tab"
+        [id]="'tab-' + option"
+        [attr.aria-selected]="tab() === option"
+        [attr.aria-controls]="'panel-' + option"
+        (click)="tab.set($any(option))"
+      >
+        {{ 'assets.tabs.' + option | translate }}
+        @if (option === 'manuals') {
+          <span class="chip__count">{{ asset.manuals.length }}</span>
+        }
+      </button>
+    }
+  </div>
+
+  @switch (tab()) {
+    @case ('sheet') {
+      <section id="panel-sheet" role="tabpanel" aria-labelledby="tab-sheet" class="grid grid--split">
+        <div class="card card__body">
+          <dl class="dl">
+            <div><dt>{{ 'assets.fields.category' | translate }}</dt><dd>{{ 'assetCategory.' + asset.category | translate }}</dd></div>
+            <div><dt>{{ 'assets.fields.location' | translate }}</dt><dd>{{ asset.location }}</dd></div>
+            <div><dt>{{ 'assets.fields.brand' | translate }}</dt><dd>{{ asset.brand || '—' }}</dd></div>
+            <div><dt>{{ 'assets.fields.model' | translate }}</dt><dd>{{ asset.model || '—' }}</dd></div>
+            <div><dt>{{ 'assets.fields.serialNumber' | translate }}</dt><dd>{{ asset.serialNumber || '—' }}</dd></div>
+            <div><dt>{{ 'assets.fields.installedAt' | translate }}</dt><dd>{{ asset.installedAt | localizedDate }}</dd></div>
+          </dl>
+          @if (asset.description) {
+            <p class="description">{{ asset.description }}</p>
+          }
+        </div>
+
+        <div class="stack">
+          @if (role() !== 'technician') {
+            <section class="card qr-card">
+              <img
+                class="qr-card__image"
+                [src]="labels.imageUrl(asset, 240)"
+                [alt]="'assets.qr.alt' | translate: { code: asset.code }"
+                width="120"
+                height="120"
+              />
+              <div class="qr-card__body">
+                <h2>{{ 'assets.qr.cardTitle' | translate }}</h2>
+                <p class="cell-sub">{{ 'assets.qr.cardHint' | translate }}</p>
+                <div class="qr-card__actions">
+                  <button type="button" class="btn btn--ghost btn--sm" (click)="downloadQr(asset)">
+                    <app-icon name="download" [size]="16" />
+                    {{ 'assets.qr.download' | translate }}
+                  </button>
+                  <a class="btn btn--ghost btn--sm" routerLink="/assets/labels">
+                    <app-icon name="printer" [size]="16" />
+                    {{ 'assets.qr.print' | translate }}
+                  </a>
+                </div>
+              </div>
+            </section>
+          }
+
+          <section class="card">
+            <header class="card__header">
+              <h2>{{ 'assets.openOrders' | translate }}</h2>
+            </header>
+            @if (openOrders().length === 0) {
+              <p class="empty">{{ 'assets.noOpenOrders' | translate }}</p>
+            } @else {
+              <ul class="list">
+                @for (order of openOrders(); track order.id) {
+                  <li>
+                    <a class="list-row" [routerLink]="['/work-orders', order.id]">
+                      <span class="list-row__main">
+                        <span class="list-row__title"><span class="code">{{ order.code }}</span> · {{ order.title }}</span>
+                        <span class="list-row__meta">{{ 'workOrderStatus.' + order.status | translate }} · {{ 'common.due' | translate: { date: (order.dueDate | localizedDate) } }}</span>
+                      </span>
+                      <app-icon name="chevron-right" [size]="18" />
+                    </a>
+                  </li>
+                }
+              </ul>
+            }
+          </section>
+
+          <section class="card">
+            <header class="card__header">
+              <h2>{{ 'assets.preventivePlans' | translate }}</h2>
+              @if (canManage()) {
+                <a class="card__link" routerLink="/maintenance/new" [queryParams]="{ assetId: asset.id }">{{ 'maintenance.schedule' | translate }}</a>
+              }
+            </header>
+            @if (plans().length === 0) {
+              <p class="empty">{{ 'assets.noPlans' | translate }}</p>
+            } @else {
+              <ul class="list">
+                @for (plan of plans(); track plan.id) {
+                  <li class="list-row">
+                    <span class="list-row__main">
+                      <span class="list-row__title">{{ plan.title }}</span>
+                      <span class="list-row__meta">
+                        {{ 'maintenance.every' | translate: { days: plan.frequencyDays } }} ·
+                        {{ 'maintenance.next' | translate: { date: (plan.nextDueDate | localizedDate) } }}
+                      </span>
+                    </span>
+                  </li>
+                }
+              </ul>
+            }
+          </section>
+        </div>
+      </section>
+    }
+
+    @case ('history') {
+      <section id="panel-history" role="tabpanel" aria-labelledby="tab-history" class="card">
+        @if (history().length === 0) {
+          <p class="empty">{{ 'assets.history.empty' | translate }}</p>
+        } @else {
+          <ol class="timeline">
+            @for (entry of history(); track entry.at + entry.titleKey) {
+              <li class="timeline__item">
+                <span class="timeline__dot" [class]="'timeline__dot timeline__dot--' + entry.tone">
+                  <app-icon [name]="entry.icon" [size]="16" />
+                </span>
+                <div class="timeline__body">
+                  <p class="timeline__title">
+                    @if (entry.link) {
+                      <a [routerLink]="entry.link">{{ entry.titleKey | translate: entry.params }}</a>
+                    } @else {
+                      {{ entry.titleKey | translate: entry.params }}
+                    }
+                  </p>
+                  <p class="timeline__meta">{{ entry.at | localizedDate: 'datetime' }}</p>
+                  @if (entry.detail) {
+                    <p class="timeline__detail">{{ entry.detail }}</p>
+                  }
+                </div>
+              </li>
+            }
+          </ol>
+        }
+      </section>
+    }
+
+    @case ('manuals') {
+      <section id="panel-manuals" role="tabpanel" aria-labelledby="tab-manuals" class="grid grid--split">
+        <div class="card">
+          @if (asset.manuals.length === 0) {
+            <div class="empty">
+              <app-icon name="book" [size]="32" />
+              <p>{{ 'assets.manuals.empty' | translate }}</p>
+            </div>
+          } @else {
+            <ul class="list">
+              @for (manual of asset.manuals; track manual.url; let index = $index) {
+                <li class="list-row">
+                  <app-icon name="book" />
+                  <a class="list-row__main" [href]="manual.url" target="_blank" rel="noopener">
+                    <span class="list-row__title">{{ manual.title }}</span>
+                    <span class="list-row__meta">{{ 'assets.manuals.addedOn' | translate: { date: (manual.addedAt | localizedDate) } }}</span>
+                  </a>
+                  <app-icon name="external" [size]="16" />
+                  @if (canManage()) {
+                    <button type="button" class="icon-btn" [attr.aria-label]="'assets.manuals.remove' | translate: { title: manual.title }" (click)="removeManual(index)">
+                      <app-icon name="close" [size]="18" />
+                    </button>
+                  }
+                </li>
+              }
+            </ul>
+          }
+        </div>
+
+        @if (canManage()) {
+          <form class="card card__body form-grid" [formGroup]="manualForm" (ngSubmit)="addManual()" novalidate>
+            <h2 class="form-title">{{ 'assets.manuals.addTitle' | translate }}</h2>
+            <app-field for="manual-title" [label]="'assets.manuals.title' | translate">
+              <input id="manual-title" appFieldInput formControlName="title" />
+            </app-field>
+            <app-field for="manual-url" [label]="'assets.manuals.url' | translate" [hint]="'assets.manuals.urlHint' | translate">
+              <input id="manual-url" appFieldInput type="url" formControlName="url" inputmode="url" />
+            </app-field>
+            <button type="submit" class="btn btn--primary" [disabled]="savingManual()">{{ 'assets.manuals.add' | translate }}</button>
+          </form>
+        }
+      </section>
+    }
+  }
+} @else {
+  <app-page-header [heading]="'assets.notFound' | translate" backLink="/assets" />
+}

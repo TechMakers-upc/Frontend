@@ -1,0 +1,14 @@
+<div class="switcher" [class.switcher--dark]="tone() === 'dark'" role="group" [attr.aria-label]="'language.label' | translate">
+  @for (language of languages; track language) {
+    <button
+      type="button"
+      class="switcher__option"
+      [attr.aria-pressed]="languageService.current() === language"
+      [attr.lang]="language"
+      [attr.title]="'language.' + language | translate"
+      (click)="languageService.use(language)"
+    >
+      {{ language | uppercase }}
+    </button>
+  }
+</div>

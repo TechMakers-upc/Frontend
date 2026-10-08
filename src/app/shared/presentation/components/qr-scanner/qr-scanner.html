@@ -1,0 +1,21 @@
+<button type="button" class="btn btn--ghost scan-btn" (click)="start()" [disabled]="state() === 'starting' || state() === 'scanning'">
+  <app-icon name="camera" [size]="20" />
+  {{ 'scanner.open' | translate }}
+</button>
+
+@if (state() !== 'idle') {
+  <div class="scanner" role="dialog" aria-modal="true" [attr.aria-label]="'scanner.title' | translate" (keydown.escape)="stop()">
+    <div class="scanner__frame">
+      @if (state() === 'unsupported' || state() === 'denied') {
+        <p class="scanner__message" role="alert">
+          {{ (state() === 'denied' ? 'scanner.denied' : 'scanner.unsupported') | translate }}
+        </p>
+      } @else {
+        <video #video class="scanner__video" playsinline muted></video>
+        <span class="scanner__target" aria-hidden="true"></span>
+        <p class="scanner__hint" aria-live="polite">{{ 'scanner.hint' | translate }}</p>
+      }
+      <button #closeButton type="button" class="btn btn--primary scanner__close" (click)="stop()">{{ 'common.close' | translate }}</button>
+    </div>
+  </div>
+}

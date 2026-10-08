@@ -1,0 +1,60 @@
+<app-page-header
+  [heading]="(editing() ? 'assets.editTitle' : 'assets.newTitle') | translate"
+  [subtitle]="'assets.formHint' | translate"
+  [backLink]="editing() ? ['/assets', editing()!.id] : '/assets'"
+/>
+
+<form class="card card__body form-card" [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <div class="form-grid form-grid--two">
+    <app-field for="asset-code" [label]="'assets.fields.code' | translate" [hint]="'assets.fields.codeHint' | translate">
+      <input id="asset-code" appFieldInput formControlName="code" autocomplete="off" />
+    </app-field>
+    <app-field for="asset-name" [label]="'assets.fields.name' | translate">
+      <input id="asset-name" appFieldInput formControlName="name" autocomplete="off" />
+    </app-field>
+    <app-field for="asset-category" [label]="'assets.fields.category' | translate" [floating]="true">
+      <select id="asset-category" appFieldInput formControlName="category">
+        @for (category of categories; track category) {
+          <option [value]="category">{{ 'assetCategory.' + category | translate }}</option>
+        }
+      </select>
+    </app-field>
+    <app-field for="asset-criticality" [label]="'assets.criticality' | translate" [floating]="true">
+      <select id="asset-criticality" appFieldInput formControlName="criticality">
+        @for (level of criticalities; track level) {
+          <option [value]="level">{{ 'criticality.' + level | translate }}</option>
+        }
+      </select>
+    </app-field>
+    <app-field class="form-grid__full" for="asset-location" [label]="'assets.fields.location' | translate" [hint]="'assets.fields.locationHint' | translate">
+      <input id="asset-location" appFieldInput formControlName="location" />
+    </app-field>
+    <app-field for="asset-brand" [label]="'assets.fields.brand' | translate">
+      <input id="asset-brand" appFieldInput formControlName="brand" />
+    </app-field>
+    <app-field for="asset-model" [label]="'assets.fields.model' | translate">
+      <input id="asset-model" appFieldInput formControlName="model" />
+    </app-field>
+    <app-field for="asset-serial" [label]="'assets.fields.serialNumber' | translate">
+      <input id="asset-serial" appFieldInput formControlName="serialNumber" />
+    </app-field>
+    <app-field for="asset-installed" [label]="'assets.fields.installedAt' | translate" [floating]="true">
+      <input id="asset-installed" appFieldInput type="date" formControlName="installedAt" />
+    </app-field>
+    <app-field class="form-grid__full" for="asset-description" [label]="'assets.fields.description' | translate">
+      <textarea id="asset-description" appFieldInput formControlName="description" rows="4"></textarea>
+    </app-field>
+  </div>
+
+  <div class="form-actions">
+    <button type="button" class="btn btn--ghost" (click)="router.navigateByUrl(editing() ? '/assets/' + editing()!.id : '/assets')">
+      {{ 'common.cancel' | translate }}
+    </button>
+    <button type="submit" class="btn btn--primary" [disabled]="saving()">
+      @if (saving()) {
+        <span class="spinner" aria-hidden="true"></span>
+      }
+      {{ (editing() ? 'common.saveChanges' : 'assets.register') | translate }}
+    </button>
+  </div>
+</form>

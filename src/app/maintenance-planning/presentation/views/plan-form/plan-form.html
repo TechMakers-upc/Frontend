@@ -1,0 +1,57 @@
+<app-page-header
+  [heading]="(editing() ? 'maintenance.editTitle' : 'maintenance.newTitle') | translate"
+  [subtitle]="'maintenance.formHint' | translate"
+  backLink="/maintenance"
+/>
+
+<form class="card form-card" [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <div class="form-grid form-grid--two">
+    <app-field class="form-grid__full" for="plan-asset" [label]="'workOrders.machine' | translate" [floating]="true">
+      <select id="plan-asset" appFieldInput formControlName="assetId">
+        <option value="" disabled>{{ 'workOrders.pickMachine' | translate }}</option>
+        @for (asset of assets(); track asset.id) {
+          <option [value]="asset.id">{{ asset.code }} · {{ asset.name }}</option>
+        }
+      </select>
+    </app-field>
+    <app-field class="form-grid__full" for="plan-title" [label]="'maintenance.planTitle' | translate">
+      <input id="plan-title" appFieldInput formControlName="title" />
+    </app-field>
+    <app-field class="form-grid__full" for="plan-tasks" [label]="'maintenance.tasks' | translate" [hint]="'maintenance.tasksHint' | translate">
+      <textarea id="plan-tasks" appFieldInput formControlName="tasks" rows="4"></textarea>
+    </app-field>
+    <app-field for="plan-frequency" [label]="'maintenance.frequency' | translate" [floating]="true">
+      <select id="plan-frequency" appFieldInput formControlName="frequencyPreset">
+        @for (days of presets; track days) {
+          <option [value]="days">{{ 'maintenance.frequencies.' + days | translate }}</option>
+        }
+        <option value="custom">{{ 'maintenance.frequencies.custom' | translate }}</option>
+      </select>
+    </app-field>
+    @if (custom()) {
+      <app-field for="plan-days" [label]="'maintenance.everyDays' | translate">
+        <input id="plan-days" appFieldInput type="number" min="1" max="730" step="1" inputmode="numeric" formControlName="frequencyDays" />
+      </app-field>
+    }
+    <app-field for="plan-next" [label]="'maintenance.nextDate' | translate" [floating]="true">
+      <input id="plan-next" appFieldInput type="date" formControlName="nextDueDate" />
+    </app-field>
+    <app-field for="plan-tech" [label]="'maintenance.defaultTechnician' | translate" [floating]="true">
+      <select id="plan-tech" appFieldInput formControlName="technicianId">
+        <option value="">{{ 'workOrders.assignLater' | translate }}</option>
+        @for (tech of directory.techniciansInScope(); track tech.id) {
+          <option [value]="tech.id">{{ tech.fullName }}</option>
+        }
+      </select>
+    </app-field>
+  </div>
+  <div class="form-actions">
+    <button type="button" class="btn btn--ghost" (click)="router.navigateByUrl('/maintenance')">{{ 'common.cancel' | translate }}</button>
+    <button type="submit" class="btn btn--primary" [disabled]="saving()">
+      @if (saving()) {
+        <span class="spinner" aria-hidden="true"></span>
+      }
+      {{ (editing() ? 'common.saveChanges' : 'maintenance.schedule') | translate }}
+    </button>
+  </div>
+</form>
