@@ -1,0 +1,81 @@
+<div class="no-print">
+  <app-page-header [heading]="'assets.qr.title' | translate" [subtitle]="'assets.qr.subtitle' | translate" backLink="/assets">
+    <button type="button" class="btn btn--primary" [disabled]="visible().length === 0" (click)="print()">
+      <app-icon name="printer" [size]="18" />
+      {{ 'assets.qr.print' | translate }}
+    </button>
+  </app-page-header>
+
+  @if (showLocalhostNotice) {
+    <p class="notice" role="note">
+      <span class="notice__state" aria-hidden="true"><app-icon name="alert" [size]="18" /></span>
+      <span>{{ 'assets.qr.localhostWarning' | translate }}</span>
+    </p>
+  }
+
+  <div class="toolbar">
+    <label class="search">
+      <span class="visually-hidden">{{ 'assets.search' | translate }}</span>
+      <app-icon name="search" [size]="18" />
+      <input type="search" [placeholder]="'assets.search' | translate" (input)="onSearch($event)" />
+    </label>
+  </div>
+</div>
+
+@if (assetStore.state() === 'loading') {
+  <div class="labels" aria-busy="true">
+    @for (i of [1, 2, 3, 4]; track i) {
+      <div class="skeleton" style="height: 360px"></div>
+    }
+  </div>
+} @else if (visible().length === 0) {
+  <div class="panel empty">
+    <app-icon name="machine" [size]="32" />
+    <p>{{ 'assets.empty' | translate }}</p>
+  </div>
+} @else {
+  <ul class="labels">
+    @for (asset of visible(); track asset.id) {
+      <li class="label">
+        <div class="label__top">
+          <span class="label__text">
+            <span class="code">{{ asset.code }}</span>
+            <span class="label__name">{{ asset.name }}</span>
+            <span class="cell-sub">
+              @if (showPlant()) {
+                {{ plantName(asset) }} ·
+              }
+              {{ asset.location }}
+            </span>
+          </span>
+          <span class="no-print">
+            <app-status-badge [label]="'assetStatus.' + asset.status | translate" [tone]="statusTone[asset.status]" />
+          </span>
+        </div>
+
+        <img
+          class="label__qr"
+          [src]="labels.imageUrl(asset)"
+          [alt]="'assets.qr.alt' | translate: { code: asset.code }"
+          width="320"
+          height="320"
+          loading="lazy"
+        />
+        <p class="label__hint">{{ 'assets.qr.scanToReport' | translate }}</p>
+
+        <div class="label__actions no-print">
+          <button type="button" class="btn btn--ghost btn--sm" (click)="download(asset)" [attr.aria-label]="'assets.qr.downloadFor' | translate: { code: asset.code }">
+            <app-icon name="download" [size]="16" />
+            {{ 'assets.qr.download' | translate }}
+          </button>
+          <button type="button" class="btn btn--ghost btn--sm" (click)="copyLink(asset)" [attr.aria-label]="'assets.qr.copyLinkFor' | translate: { code: asset.code }">
+            <app-icon name="link" [size]="16" />
+            {{ 'assets.qr.copyLink' | translate }}
+          </button>
+        </div>
+      </li>
+    }
+  </ul>
+}
+
+<p class="credit no-print">{{ 'assets.qr.poweredBy' | translate }}</p>

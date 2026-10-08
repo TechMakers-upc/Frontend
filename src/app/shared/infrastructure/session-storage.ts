@@ -25,7 +25,6 @@ export class SessionStorage {
     try {
       target.setItem(SESSION_KEY, JSON.stringify(UserAccountAssembler.toStored(account)));
     } catch {
-      // Storage can be unavailable in private mode; the in-memory session still works.
     }
   }
 
@@ -34,7 +33,6 @@ export class SessionStorage {
       try {
         storage.removeItem(SESSION_KEY);
       } catch {
-        // Ignore unavailable storage.
       }
     }
   }

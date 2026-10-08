@@ -47,7 +47,6 @@ export class Field {
   readonly for = input.required<string>();
   readonly label = input.required<string>();
   readonly hint = input<string | null>(null);
-  /** Selects and date inputs always show their value, so the label stays up. */
   readonly floating = input(false);
 
   private readonly control = contentChild(NgControl, { descendants: true });
