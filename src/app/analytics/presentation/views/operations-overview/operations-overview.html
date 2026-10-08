@@ -1,0 +1,117 @@
+<header class="board-head">
+  <div class="board-head__title">
+    <h1>{{ scopeName() ?? ('common.allPlants' | translate) }}</h1>
+    <p class="board-head__meta">{{ 'board.meta' | translate: { date: (today | localizedDate: 'date') } }}</p>
+  </div>
+  <a class="btn btn--ghost" routerLink="/reports">{{ 'overview.reports' | translate }}</a>
+</header>
+
+<app-board-legend />
+
+<section class="meeting meeting--three" [attr.aria-label]="'board.meeting' | translate" [attr.aria-busy]="loading()">
+  <a class="meeting__cell" routerLink="/plants" [class.meeting__cell--down]="summary().down > 0">
+    <span class="meeting__label">{{ 'board.kpi.availability' | translate }}</span>
+    <span class="meeting__value num">{{ percent(summary().availability) }}<small>%</small></span>
+    <span class="meeting__context">{{ 'overview.availabilityContext' | translate: { plants: plants().length, down: summary().down } }}</span>
+    <app-day-strip kind="availability" [cells]="strips().availability" [label]="'board.kpi.availability' | translate" size="lg" />
+  </a>
+  <a class="meeting__cell" routerLink="/work-orders" [queryParams]="{ status: 'open' }">
+    <span class="meeting__label">{{ 'board.kpi.openOrders' | translate }}</span>
+    <span class="meeting__value num">{{ summary().openOrders }}</span>
+    <span class="meeting__context">{{ 'overview.ordersContext' | translate: { critical: summary().criticalOpenOrders, overdue: summary().overdueOrders } }}</span>
+    <app-day-strip kind="orders" [cells]="strips().workOrders" [label]="'board.kpi.openOrders' | translate" size="lg" />
+  </a>
+  <a class="meeting__cell" routerLink="/plants">
+    <span class="meeting__label">{{ 'board.kpi.stops' | translate }}</span>
+    <span class="meeting__value num">{{ summary().down }}</span>
+    <span class="meeting__context">{{ 'overview.stopsContext' | translate: { critical: summary().criticalFailures } }}</span>
+    <app-day-strip kind="failures" [cells]="strips().failures" [label]="'board.kpi.failuresStrip' | translate" size="lg" />
+  </a>
+</section>
+
+<dl class="facts">
+  <div>
+    <dt>{{ 'kpi.compliance' | translate }}</dt>
+    <dd class="num">{{ summary().compliance === null ? '—' : summary().compliance + ' %' }}</dd>
+    <dd class="facts__hint">{{ 'kpi.overduePlans' | translate: { count: summary().overduePlans } }}</dd>
+  </div>
+  <div>
+    <dt>{{ 'kpi.mttr' | translate }}</dt>
+    <dd class="num">{{ summary().mttrHours | hours }}</dd>
+    <dd class="facts__hint">{{ 'kpi.mttrHint' | translate }}</dd>
+  </div>
+  <div>
+    <dt>{{ 'overview.techniciansAvailable' | translate }}</dt>
+    <dd class="num">{{ availableTechnicians() }} / {{ technicians().length }}</dd>
+    <dd class="facts__hint">{{ 'overview.techniciansHint' | translate }}</dd>
+  </div>
+</dl>
+
+<div class="board-grid board-grid--wide">
+  <section class="panel matrix" aria-labelledby="plants-title">
+    <header class="panel__head">
+      <h2 id="plants-title">{{ 'overview.plantsTitle' | translate }}</h2>
+      <a class="panel__link" routerLink="/plants">{{ 'common.viewAll' | translate }}</a>
+    </header>
+    <div class="matrix__head" aria-hidden="true">
+      <span></span>
+      <span class="matrix__days">
+        @for (day of dayHeads(); track day.date; let last = $last) {
+          <span [class.matrix__today]="last">{{ day.letter }}</span>
+        }
+      </span>
+    </div>
+    @if (loading()) {
+      <div class="panel__body"><div class="skeleton" style="height: 160px"></div></div>
+    } @else {
+      <ul class="matrix__rows">
+        @for (row of plants(); track row.plant.id) {
+          <li>
+            <a class="matrix__row" [routerLink]="['/plants', row.plant.id]">
+              <span class="matrix__name">
+                <span class="matrix__state" [class.matrix__state--down]="row.summary.down > 0">
+                  <span class="num">{{ percent(row.summary.availability) }} %</span>
+                </span>
+                <span class="matrix__text">
+                  <span class="matrix__asset">{{ row.plant.displayName }}</span>
+                  <span class="matrix__status" [class.matrix__status--down]="row.summary.down > 0">
+                    @if (row.summary.down > 0) {
+                      {{ 'plants.downCount' | translate: { count: row.summary.down } }} ·
+                    }
+                    {{ 'overview.plantLine' | translate: { assets: row.summary.assets, orders: row.summary.openOrders } }}
+                  </span>
+                </span>
+              </span>
+              <app-day-strip kind="availability" [cells]="row.cells" [label]="row.plant.displayName" />
+            </a>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <section class="panel" aria-labelledby="techs-title">
+    <header class="panel__head">
+      <h2 id="techs-title">{{ 'overview.techniciansTitle' | translate }}</h2>
+      <a class="panel__link" routerLink="/technicians">{{ 'common.viewAll' | translate }}</a>
+    </header>
+    <ul class="techs">
+      @for (row of technicians(); track row.tech.id) {
+        <li class="tech">
+          <span class="tech__avatar" aria-hidden="true">{{ row.tech.initials }}</span>
+          <span class="tech__text">
+            <span class="tech__name">{{ row.tech.fullName }}</span>
+            <span class="cell-sub">{{ row.plant?.name }} · {{ 'overview.pendingCount' | translate: { count: row.pending } }}</span>
+          </span>
+          @if (row.active) {
+            <app-status-badge tone="info" [label]="'overview.busy' | translate: { code: row.active.code }" />
+          } @else {
+            <app-status-badge tone="ok" [label]="'overview.available' | translate" />
+          }
+        </li>
+      } @empty {
+        <li class="queue__empty">{{ 'team.empty' | translate }}</li>
+      }
+    </ul>
+  </section>
+</div>

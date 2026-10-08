@@ -1,0 +1,45 @@
+<app-page-header [heading]="'performance.title' | translate" [subtitle]="'performance.subtitle' | translate">
+  <label>
+    <span class="visually-hidden">{{ 'reports.period' | translate }}</span>
+    <select class="select-inline" (change)="range.set($any($event.target).value)">
+      <option value="30">{{ 'reports.last30' | translate }}</option>
+      <option value="90">{{ 'reports.last90' | translate }}</option>
+      <option value="all">{{ 'reports.allTime' | translate }}</option>
+    </select>
+  </label>
+</app-page-header>
+
+<section class="card table-wrap">
+  <table class="table">
+    <caption class="visually-hidden">{{ 'performance.title' | translate }}</caption>
+    <thead>
+      <tr>
+        <th scope="col">{{ 'workOrders.technician' | translate }}</th>
+        <th scope="col" class="right">{{ 'workOrderStatus.pending' | translate }}</th>
+        <th scope="col" class="right">{{ 'workOrderStatus.in-progress' | translate }}</th>
+        <th scope="col" class="right">{{ 'workOrderStatus.completed' | translate }}</th>
+        <th scope="col" class="right">{{ 'workOrders.overdue' | translate }}</th>
+        <th scope="col" class="right">{{ 'performance.avgRepair' | translate }}</th>
+        <th scope="col">{{ 'performance.lastActivity' | translate }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows(); track row.tech.id) {
+        <tr>
+          <td>
+            <span class="cell-main">{{ row.tech.fullName }}</span>
+            <div class="cell-sub">{{ row.tech.jobTitle }} · {{ plantStore.find(row.tech.plantId)?.name }}</div>
+          </td>
+          <td class="right num">{{ row.stats.assigned }}</td>
+          <td class="right num">{{ row.stats.inProgress }}</td>
+          <td class="right num cell-main">{{ row.stats.completed }}</td>
+          <td class="right num" [class.late]="row.stats.overdue > 0">{{ row.stats.overdue }}</td>
+          <td class="right num">{{ row.stats.avgRepairHours | hours }}</td>
+          <td>{{ row.stats.lastActivity | localizedDate: 'datetime' }}</td>
+        </tr>
+      } @empty {
+        <tr><td colspan="7" class="empty">{{ 'team.empty' | translate }}</td></tr>
+      }
+    </tbody>
+  </table>
+</section>

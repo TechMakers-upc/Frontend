@@ -1,0 +1,15 @@
+<label class="visually-hidden" [for]="'priority-' + failure().id">{{ 'failures.priority' | translate }}</label>
+<select
+  class="select-inline"
+  [class]="'select-inline priority priority--' + (failure().priority ?? 'none')"
+  [id]="'priority-' + failure().id"
+  [disabled]="saving() || failure().isResolved"
+  (change)="change($event)"
+>
+  @if (!failure().priority) {
+    <option value="" selected disabled>{{ 'failures.setPriority' | translate }}</option>
+  }
+  @for (priority of priorities; track priority) {
+    <option [value]="priority" [selected]="failure().priority === priority">{{ 'priority.' + priority | translate }}</option>
+  }
+</select>
