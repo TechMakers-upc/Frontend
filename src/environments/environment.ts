@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiBaseUrl: '/demo-api',
+  apiBaseUrl: 'https://fixcore-json-api.onrender.com',
   usersEndpointPath: '/users',
   plantsEndpointPath: '/plants',
   assetsEndpointPath: '/assets',
