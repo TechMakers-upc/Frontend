@@ -1,0 +1,137 @@
+<app-page-header [heading]="'maintenance.title' | translate" [subtitle]="'maintenance.subtitle' | translate">
+  @if (canManage()) {
+    <a class="btn btn--primary" routerLink="/maintenance/new">
+      <app-icon name="plus" [size]="18" />
+      {{ 'maintenance.schedule' | translate }}
+    </a>
+  }
+</app-page-header>
+
+<div class="chips toolbar" role="group" [attr.aria-label]="'maintenance.view' | translate">
+  <button type="button" class="chip" [attr.aria-pressed]="view() === 'calendar'" (click)="view.set('calendar')">
+    <app-icon name="calendar" [size]="16" />
+    {{ 'maintenance.calendar' | translate }}
+  </button>
+  <button type="button" class="chip" [attr.aria-pressed]="view() === 'overdue'" (click)="view.set('overdue')">
+    {{ 'maintenance.overdue' | translate }}
+    <span class="chip__count" [class.count--alert]="overdue().length > 0">{{ overdue().length }}</span>
+  </button>
+  <button type="button" class="chip" [attr.aria-pressed]="view() === 'suspended'" (click)="view.set('suspended')">
+    {{ 'maintenance.suspendedTab' | translate }}
+    <span class="chip__count">{{ suspended().length }}</span>
+  </button>
+</div>
+
+<ng-template #planRow let-plan>
+  <li class="plan">
+    <div class="plan__date" [class.plan__date--late]="plan.isOverdue(today)">
+      <span class="plan__day num">{{ plan.nextDueDate.slice(8, 10) }}</span>
+      <span class="plan__month">{{ plan.nextDueDate | localizedDate: 'short' }}</span>
+    </div>
+    <div class="plan__main">
+      <p class="plan__title">{{ plan.title }}</p>
+      <p class="cell-sub">
+        <a [routerLink]="['/assets', plan.assetId]">{{ assetLabel(plan.assetId) }}</a>
+        @if (showPlant()) {
+          · {{ plantName(plan.plantId) }}
+        }
+      </p>
+      <p class="cell-sub">
+        {{ 'maintenance.every' | translate: { days: plan.frequencyDays } }} ·
+        {{ directory.find(plan.technicianId)?.fullName ?? ('workOrders.unassigned' | translate) }}
+        @if (plan.lastCompletedAt) {
+          · {{ 'maintenance.lastDone' | translate: { date: (plan.lastCompletedAt | localizedDate) } }}
+        }
+      </p>
+    </div>
+    <div class="plan__status">
+      @switch (plan.standing(today)) {
+        @case ('overdue') {
+          <app-status-badge tone="down" [label]="'maintenance.overdueDays' | translate: { days: -daysLeft(plan) }" />
+        }
+        @case ('due-soon') {
+          <app-status-badge tone="warn" [label]="'maintenance.inDays' | translate: { days: daysLeft(plan) }" />
+        }
+        @case ('suspended') {
+          <app-status-badge tone="neutral" [label]="'maintenance.suspendedLabel' | translate" />
+        }
+        @default {
+          <app-status-badge tone="ok" [label]="'maintenance.scheduled' | translate" />
+        }
+      }
+    </div>
+    <div class="plan__actions">
+      @if (openOrderFor(plan.id); as order) {
+        <a class="btn btn--ghost btn--sm" [routerLink]="['/work-orders', order.id]">{{ 'maintenance.viewOrder' | translate: { code: order.code } }}</a>
+      } @else if (plan.active) {
+        <a class="btn btn--primary btn--sm" routerLink="/work-orders/new" [queryParams]="{ planId: plan.id }">{{ 'maintenance.createOrder' | translate }}</a>
+      }
+      @if (canManage()) {
+        @if (plan.active) {
+          <button type="button" class="btn btn--ghost btn--sm" (click)="openReschedule(plan)">{{ 'maintenance.reschedule' | translate }}</button>
+        }
+        <button type="button" class="btn btn--ghost btn--sm" [disabled]="busy()" (click)="toggle(plan)">
+          {{ (plan.active ? 'maintenance.suspend' : 'maintenance.reactivate') | translate }}
+        </button>
+        <a class="icon-btn" [routerLink]="['/maintenance', plan.id, 'edit']" [attr.aria-label]="'common.edit' | translate">
+          <app-icon name="pencil" [size]="18" />
+        </a>
+      }
+    </div>
+  </li>
+</ng-template>
+
+@switch (view()) {
+  @case ('calendar') {
+    @for (month of months(); track month.label) {
+      <section class="card month">
+        <header class="card__header"><h2 class="month__title">{{ month.label }}</h2></header>
+        <ul class="list">
+          @for (plan of month.plans; track plan.id) {
+            <ng-container *ngTemplateOutlet="planRow; context: { $implicit: plan }" />
+          }
+        </ul>
+      </section>
+    } @empty {
+      <div class="card empty">
+        <app-icon name="calendar" [size]="32" />
+        <p>{{ 'maintenance.empty' | translate }}</p>
+      </div>
+    }
+  }
+  @case ('overdue') {
+    <section class="card">
+      <ul class="list">
+        @for (plan of overdue(); track plan.id) {
+          <ng-container *ngTemplateOutlet="planRow; context: { $implicit: plan }" />
+        } @empty {
+          <li class="empty"><app-icon name="check" [size]="32" />{{ 'maintenance.noneOverdue' | translate }}</li>
+        }
+      </ul>
+    </section>
+  }
+  @case ('suspended') {
+    <section class="card">
+      <ul class="list">
+        @for (plan of suspended(); track plan.id) {
+          <ng-container *ngTemplateOutlet="planRow; context: { $implicit: plan }" />
+        } @empty {
+          <li class="empty">{{ 'maintenance.noneSuspended' | translate }}</li>
+        }
+      </ul>
+    </section>
+  }
+}
+
+<app-dialog [heading]="'maintenance.rescheduleTitle' | translate" [open]="rescheduling() !== null" (closed)="rescheduling.set(null)">
+  <form class="form-grid" [formGroup]="rescheduleForm" (ngSubmit)="reschedule()" novalidate>
+    <p class="muted">{{ rescheduling()?.title }} · {{ assetLabel(rescheduling()?.assetId ?? '') }}</p>
+    <app-field for="reschedule-date" [label]="'maintenance.newDate' | translate" [floating]="true">
+      <input id="reschedule-date" appFieldInput type="date" [min]="today" formControlName="date" />
+    </app-field>
+    <div class="form-actions">
+      <button type="button" class="btn btn--ghost" (click)="rescheduling.set(null)">{{ 'common.cancel' | translate }}</button>
+      <button type="submit" class="btn btn--primary" [disabled]="busy()">{{ 'maintenance.reschedule' | translate }}</button>
+    </div>
+  </form>
+</app-dialog>
