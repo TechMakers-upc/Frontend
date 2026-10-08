@@ -1,0 +1,11 @@
+<div class="toasts" role="status" aria-live="polite">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div class="toast" [class.toast--error]="toast.tone === 'error'">
+      <app-icon [name]="toast.tone === 'error' ? 'alert' : 'check'" [size]="18" />
+      <span>{{ toast.message }}</span>
+      <button type="button" class="toast__close" [attr.aria-label]="'common.close' | translate" (click)="toastService.dismiss(toast.id)">
+        <app-icon name="close" [size]="16" />
+      </button>
+    </div>
+  }
+</div>

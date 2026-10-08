@@ -1,0 +1,97 @@
+@if (plant(); as plant) {
+  <app-page-header [heading]="plant.name" [meta]="plant.city + (plant.address ? ' · ' + plant.address : '')" backLink="/plants">
+    <a class="btn btn--ghost" [routerLink]="['/plants', plant.id, 'edit']">
+      <app-icon name="pencil" [size]="18" />
+      {{ 'common.edit' | translate }}
+    </a>
+    <a class="btn btn--primary" routerLink="/work-orders" (click)="focus()">{{ 'plants.viewOrders' | translate }}</a>
+  </app-page-header>
+
+  <div class="stack">
+    <div class="grid grid--kpis">
+      <app-kpi-card icon="machine" [label]="'kpi.availability' | translate" [value]="summary().availability === null ? '—' : summary().availability + '%'"
+        [hint]="'kpi.machinesDown' | translate: { count: summary().down }" [tone]="summary().down > 0 ? 'down' : 'ok'" />
+      <app-kpi-card icon="clock" [label]="'kpi.downtime' | translate" [value]="summary().downtimeHours | hours" tone="warn" />
+      <app-kpi-card icon="wrench" [label]="'kpi.mttr' | translate" [value]="summary().mttrHours | hours" tone="info" />
+      <app-kpi-card icon="calendar" [label]="'kpi.compliance' | translate" [value]="summary().compliance === null ? '—' : summary().compliance + '%'"
+        [hint]="'kpi.overduePlans' | translate: { count: summary().overduePlans }" />
+    </div>
+
+    <div class="grid grid--halves">
+      <section class="card">
+        <header class="card__header"><h2>{{ 'plants.machinesTitle' | translate }}</h2></header>
+        <ul class="list">
+          @for (asset of assets(); track asset.id) {
+            <li>
+              <a class="list-row" [routerLink]="['/assets', asset.id]">
+                <span class="list-row__main">
+                  <span class="list-row__title"><span class="code">{{ asset.code }}</span> · {{ asset.name }}</span>
+                  <span class="list-row__meta">{{ asset.location }}</span>
+                </span>
+                <app-status-badge [label]="'assetStatus.' + asset.status | translate" [tone]="statusTone[asset.status]" />
+              </a>
+            </li>
+          } @empty {
+            <li class="empty">{{ 'assets.empty' | translate }}</li>
+          }
+        </ul>
+      </section>
+
+      <div class="stack">
+        <section class="card">
+          <header class="card__header"><h2>{{ 'plants.openOrdersTitle' | translate }}</h2></header>
+          <ul class="list">
+            @for (order of openOrders(); track order.id) {
+              <li>
+                <a class="list-row" [routerLink]="['/work-orders', order.id]">
+                  <span class="list-row__main">
+                    <span class="list-row__title"><span class="code">{{ order.code }}</span> · {{ order.title }}</span>
+                    <span class="list-row__meta">{{ directory.find(order.technicianId)?.fullName ?? ('workOrders.unassigned' | translate) }} · {{ 'workOrderStatus.' + order.status | translate }}</span>
+                  </span>
+                </a>
+              </li>
+            } @empty {
+              <li class="empty">{{ 'workOrders.noneOpen' | translate }}</li>
+            }
+          </ul>
+        </section>
+
+        <section class="card">
+          <header class="card__header"><h2>{{ 'plants.failureHistory' | translate }}</h2></header>
+          <ul class="list">
+            @for (failure of recentFailures(); track failure.id) {
+              <li>
+                <a class="list-row" [routerLink]="['/failures', failure.id]">
+                  <span class="list-row__main">
+                    <span class="list-row__title">{{ assetName(failure.assetId) }} · {{ 'failureKind.' + failure.kind | translate }}</span>
+                    <span class="list-row__meta">{{ failure.reportedAt | localizedDate: 'datetime' }} · {{ 'failureStatus.' + failure.status | translate }}</span>
+                  </span>
+                </a>
+              </li>
+            } @empty {
+              <li class="empty">{{ 'failures.none' | translate }}</li>
+            }
+          </ul>
+        </section>
+
+        <section class="card">
+          <header class="card__header"><h2>{{ 'plants.techniciansTitle' | translate }}</h2></header>
+          <ul class="list">
+            @for (tech of technicians(); track tech.id) {
+              <li class="list-row">
+                <span class="list-row__main">
+                  <span class="list-row__title">{{ tech.fullName }}</span>
+                  <span class="list-row__meta">{{ tech.jobTitle }}</span>
+                </span>
+              </li>
+            } @empty {
+              <li class="empty">{{ 'team.empty' | translate }}</li>
+            }
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+} @else {
+  <app-page-header [heading]="'plants.notFound' | translate" backLink="/plants" />
+}

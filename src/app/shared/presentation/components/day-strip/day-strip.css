@@ -1,0 +1,58 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.strip {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  align-items: end;
+  gap: 2px;
+  height: 18px;
+}
+
+.strip--lg {
+  gap: 3px;
+  height: 28px;
+}
+
+.day {
+  position: relative;
+  height: 35%;
+  background: var(--ok);
+  box-shadow: inset 0 0 0 1px var(--ok-ink);
+}
+
+.day--warn {
+  height: 65%;
+  background: var(--warn);
+  box-shadow: inset 0 0 0 1px var(--warn-ink);
+}
+
+.day--down,
+.day--conflict {
+  height: 100%;
+  background: var(--down);
+  box-shadow: inset 0 0 0 1px var(--down-ink);
+}
+
+.day--conflict {
+  background-image: repeating-linear-gradient(135deg, transparent 0 3px, rgb(255 255 255 / 0.75) 3px 5px);
+}
+
+.day--none {
+  height: 2px;
+  background: var(--slate-300);
+  box-shadow: none;
+}
+
+.day--today::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: -5px;
+  left: 0;
+  height: 2px;
+  background: var(--core-ink);
+}

@@ -1,0 +1,21 @@
+.results {
+  margin-top: 16px;
+}
+
+.matrix__caption {
+  color: var(--slate-600);
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.asset__trail {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.asset__criticality {
+  color: var(--slate-600);
+  font-size: 0.8125rem;
+}
