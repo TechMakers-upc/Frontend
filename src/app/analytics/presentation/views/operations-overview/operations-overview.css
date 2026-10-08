@@ -45,3 +45,10 @@
 .matrix__state {
   min-width: 64px;
 }
+
+/* FIXCORE RESPONSIVE SPRINT 2 */
+@media (max-width: 700px) {
+  .tech { grid-template-columns: 38px minmax(0, 1fr); gap: 8px 12px; }
+  .tech > :last-child { grid-column: 2; justify-self: start; }
+  .tech__name { overflow-wrap: anywhere; white-space: normal; }
+}

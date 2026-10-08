@@ -1,0 +1,7 @@
+
+
+/* FIXCORE RESPONSIVE SPRINT 2 */
+:host { display: block; min-width: 0; }
+@media (max-width: 700px) { .mobile-cards td:first-child .cell-main { overflow-wrap: anywhere; } }
+
+@media(min-width: 1024px) { .table th, .table td { padding: 16px 12px; } }

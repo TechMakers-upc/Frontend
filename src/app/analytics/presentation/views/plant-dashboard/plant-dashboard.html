@@ -1,70 +1,93 @@
-<header class="board-head">
-  <div class="board-head__title">
-    <h1>{{ plant()?.displayName ?? ('nav.dashboard' | translate) }}</h1>
-    <p class="board-head__meta">{{ 'board.meta' | translate: { date: (today | localizedDate: 'date') } }}</p>
+<section class="figma-dashboard" aria-labelledby="figma-dashboard-title">
+  <header class="figma-dashboard__welcome">
+    <div>
+      <h1 id="figma-dashboard-title">{{ 'figma.welcome' | translate: { name: demoName() } }}</h1>
+      <p class="figma-dashboard__plant">{{ plant()?.displayName ?? ('nav.dashboard' | translate) }}</p>
+    </div>
+  </header>
+
+  <section class="figma-overall" aria-labelledby="figma-overall-title">
+    <div class="figma-overall__score">
+      <span class="num">{{ percent(summary().availability) }}<small>%</small></span>
+    </div>
+    <div class="figma-overall__body">
+      <h2 id="figma-overall-title">{{ 'figma.overall' | translate }}</h2>
+      <div class="figma-overall__facts">
+        <p>{{ 'figma.downMachines' | translate }}: <strong>{{ summary().down }}</strong></p>
+        <p>{{ 'figma.criticalFailures' | translate }}: <strong>{{ criticalFailures() }}</strong></p>
+        <p>{{ 'figma.registeredMachines' | translate }}: <strong>{{ summary().assets }}</strong></p>
+        <p>{{ 'figma.inMaintenance' | translate }}: <strong>{{ summary().inMaintenance }}</strong></p>
+      </div>
+    </div>
+  </section>
+
+  <div class="figma-dashboard__highlights">
+    <a class="figma-highlight" routerLink="/assets" [queryParams]="{ status: 'down' }">
+      <app-icon name="alert" [size]="34" />
+      <span class="figma-highlight__count num">{{ summary().down }}</span>
+      <span class="figma-highlight__label">{{ 'figma.down' | translate }}</span>
+    </a>
+    <a class="figma-highlight" routerLink="/work-orders" [queryParams]="{ status: 'open' }">
+      <app-icon name="clipboard" [size]="34" />
+      <span class="figma-highlight__count num">{{ summary().openOrders }}</span>
+      <span class="figma-highlight__label">{{ 'figma.openOrders' | translate }}</span>
+    </a>
+    <a class="figma-highlight" routerLink="/maintenance">
+      <app-icon name="calendar" [size]="34" />
+      <span class="figma-highlight__count num">{{ maintenanceThisWeek() }}</span>
+      <span class="figma-highlight__label">{{ 'figma.maintenanceWeek' | translate }}</span>
+    </a>
   </div>
-  <a class="btn btn--ghost" routerLink="/work-orders/new">
-    <app-icon name="plus" [size]="18" />
-    {{ 'board.newOrder' | translate }}
-  </a>
-</header>
 
-<app-board-legend />
+  <nav class="figma-shortcuts" [attr.aria-label]="'figma.shortcuts' | translate">
+    <a class="figma-shortcut" routerLink="/work-orders">
+      <app-icon name="clipboard" [size]="52" />
+      <span>{{ 'figma.viewOrders' | translate }}</span>
+    </a>
+    <a class="figma-shortcut" routerLink="/assets">
+      <app-icon name="machine" [size]="52" />
+      <span>{{ 'figma.machines' | translate }}</span>
+    </a>
+    <a class="figma-shortcut" routerLink="/work-orders/new">
+      <app-icon name="plus" [size]="52" />
+      <span>{{ 'figma.newOrder' | translate }}</span>
+    </a>
+    <a class="figma-shortcut" routerLink="/inventory">
+      <app-icon name="box" [size]="52" />
+      <span>{{ 'figma.spareParts' | translate }}</span>
+    </a>
+  </nav>
 
-<section class="meeting" [attr.aria-label]="'board.meeting' | translate" [attr.aria-busy]="loading()">
-  <a class="meeting__cell" routerLink="/assets" [class.meeting__cell--down]="summary().down > 0">
-    <span class="meeting__label">{{ 'board.kpi.availability' | translate }}</span>
-    <span class="meeting__value num">{{ percent(summary().availability) }}<small>%</small></span>
-    <span class="meeting__context">{{ 'board.kpi.availabilityContext' | translate: { ok: operational(), total: summary().assets, maintenance: summary().inMaintenance } }}</span>
-    <app-day-strip kind="availability" [cells]="strips().availability" [label]="'board.kpi.availability' | translate" size="lg" />
-  </a>
+  <section class="figma-indicators" aria-labelledby="figma-indicators-title">
+    <h2 id="figma-indicators-title">{{ 'figma.indicators' | translate }}</h2>
+    <div class="figma-indicators__grid">
+      <a class="figma-indicator" routerLink="/reports">
+        <div class="figma-indicator__heading"><app-icon name="clock" [size]="24" /><span>{{ 'kpi.downtime' | translate }}</span></div>
+        <strong class="figma-indicator__number num">{{ summary().downtimeHours | hours }}</strong>
+        <small>{{ 'kpi.downtimeHint' | translate }}</small>
+      </a>
+      <a class="figma-indicator" routerLink="/reports">
+        <div class="figma-indicator__heading"><app-icon name="wrench" [size]="24" /><span>{{ 'kpi.mttr' | translate }}</span></div>
+        <strong class="figma-indicator__number num">{{ summary().mttrHours | hours }}</strong>
+        <small>{{ 'kpi.mttrHint' | translate }}</small>
+      </a>
+      <a class="figma-indicator" routerLink="/maintenance">
+        <div class="figma-indicator__heading"><app-icon name="calendar" [size]="24" /><span>{{ 'kpi.compliance' | translate }}</span></div>
+        <strong class="figma-indicator__number num">{{ summary().compliance === null ? '—' : summary().compliance + '%' }}</strong>
+        <small>{{ 'figma.overdue' | translate }}: {{ summary().overduePlans }}</small>
+      </a>
+      <a class="figma-indicator" routerLink="/inventory" [queryParams]="{ low: 1 }">
+        <div class="figma-indicator__heading"><app-icon name="box" [size]="24" /><span>{{ 'figma.criticalStock' | translate }}</span></div>
+        <strong class="figma-indicator__number num">{{ summary().lowStock }}</strong>
+        <small>{{ 'kpi.criticalStockHint' | translate }}</small>
+      </a>
+    </div>
+  </section>
 
-  <a class="meeting__cell" routerLink="/assets" [queryParams]="{ status: 'down' }" [class.meeting__cell--down]="summary().down > 0">
-    <span class="meeting__label">{{ 'board.kpi.stops' | translate }}</span>
-    <span class="meeting__value num">{{ summary().down }}</span>
-    <span class="meeting__context">
-      @if (summary().down > 0) {
-        {{ 'board.kpi.stopsContext' | translate: { hours: (longestStop() | hours) } }}
-      } @else {
-        {{ 'board.kpi.noStops' | translate }}
-      }
-    </span>
-    <app-day-strip kind="failures" [cells]="strips().failures" [label]="'board.kpi.failuresStrip' | translate" size="lg" />
-  </a>
-
-  <a class="meeting__cell" routerLink="/work-orders" [queryParams]="{ status: 'open' }">
-    <span class="meeting__label">{{ 'board.kpi.openOrders' | translate }}</span>
-    <span class="meeting__value num">{{ summary().openOrders }}</span>
-    <span class="meeting__context">{{ 'board.kpi.openOrdersContext' | translate: { overdue: summary().overdueOrders, unassigned: unassignedOrders() } }}</span>
-    <app-day-strip kind="orders" [cells]="strips().workOrders" [label]="'board.kpi.openOrders' | translate" size="lg" />
-  </a>
-
-  <a class="meeting__cell" routerLink="/inventory" [queryParams]="{ low: 1 }">
-    <span class="meeting__label">{{ 'board.kpi.stock' | translate }}</span>
-    <span class="meeting__value num">{{ summary().lowStock }}</span>
-    <span class="meeting__context">{{ 'board.kpi.stockContext' | translate }}</span>
-    <app-day-strip kind="stock" [cells]="strips().stock" [label]="'board.kpi.stock' | translate" size="lg" />
-  </a>
-</section>
-
-<dl class="facts">
-  <div>
-    <dt>{{ 'kpi.downtime' | translate }}</dt>
-    <dd class="num">{{ summary().downtimeHours | hours }}</dd>
-    <dd class="facts__hint">{{ 'kpi.downtimeHint' | translate }}</dd>
-  </div>
-  <div>
-    <dt>{{ 'kpi.mttr' | translate }}</dt>
-    <dd class="num">{{ summary().mttrHours | hours }}</dd>
-    <dd class="facts__hint">{{ 'kpi.mttrHint' | translate }}</dd>
-  </div>
-  <div>
-    <dt>{{ 'kpi.compliance' | translate }}</dt>
-    <dd class="num">{{ summary().compliance === null ? '—' : summary().compliance + ' %' }}</dd>
-    <dd class="facts__hint">{{ 'kpi.complianceHint' | translate }}</dd>
-  </div>
-</dl>
-
+  <details class="figma-extra">
+    <summary>{{ 'figma.operationalDetail' | translate }}</summary>
+    <app-board-legend />
+    <div class="figma-extra__board">
 <div class="board-grid">
   <section class="panel queue" aria-labelledby="queue-title">
     <header class="panel__head">
@@ -169,3 +192,7 @@
     }
   </section>
 </div>
+
+    </div>
+  </details>
+</section>

@@ -19,7 +19,7 @@ export class PlantScope {
   readonly plantIds = computed<string[]>(() => {
     const account = this.session.currentAccount();
     if (!account) return [];
-    if (!this.canSwitch()) return account.plantId ? [account.plantId] : [];
+    if (!this.canSwitch()) return account.plantId ? [account.plantId] : this.plantStore.items().slice(0, 1).map((plant) => plant.id);
     const selected = this.selectedSignal();
     return selected ? [selected] : this.plantStore.items().map((plant) => plant.id);
   });

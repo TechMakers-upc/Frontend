@@ -8,6 +8,7 @@ import { ToastService } from '../../../../shared/application/toast.service';
 import { Field, FieldInput } from '../../../../shared/presentation/components/field/field';
 import { PageHeader } from '../../../../shared/presentation/components/page-header/page-header';
 import { PlantStore } from '../../../application/plant.store';
+import { PlantScope } from '../../../application/plant-scope';
 
 
 @Component({
@@ -19,6 +20,7 @@ import { PlantStore } from '../../../application/plant.store';
 })
 export class PlantForm {
   private readonly plantStore = inject(PlantStore);
+  private readonly scope = inject(PlantScope);
   private readonly session = inject(SessionStore);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
@@ -27,9 +29,10 @@ export class PlantForm {
   readonly id = input<string>();
 
   protected readonly saving = signal(false);
+  protected readonly plantDataReady = computed(() => this.plantStore.state() === 'ready');
   protected readonly isOwnPlant = computed(() => !this.id() && this.session.role() === 'plant-manager');
   protected readonly editing = computed(() =>
-    this.plantStore.find(this.isOwnPlant() ? this.session.currentAccount()?.plantId : this.id()),
+    this.plantStore.find(this.isOwnPlant() ? this.scope.currentPlantId() : this.id()),
   );
 
   protected readonly form = inject(FormBuilder).nonNullable.group({
@@ -46,6 +49,7 @@ export class PlantForm {
   }
 
   protected async save(): Promise<void> {
+    if (this.isOwnPlant() && !this.plantDataReady()) return;
     if (this.form.invalid || this.saving()) {
       this.form.markAllAsTouched();
       return;

@@ -1,0 +1,137 @@
+<app-page-header
+  [heading]="(isTechnician() ? 'workOrders.mineTitle' : 'workOrders.title') | translate"
+  [subtitle]="(isTechnician() ? 'workOrders.mineSubtitle' : 'workOrders.subtitle') | translate"
+>
+  @if (canCreate()) {
+    <a class="btn btn--primary" routerLink="/work-orders/new">
+      <app-icon name="plus" [size]="18" />
+      {{ 'workOrders.new' | translate }}
+    </a>
+  }
+</app-page-header>
+
+
+
+<div class="toolbar">
+  <label class="search">
+    <span class="visually-hidden">{{ 'workOrders.search' | translate }}</span>
+    <app-icon name="search" [size]="18" />
+    <input type="search" [placeholder]="'workOrders.search' | translate" (input)="query.set(value($event))" />
+  </label>
+
+</div>
+<details class="figma-order-options"><summary>{{ 'workOrders.filterStatus' | translate }}</summary>
+<div class="chips toolbar" role="group" [attr.aria-label]="'workOrders.filterStatus' | translate">
+  <button type="button" class="chip" [attr.aria-pressed]="!status()" (click)="filterStatus(null)">
+    {{ 'common.all' | translate }}
+  </button>
+  <button type="button" class="chip" [attr.aria-pressed]="status() === 'open'" (click)="filterStatus('open')">
+    {{ 'workOrders.open' | translate }}
+    <span class="chip__count">{{ counts().pending + counts()['in-progress'] }}</span>
+  </button>
+  @for (value of statuses; track value) {
+    <button type="button" class="chip" [attr.aria-pressed]="status() === value" (click)="filterStatus(value)">
+      {{ 'workOrderStatus.' + value | translate }}
+      <span class="chip__count">{{ counts()[value] }}</span>
+    </button>
+  }
+</div>
+<div class="toolbar">
+  <label>
+    <span class="visually-hidden">{{ 'workOrders.priority' | translate }}</span>
+    <select class="select-inline" (change)="priority.set($any(value($event)))">
+      <option value="">{{ 'workOrders.allPriorities' | translate }}</option>
+      @for (p of priorities; track p) {
+        <option [value]="p">{{ 'priority.' + p | translate }}</option>
+      }
+    </select>
+  </label>
+  <label>
+    <span class="visually-hidden">{{ 'workOrders.type' | translate }}</span>
+    <select class="select-inline" (change)="type.set($any(value($event)))">
+      <option value="">{{ 'workOrders.allTypes' | translate }}</option>
+      @for (t of types; track t) {
+        <option [value]="t">{{ 'workOrderType.' + t | translate }}</option>
+      }
+    </select>
+  </label>
+  @if (!isTechnician()) {
+    <label>
+      <span class="visually-hidden">{{ 'workOrders.technician' | translate }}</span>
+      <select class="select-inline" (change)="technicianId.set(value($event))">
+        <option value="">{{ 'workOrders.allTechnicians' | translate }}</option>
+        <option value="none">{{ 'workOrders.unassigned' | translate }}</option>
+        @for (tech of directory.techniciansInScope(); track tech.id) {
+          <option [value]="tech.id">{{ tech.fullName }}</option>
+        }
+      </select>
+    </label>
+  }
+</div>
+</details>
+
+@if (visible().length === 0) {
+  <div class="panel empty">
+    <app-icon name="clipboard" [size]="32" />
+    <p>{{ 'workOrders.empty' | translate }}</p>
+  </div>
+} @else if (isTechnician()) {
+  <div class="grid grid--cards">
+    @for (order of visible(); track order.id) {
+      <app-work-order-card [order]="order" />
+    }
+  </div>
+} @else {
+  <section class="panel table-wrap">
+    <table class="table mobile-cards">
+      <caption class="visually-hidden">{{ 'workOrders.title' | translate }}</caption>
+      <thead>
+        <tr>
+          @for (column of columns; track column.key) {
+            <th scope="col" [attr.aria-sort]="sortKey() === column.key ? (sortDir() === 1 ? 'ascending' : 'descending') : null">
+              @if (column.sortable) {
+                <button type="button" class="sort" (click)="sortBy(column.key)">
+                  {{ column.label | translate }}
+                  <app-icon [name]="sortKey() === column.key && sortDir() === -1 ? 'arrow-down' : 'arrow-up'" [size]="14" [class.sort__idle]="sortKey() !== column.key" />
+                </button>
+              } @else {
+                {{ column.label | translate }}
+              }
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (order of sorted(); track order.id) {
+          <tr>
+            <td [attr.data-label]="'workOrders.order' | translate">
+              <a class="cell-main" [routerLink]="['/work-orders', order.id]"><span class="code">{{ order.code }}</span></a>
+              <div class="cell-sub">{{ order.title }} · {{ 'workOrderType.' + order.type | translate }}</div>
+            </td>
+            <td [attr.data-label]="'workOrders.machine' | translate">
+              {{ assetLabel(order.assetId) }}
+              @if (showPlant()) {
+                <div class="cell-sub">{{ plantName(order.plantId) }}</div>
+              }
+            </td>
+            <td [attr.data-label]="'workOrders.priority' | translate"><app-status-badge [label]="'priority.' + order.priority | translate" [tone]="priorityTone[order.priority]" [icon]="false" /></td>
+            <td [attr.data-label]="'workOrders.status' | translate"><app-status-badge [label]="'workOrderStatus.' + order.status | translate" [tone]="statusTone[order.status]" /></td>
+            <td [attr.data-label]="'workOrders.technician' | translate">
+              @if (directory.find(order.technicianId); as tech) {
+                {{ tech.fullName }}
+              } @else {
+                <span class="unassigned">{{ 'workOrders.unassigned' | translate }}</span>
+              }
+            </td>
+            <td [attr.data-label]="'workOrders.due' | translate" [class.late]="order.isOverdue(today)">
+              {{ order.dueDate | localizedDate }}
+              @if (order.isOverdue(today)) {
+                <div class="cell-sub late">{{ 'workOrders.overdue' | translate }}</div>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+}

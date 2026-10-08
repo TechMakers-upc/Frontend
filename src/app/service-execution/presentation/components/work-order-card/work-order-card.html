@@ -1,0 +1,24 @@
+<a class="wo" [routerLink]="['/work-orders', order().id]" [class]="'wo wo--' + order().priority">
+  <span class="wo__state" aria-hidden="true">
+    <app-icon [name]="order().priority === 'critical' ? 'alert' : order().priority === 'high' ? 'arrow-up' : 'clipboard'" [size]="20" />
+  </span>
+  <span class="wo__body">
+    <span class="wo__top">
+      <span class="code">{{ order().code }}</span>
+      <app-status-badge [label]="'workOrderStatus.' + order().status | translate" [tone]="statusTone[order().status]" />
+    </span>
+    <span class="wo__title">{{ order().title }}</span>
+    <span class="wo__asset">
+      <app-icon name="machine" [size]="16" />
+      {{ asset()?.code }} · {{ asset()?.name }}
+    </span>
+    <span class="wo__foot">
+      <span class="wo__priority">{{ 'priority.' + order().priority | translate }}</span>
+      <span class="wo__type">{{ 'workOrderType.' + order().type | translate }}</span>
+      <span class="wo__due" [class.wo__due--late]="overdue()">
+        <app-icon name="calendar" [size]="14" />
+        {{ (overdue() ? 'workOrders.overdueSince' : 'common.due') | translate: { date: (order().dueDate | localizedDate: 'short') } }}
+      </span>
+    </span>
+  </span>
+</a>

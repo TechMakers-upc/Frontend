@@ -17,7 +17,7 @@
     </app-field>
   </div>
   <div class="form-actions">
-    <button type="submit" class="btn btn--primary" [disabled]="saving() || (editing() && form.pristine)">
+    <button type="submit" class="btn btn--primary" [disabled]="saving() || (isOwnPlant() && !plantDataReady()) || (editing() && form.pristine)">
       @if (saving()) {
         <span class="spinner" aria-hidden="true"></span>
       }

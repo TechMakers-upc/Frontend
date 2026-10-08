@@ -80,3 +80,16 @@
     justify-content: flex-end;
   }
 }
+
+/* FIXCORE RESPONSIVE SPRINT 2 */
+@media (max-width: 700px) {
+  .plan { grid-template-columns: 50px minmax(0, 1fr); gap: 10px; padding: 14px 12px; }
+  .plan__actions { gap: 6px; }
+  .plan__actions .btn { flex: 1 1 125px; }
+  .plan__title { overflow-wrap: anywhere; }
+}
+
+@media(min-width: 1024px) { .plan { padding: 16px 20px; } }
+.plan { border-radius: 7px; }
+.plan__date { border-radius: 7px; }
+.plan__actions .btn--primary { background: #075985; }

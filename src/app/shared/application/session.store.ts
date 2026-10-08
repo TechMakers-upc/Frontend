@@ -1,44 +1,52 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
-
+import { Injectable, computed, signal } from '@angular/core';
+import { Role, isRole } from '../domain/model/role';
 import { UserAccount } from '../domain/model/user-account.entity';
-import { SessionStorage } from '../infrastructure/session-storage';
-import { UserAccountAssembler } from '../infrastructure/user-account.assembler';
-import { UserAccountResource } from '../infrastructure/user-account.resource';
-import { UsersApi } from '../infrastructure/users-api';
 
-export type SignInResult = { ok: true; account: UserAccount } | { ok: false; reason: 'invalid-credentials' | 'unreachable' };
+const DEMO_ROLE_KEY = 'fixcore.demo-role';
 
+const DEMO_ACCOUNTS: Record<Role, { name: string; title: string }> = {
+  'plant-manager': { name: 'Jefe de planta', title: 'Jefe de planta' },
+  'operations-manager': { name: 'Gerente de operaciones', title: 'Gerente de operaciones' },
+  technician: { name: 'Técnico de mantenimiento', title: 'Técnico de mantenimiento' },
+};
 
 @Injectable({ providedIn: 'root' })
 export class SessionStore {
-  private readonly api = inject(UsersApi);
-  private readonly sessionStorage = inject(SessionStorage);
+  private readonly accountSignal = signal<UserAccount | null>(this.restoreDemoAccount());
 
-  private readonly currentAccountSignal = signal<UserAccount | null>(this.sessionStorage.read());
+  readonly currentAccount = this.accountSignal.asReadonly();
+  readonly isSignedIn = computed(() => this.accountSignal() !== null);
+  readonly role = computed(() => this.accountSignal()?.role ?? null);
 
-  readonly currentAccount = this.currentAccountSignal.asReadonly();
-  readonly isSignedIn = computed(() => this.currentAccountSignal() !== null);
-  readonly role = computed(() => this.currentAccountSignal()?.role ?? null);
-
-  async signIn(email: string, password: string, rememberMe: boolean): Promise<SignInResult> {
-    let matches: UserAccountResource[];
+  selectDemoRole(role: Role): void {
+    this.accountSignal.set(this.demoAccount(role));
     try {
-      matches = await firstValueFrom(this.api.findByEmail(email.trim().toLowerCase()));
+      sessionStorage.setItem(DEMO_ROLE_KEY, role);
     } catch {
-      return { ok: false, reason: 'unreachable' };
+      // La demo funciona aunque el navegador bloquee el almacenamiento.
     }
-    const record = matches.find((candidate) => candidate.password === password);
-    const account = record ? UserAccountAssembler.toEntity(record) : null;
-    if (!account) return { ok: false, reason: 'invalid-credentials' };
-
-    this.sessionStorage.write(account, rememberMe);
-    this.currentAccountSignal.set(account);
-    return { ok: true, account };
   }
 
   signOut(): void {
-    this.sessionStorage.clear();
-    this.currentAccountSignal.set(null);
+    this.accountSignal.set(null);
+    try {
+      sessionStorage.removeItem(DEMO_ROLE_KEY);
+    } catch {
+      // No requiere autenticación ni almacenamiento persistente.
+    }
+  }
+
+  private demoAccount(role: Role): UserAccount {
+    const account = DEMO_ACCOUNTS[role];
+    return new UserAccount(`demo-${role}`, account.name, '', role, null, account.title);
+  }
+
+  private restoreDemoAccount(): UserAccount | null {
+    try {
+      const value = sessionStorage.getItem(DEMO_ROLE_KEY);
+      return isRole(value) ? this.demoAccount(value) : null;
+    } catch {
+      return null;
+    }
   }
 }

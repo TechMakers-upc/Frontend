@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-work-order-detail',
+  imports: [FormsModule],
   templateUrl: './work-order-detail.component.html',
   styleUrls: ['./work-order-detail.component.css']
 })
@@ -9,7 +11,7 @@ export class WorkOrderDetailComponent implements OnInit {
   orderDetail = {
     id: 'OT-101',
     machine: 'Inyectora 01',
-    description: 'Falla en la presión hidráulica principal del inyector.',
+    description: 'Falla en la presiÃ³n hidrÃ¡ulica principal del inyector.',
     status: 'IN_PROGRESS',
     executionNotes: ''
   };
@@ -30,7 +32,7 @@ export class WorkOrderDetailComponent implements OnInit {
       return;
     }
     this.orderDetail.status = 'COMPLETED';
-    alert('¡Orden de trabajo cerrada y completada con éxito!');
+    alert('Â¡Orden de trabajo cerrada y completada con Ã©xito!');
   }
 
   get executionNotes(): string {

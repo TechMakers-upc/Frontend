@@ -1,0 +1,10 @@
+
+
+/* FIXCORE RESPONSIVE SPRINT 2 */
+:host { display: block; min-width: 0; }
+@media (max-width: 700px) { .mobile-cards app-priority-select { display: inline-block; max-width: 100%; } }
+
+:host { display: block; }
+.table th, .table td { padding-top: 15px; padding-bottom: 15px; }
+.chips.toolbar { margin-top: 3px; margin-bottom: 22px; }
+@media(min-width: 1024px) { .table { min-width: 710px; } }

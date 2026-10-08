@@ -51,3 +51,10 @@
   align-items: center;
   gap: 8px;
 }
+
+/* FIXCORE RESPONSIVE SPRINT 2 */
+@media (max-width: 700px) {
+  .stock__head { flex-wrap: wrap; gap: 8px; }
+  .stock { min-width: 0; }
+  .stock__value { overflow-wrap: anywhere; }
+}

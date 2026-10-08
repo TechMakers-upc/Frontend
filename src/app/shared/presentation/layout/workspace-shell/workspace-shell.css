@@ -431,3 +431,73 @@
     padding: 0;
   }
 }
+
+/* FIXCORE RESPONSIVE SPRINT 2 */
+:host, .shell, .main-column, .content { min-width: 0; }
+.sidebar__nav, .sidebar__footer { min-width: 0; }
+.content > * { min-width: 0; }
+.bottom-bar__link { min-width: 0; text-align: center; }
+.bottom-bar__link > span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 1023px) {
+  .sidebar { box-shadow: 14px 0 36px rgb(15 23 42 / .12); }
+  .sidebar:not(.sidebar--open) { visibility: hidden; }
+  .topbar { padding: 8px 16px; }
+  .topbar__context { min-width: 0; }
+  .topbar__context .select-inline { max-width: min(36vw, 210px); }
+  .content { padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
+}
+@media (max-width: 700px) {
+  .content { padding: 18px 12px calc(100px + env(safe-area-inset-bottom)); }
+  .topbar { gap: 6px; }
+  .wordmark { letter-spacing: .08em; }
+  .topbar__brand .wordmark { font-size: .875rem; }
+  .topbar__context .select-inline { max-width: 145px; font-size: .8125rem; }
+  .bottom-bar__link { font-size: .6875rem; }
+  .bottom-bar__fab { font-size: .6875rem; }
+}
+@media (min-width: 701px) and (max-width: 1023px) {
+  .content { padding: 24px 20px 110px; }
+}
+
+/* Desktop layout from FixCore Figma mockups (1440 x 1024). */
+@media (min-width: 1024px) {
+  .shell { grid-template-columns: 310px minmax(0, 1fr); }
+  .sidebar { background: #1e293b; padding: 26px 16px 18px; }
+  .sidebar__brand { padding: 5px 12px 35px; gap: 13px; }
+  .sidebar__brand .wordmark { font-size: 1.45rem; letter-spacing: .04em; }
+  .sidebar__brand app-brand-mark { transform: scale(1.12); }
+  .sidebar__nav { gap: 0; align-content: start; }
+  .nav-group { display: contents; }
+  .nav-group__label { display: none; }
+  .nav-link { min-height: 57px; padding: 0 17px; font-size: 1.05rem; font-weight: 400; gap: 15px; border-radius: 8px; color: #dce3eb; }
+  .nav-link app-icon { flex: none; width: 26px; height: 26px; }
+  .nav-link--active, .nav-link--active:hover { background: #2c5075; box-shadow: none; color: white; }
+  .nav-link--active app-icon { color: #dce3eb; }
+  .nav-link__count { display: none; }
+  .sidebar__footer { margin: auto 10px 0; padding-top: 14px; border-top-color: #334155; }
+  .sidebar__footer .demo-mark { font-size: .68rem; opacity: .78; }
+  .user { padding: 10px; }
+  .user__avatar { width: 32px; height: 32px; border: 1px solid #64748b; background: transparent; color: #f1f5f9; }
+  .user__name { font-size: 1.04rem; font-weight: 400; }
+  .user__role { color: #cbd5e1; font-size: .78rem; }
+  .sidebar__footer .nav-link { padding-left: 10px; min-height: 53px; }
+  .topbar { min-height: 92px; padding: 12px 38px; background: #fff; }
+  .topbar__context { gap: 12px; }
+  .topbar__plant { font-size: 1.12rem; font-weight: 400; color: #334155; }
+  .topbar__plant app-icon { width: 25px; height: 25px; }
+  .topbar app-alert-bell { margin-left: 10px; }
+  .code-jump { margin-right: auto; max-width: 220px; opacity: .54; transform: scale(.9); transform-origin: left center; }
+  .code-jump:focus-within { opacity: 1; }
+  .content { width: 100%; max-width: 1440px; padding: 45px 48px 65px; }
+}
+@media (min-width: 1024px) and (max-width: 1300px) {
+  .shell { grid-template-columns: 254px minmax(0, 1fr); }
+  .sidebar { padding-inline: 12px; }
+  .sidebar__brand .wordmark { font-size: 1.25rem; }
+  .nav-link { min-height: 51px; font-size: .92rem; }
+  .content { padding: 30px 32px 55px; }
+}
+@media (max-width: 1023px) {
+  .sidebar { background: #1e293b; }
+  .nav-link--active, .nav-link--active:hover { background: #2c5075; box-shadow: none; }
+}

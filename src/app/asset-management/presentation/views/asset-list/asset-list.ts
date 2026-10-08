@@ -5,7 +5,6 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { SessionStore } from '../../../../shared/application/session.store';
 import { PlantTimeline } from '../../../../analytics/application/plant-timeline';
 import { LanguageService } from '../../../../shared/application/language.service';
-import { DayStrip } from '../../../../shared/presentation/components/day-strip/day-strip';
 import { Icon } from '../../../../shared/presentation/components/icon/icon';
 import { PageHeader } from '../../../../shared/presentation/components/page-header/page-header';
 import { AssetStore } from '../../../application/asset.store';
@@ -18,7 +17,7 @@ import { ASSET_STATUS_TONE, CRITICALITY_TONE } from '../../asset-presentation';
 
 @Component({
   selector: 'app-asset-list',
-  imports: [RouterLink, TranslatePipe, DayStrip, Icon, PageHeader],
+  imports: [RouterLink, TranslatePipe, Icon, PageHeader],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './asset-list.html',
   styleUrl: './asset-list.css',

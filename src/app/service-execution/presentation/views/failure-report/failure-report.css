@@ -354,3 +354,16 @@
   background: var(--warn);
   color: var(--slate-900);
 }
+
+/* FIXCORE RESPONSIVE SPRINT 2 */
+@media (max-width: 700px) {
+  :host { max-width: 100%; min-width: 0; }
+  .wizard { min-width: 0; }
+  .kinds { min-width: 0; }
+  .kind { min-width: 0; overflow-wrap: anywhere; }
+}
+
+@media (min-width: 1024px) { :host { max-width: 900px; margin: 0 auto; } .wizard { gap: 16px; } .progress { margin-bottom: 22px; } }
+.wizard .machine, .wizard .recent__item { border-radius: 7px; }
+.wizard .search input { border-radius: 7px; }
+@media(max-width: 700px) { .wizard { gap: 13px; } .wizard .machine { min-width: 0; } }

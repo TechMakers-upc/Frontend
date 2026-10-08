@@ -7,6 +7,7 @@ import { PlantScope } from '../../../../asset-management/application/plant-scope
 import { PlantStore } from '../../../../asset-management/application/plant.store';
 import { Asset, AssetStatus } from '../../../../asset-management/domain/model/asset.entity';
 import { UserDirectoryStore } from '../../../../shared/application/user-directory.store';
+import { SessionStore } from '../../../../shared/application/session.store';
 import { MaintenancePlanStore } from '../../../../maintenance-planning/application/maintenance-plan.store';
 import { FailureStore } from '../../../../service-execution/application/failure.store';
 import { WorkOrderStore } from '../../../../service-execution/application/work-order.store';
@@ -72,9 +73,13 @@ export class PlantDashboard {
   private readonly timeline = inject(PlantTimeline);
   private readonly language = inject(LanguageService);
   private readonly directory = inject(UserDirectoryStore);
+  private readonly session = inject(SessionStore);
   private readonly translate = inject(TranslateService);
 
   protected readonly today = todayDate();
+  protected readonly demoName = computed(() => this.session.currentAccount()?.firstName ?? '');
+  protected readonly criticalFailures = computed(() => this.failureStore.pending().filter(f => f.priority === 'critical').length);
+  protected readonly maintenanceThisWeek = computed(() => this.planStore.inScope().filter(plan => plan.active && daysUntil(plan.nextDueDate, this.today) >= 0 && daysUntil(plan.nextDueDate, this.today) <= 7).length);
   protected readonly plant = computed(() => this.plantStore.find(this.scope.currentPlantId()));
   protected readonly summary = this.analytics.current;
   protected readonly strips = this.timeline.current;

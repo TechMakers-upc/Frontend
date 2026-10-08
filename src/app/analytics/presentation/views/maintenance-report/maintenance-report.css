@@ -121,3 +121,75 @@
     border: 0;
   }
 }
+
+/* FIXCORE RESPONSIVE SPRINT 2 */
+@media screen and (max-width: 700px) {
+  .report { padding: 14px 12px; }
+  .report__head { align-items: flex-start; }
+  .report__head h2, .report__head p { text-align: left; overflow-wrap: anywhere; }
+  .report__kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .report__kpis div { min-width: 0; padding: 10px; }
+  .report__kpis strong { font-size: 1.125rem; }
+  .report__section { min-width: 0; }
+  .report__section .table-wrap { overflow-x: auto; }
+  .report__section .table { min-width: 560px; }
+}
+@media screen and (max-width: 380px) { .report__kpis { grid-template-columns: minmax(0, 1fr); } }
+
+@media (min-width: 1024px) { .report { max-width: 1030px; margin-inline: auto; } }
+
+/* Keep report status values readable without cutting words mid-letter. */
+.report__section .table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.report__section .table {
+  min-width: 850px;
+  table-layout: auto;
+}
+
+.report__section .table th,
+.report__section .table td {
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+.report__section .table th:nth-child(1),
+.report__section .table td:nth-child(1) {
+  min-width: 145px;
+}
+
+.report__section .table th:nth-child(2),
+.report__section .table td:nth-child(2) {
+  min-width: 205px;
+}
+
+.report__section .table th:nth-child(3),
+.report__section .table td:nth-child(3) {
+  min-width: 105px;
+  white-space: nowrap;
+}
+
+.report__section .table th:nth-child(4),
+.report__section .table td:nth-child(4) {
+  min-width: 120px;
+}
+
+.report__section .table th:nth-child(5),
+.report__section .table td:nth-child(5) {
+  min-width: 115px;
+  white-space: nowrap;
+}
+
+@media print {
+  .report__section .table {
+    min-width: 0;
+    font-size: 0.75rem;
+  }
+  .report__section .table th,
+  .report__section .table td {
+    min-width: 0;
+    padding: 6px 4px;
+  }
+}

@@ -59,7 +59,7 @@ export const NAVIGATION: Record<Role, NavGroup[]> = {
       item('/work-orders', 'myOrders', 'clipboard', 'myOpenOrders'),
       item('/assets', 'assets', 'machine', 'downAssets'),
       item('/inventory', 'stock', 'box'),
-      item('/profile', 'profile', 'user'),
+
     ]),
   ],
 };

@@ -64,3 +64,24 @@
     flex: 1;
   }
 }
+
+/* FIXCORE RESPONSIVE SPRINT 2 */
+.header__text { flex: 1 1 220px; min-width: 0; }
+.header__title, .header__subtitle, .header__meta { overflow-wrap: anywhere; }
+@media (max-width: 700px) {
+  :host { margin-bottom: 18px; }
+  .header { align-items: stretch; gap: 12px; }
+  .header__title { font-size: clamp(1.375rem, 6vw, 1.75rem); }
+  .header__actions { display: flex; width: 100%; align-items: stretch; flex-wrap: wrap; }
+  .header__actions ::ng-deep > a.btn,
+  .header__actions ::ng-deep > button.btn { flex: 1 1 140px; justify-content: center; }
+  .back { margin-left: 0; }
+}
+
+/* Figma page headers */
+:host { margin-bottom: 28px; }
+.header { align-items: center; }
+.header__title { font-size: clamp(1.35rem, 1.25rem + .4vw, 1.72rem); font-weight: 700; color: #111827; letter-spacing: -.02em; }
+.header__subtitle { font-size: .87rem; color: #475569; margin-top: 4px; }
+.header__actions .btn { min-height: 44px; }
+@media (max-width: 700px) { :host { margin-bottom: 18px; } .header__title { font-size: 1.45rem; } }

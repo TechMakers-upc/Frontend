@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-work-order-list',
+  imports: [CommonModule],
   templateUrl: './work-order-list.component.html',
   styleUrls: ['./work-order-list.component.css']
 })
@@ -18,6 +20,6 @@ export class WorkOrderListComponent implements OnInit {
   }
 
   selectOrder(order: any): void {
-    console.log('Orden seleccionada para ejecución/detalle:', order.id);
+    console.log('Orden seleccionada para ejecuciÃ³n/detalle:', order.id);
   }
 }

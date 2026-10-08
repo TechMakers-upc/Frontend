@@ -71,3 +71,11 @@
   border-top: 1px solid var(--slate-100);
   font-size: 0.8125rem;
 }
+
+/* FIXCORE RESPONSIVE SPRINT 2 */
+@media (max-width: 700px) {
+  .plant { padding: 16px; }
+  .plant__head, .plant__foot { min-width: 0; flex-wrap: wrap; }
+  .plant__stats { flex-wrap: wrap; }
+  .plant__name { overflow-wrap: anywhere; }
+}

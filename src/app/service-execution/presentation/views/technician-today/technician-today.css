@@ -1,0 +1,127 @@
+.hello {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.hello h1 {
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.hello__summary {
+  margin-top: 6px;
+  color: var(--slate-600);
+}
+
+.report-btn {
+  min-height: 56px;
+  font-size: 1.0625rem;
+}
+
+@media (max-width: 599px) {
+  .report-btn {
+    width: 100%;
+  }
+}
+
+.stopped {
+  margin-bottom: 24px;
+  border-color: var(--down);
+}
+
+.stopped .panel__head {
+  background: var(--down-ink);
+  color: var(--white);
+}
+
+.stopped .panel__head h2 {
+  color: var(--white);
+}
+
+.today-grid {
+  display: grid;
+  gap: 24px;
+}
+
+/* Grid items default to min-width: auto; the scrolling chip row must not widen the page. */
+.today-grid > * {
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .today-grid {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.section-head h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+@media (max-width: 599px) {
+  .filters {
+    flex-wrap: nowrap;
+    margin: 0 -16px;
+    padding: 0 16px 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .filters .chips {
+    flex-wrap: nowrap;
+  }
+
+  .filters .chip {
+    flex: none;
+  }
+}
+
+.orders {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.when {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+}
+
+.mine {
+  color: var(--core-ink);
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+/* FIXCORE RESPONSIVE SPRINT 2 */
+@media (max-width: 700px) {
+  .hello h1 { overflow-wrap: anywhere; }
+  .today-grid { gap: 16px; }
+  .section-head { flex-wrap: wrap; gap: 8px; }
+  .orders { min-width: 0; }
+  .when { justify-items: start; }
+}

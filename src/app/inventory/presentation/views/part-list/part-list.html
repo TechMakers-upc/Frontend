@@ -13,7 +13,9 @@
     <app-icon name="search" [size]="18" />
     <input type="search" [placeholder]="'inventory.search' | translate" (input)="query.set($any($event.target).value)" />
   </label>
-  <label>
+
+</div>
+<details class="figma-inventory-options"><summary>{{ 'inventory.category' | translate }} / {{ 'inventory.lowOnly' | translate }}</summary><div class="toolbar">  <label>
     <span class="visually-hidden">{{ 'inventory.category' | translate }}</span>
     <select class="select-inline" (change)="category.set($any($event.target).value)">
       <option value="">{{ 'inventory.allCategories' | translate }}</option>
@@ -26,8 +28,7 @@
     <app-icon name="alert" [size]="16" />
     {{ 'inventory.lowOnly' | translate }}
     <span class="chip__count">{{ inventory.belowMinimum().length }}</span>
-  </button>
-</div>
+  </button></div></details>
 
 <section class="card table-wrap">
   @if (visible().length === 0) {
@@ -36,7 +37,7 @@
       <p>{{ 'inventory.empty' | translate }}</p>
     </div>
   } @else {
-    <table class="table">
+    <table class="table mobile-cards">
       <caption class="visually-hidden">{{ 'inventory.title' | translate }}</caption>
       <thead>
       <tr>
@@ -51,8 +52,8 @@
       <tbody>
         @for (part of visible(); track part.id) {
           <tr>
-            <td><a class="code" [routerLink]="['/inventory', part.id]">{{ part.sku }}</a></td>
-            <td>
+            <td data-label="SKU"><a class="code" [routerLink]="['/inventory', part.id]">{{ part.sku }}</a></td>
+            <td [attr.data-label]="'inventory.part' | translate">
               <span class="cell-main">{{ part.name }}</span>
               <div class="cell-sub">
                 {{ 'partCategory.' + part.category | translate }}
@@ -61,10 +62,10 @@
                 }
               </div>
             </td>
-            <td>{{ part.location }}</td>
-            <td class="right num cell-main">{{ part.stock }} <span class="cell-sub">{{ 'unit.' + part.unit | translate }}</span></td>
-            <td class="right num">{{ part.minStock }}</td>
-            <td><app-status-badge [label]="'stockLevel.' + part.level | translate" [tone]="levelTone[part.level]" /></td>
+            <td [attr.data-label]="'inventory.location' | translate">{{ part.location }}</td>
+            <td [attr.data-label]="'inventory.stock' | translate" class="right num cell-main">{{ part.stock }} <span class="cell-sub">{{ 'unit.' + part.unit | translate }}</span></td>
+            <td [attr.data-label]="'inventory.min' | translate" class="right num">{{ part.minStock }}</td>
+            <td [attr.data-label]="'inventory.level' | translate"><app-status-badge [label]="'stockLevel.' + part.level | translate" [tone]="levelTone[part.level]" /></td>
           </tr>
         }
       </tbody>

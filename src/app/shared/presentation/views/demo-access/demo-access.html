@@ -1,0 +1,31 @@
+<main class="demo-page">
+  <section class="demo-card" aria-labelledby="demo-title">
+    <div class="demo-brand">
+      <app-brand-mark [size]="36" />
+      <span class="demo-wordmark">FIX<span>CORE</span></span>
+    </div>
+    <p class="demo-eyebrow">PROTOTIPO ACADÉMICO · SPRINT 2</p>
+    <h1 id="demo-title">Bienvenido a FixCore</h1>
+    <p class="demo-intro">Elige un perfil para explorar el mantenimiento industrial con datos de demostración.</p>
+    <h2 class="demo-subtitle">Selecciona tu perfil</h2>
+
+    <div class="demo-options">
+      <button type="button" class="demo-option" (click)="choose('plant-manager')">
+        <span class="demo-option__icon"><app-icon name="factory" [size]="28" /></span>
+        <span class="demo-option__text"><strong>Jefe de planta</strong><small>Máquinas, fallas y mantenimiento</small></span>
+        <app-icon name="arrow-right" [size]="20" />
+      </button>
+      <button type="button" class="demo-option" (click)="choose('operations-manager')">
+        <span class="demo-option__icon"><app-icon name="dashboard" [size]="28" /></span>
+        <span class="demo-option__text"><strong>Gerente de operaciones</strong><small>Plantas, indicadores y reportes</small></span>
+        <app-icon name="arrow-right" [size]="20" />
+      </button>
+      <button type="button" class="demo-option" (click)="choose('technician')">
+        <span class="demo-option__icon"><app-icon name="wrench" [size]="28" /></span>
+        <span class="demo-option__text"><strong>Técnico de mantenimiento</strong><small>Órdenes, equipos y repuestos</small></span>
+        <app-icon name="arrow-right" [size]="20" />
+      </button>
+    </div>
+    <p class="demo-footnote">Acceso libre para demostración. No se requiere usuario ni contraseña.</p>
+  </section>
+</main>
