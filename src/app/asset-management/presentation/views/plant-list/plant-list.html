@@ -1,0 +1,35 @@
+<app-page-header [heading]="'plants.title' | translate" [subtitle]="'plants.subtitle' | translate: { count: rows().length }">
+  <a class="btn btn--primary" routerLink="/plants/new">
+    <app-icon name="plus" [size]="18" />
+    {{ 'plants.register' | translate }}
+  </a>
+</app-page-header>
+
+<ul class="grid grid--cards plain">
+  @for (row of rows(); track row.plant.id) {
+    <li>
+      <a class="card plant" [routerLink]="['/plants', row.plant.id]">
+        <span class="plant__head">
+          <span class="plant__icon"><app-icon name="factory" /></span>
+          <span>
+            <span class="plant__name">{{ row.plant.name }}</span>
+            <span class="cell-sub">{{ row.plant.city }}{{ row.plant.address ? ' · ' + row.plant.address : '' }}</span>
+          </span>
+        </span>
+        <span class="plant__stats">
+          <span><strong class="num">{{ row.summary.assets }}</strong> {{ 'plants.machines' | translate }}</span>
+          <span><strong class="num">{{ row.summary.openOrders }}</strong> {{ 'plants.openOrders' | translate }}</span>
+          <span><strong class="num">{{ row.summary.technicians }}</strong> {{ 'plants.technicians' | translate }}</span>
+        </span>
+        <span class="plant__foot">
+          @if (row.summary.down > 0) {
+            <app-status-badge tone="down" [label]="'plants.downCount' | translate: { count: row.summary.down }" />
+          } @else {
+            <app-status-badge tone="ok" [label]="'plants.allRunning' | translate" />
+          }
+          <span class="muted">{{ 'plants.downtime' | translate }}: {{ row.summary.downtimeHours | hours }}</span>
+        </span>
+      </a>
+    </li>
+  }
+</ul>
