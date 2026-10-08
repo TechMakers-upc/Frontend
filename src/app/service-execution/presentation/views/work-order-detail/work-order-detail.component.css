@@ -1,0 +1,56 @@
+.detail-container {
+  max-width: 600px;
+  margin: 20px auto;
+  font-family: 'Open Sans', sans-serif;
+}
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.status-tag {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+.form-group {
+  margin-top: 15px;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+.form-group textarea {
+  width: 100%;
+  height: 100px;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+}
+.actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+.btn-start {
+  background-color: #eab308;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.btn-close {
+  background-color: #16a34a;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
