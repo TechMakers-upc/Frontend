@@ -1,0 +1,207 @@
+@if (order(); as order) {
+  <app-page-header [heading]="order.title" [meta]="order.code + ' · ' + ('workOrderType.' + order.type | translate)" backLink="/work-orders">
+    @if (isManager() && order.isOpen) {
+      <button type="button" class="btn btn--ghost" (click)="openDialog('assign')">
+        <app-icon name="users" [size]="18" />
+        {{ (order.technicianId ? 'workOrders.reassign' : 'workOrders.assign') | translate }}
+      </button>
+      <a class="btn btn--ghost" [routerLink]="['/work-orders', order.id, 'edit']">
+        <app-icon name="pencil" [size]="18" />
+        {{ 'common.edit' | translate }}
+      </a>
+    }
+  </app-page-header>
+
+  <div class="badges">
+    <app-status-badge [label]="'workOrderStatus.' + order.status | translate" [tone]="statusTone[order.status]" />
+    <app-status-badge [label]="'priority.' + order.priority | translate" [tone]="priorityTone[order.priority]" [icon]="false" />
+    @if (overdue()) {
+      <app-status-badge tone="down" [label]="'workOrders.overdue' | translate" />
+    }
+  </div>
+
+  @if (isAssignee() && order.isOpen) {
+    <section class="action card" aria-live="polite">
+      @if (order.status === 'pending') {
+        <div class="action__text">
+          <p class="action__title">{{ 'workOrders.readyTitle' | translate }}</p>
+          <p class="muted">{{ 'workOrders.readyHint' | translate }}</p>
+        </div>
+        <button type="button" class="btn btn--primary action__main" [disabled]="busy()" (click)="start()">
+          <app-icon name="play" [size]="18" />
+          {{ 'workOrders.start' | translate }}
+        </button>
+      } @else {
+        <div class="action__text">
+          <p class="action__title">{{ 'workOrders.runningTitle' | translate }}</p>
+          <p class="muted">{{ 'workOrders.runningSince' | translate: { time: (order.startedAt | localizedDate: 'datetime') } }}</p>
+        </div>
+        <div class="action__buttons">
+          <button type="button" class="btn btn--ghost" (click)="openDialog('part')">
+            <app-icon name="box" [size]="18" />
+            {{ 'workOrders.usePart' | translate }}
+          </button>
+          <button type="button" class="btn btn--success action__main" (click)="openDialog('close')">
+            <app-icon name="check" [size]="18" />
+            {{ 'workOrders.close' | translate }}
+          </button>
+        </div>
+      }
+    </section>
+  }
+
+  <div class="grid grid--split">
+    <div class="stack">
+      <section class="card card__body">
+        <dl class="dl">
+          <div>
+            <dt>{{ 'workOrders.machine' | translate }}</dt>
+            <dd><a [routerLink]="['/assets', order.assetId]">{{ asset()?.code }} · {{ asset()?.name }}</a></dd>
+          </div>
+          <div><dt>{{ 'workOrders.plant' | translate }}</dt><dd>{{ plant()?.displayName }}</dd></div>
+          <div><dt>{{ 'workOrders.technician' | translate }}</dt><dd>{{ technician()?.fullName ?? ('workOrders.unassigned' | translate) }}</dd></div>
+          <div><dt>{{ 'workOrders.due' | translate }}</dt><dd [class.late]="overdue()">{{ order.dueDate | localizedDate }}</dd></div>
+          <div><dt>{{ 'workOrders.started' | translate }}</dt><dd>{{ order.startedAt | localizedDate: 'datetime' }}</dd></div>
+          <div><dt>{{ 'workOrders.completed' | translate }}</dt><dd>{{ order.completedAt | localizedDate: 'datetime' }}</dd></div>
+          @if (order.repairHours() !== null) {
+            <div><dt>{{ 'workOrders.repairTime' | translate }}</dt><dd class="num">{{ order.repairHours() | hours }}</dd></div>
+          }
+          @if (order.failureId) {
+            <div>
+              <dt>{{ 'workOrders.origin' | translate }}</dt>
+              <dd>
+                @if (isManager()) {
+                  <a [routerLink]="['/failures', order.failureId]">{{ 'workOrders.originFailure' | translate }}</a>
+                } @else {
+                  {{ 'workOrders.originFailure' | translate }}
+                }
+              </dd>
+            </div>
+          } @else if (order.planId) {
+            <div><dt>{{ 'workOrders.origin' | translate }}</dt><dd>{{ 'workOrders.originPlan' | translate }}</dd></div>
+          }
+        </dl>
+        @if (order.description) {
+          <h2 class="section-title">{{ 'workOrders.description' | translate }}</h2>
+          <p class="pre">{{ order.description }}</p>
+        }
+        @if (order.solution) {
+          <h2 class="section-title">{{ 'workOrders.solution' | translate }}</h2>
+          <p class="pre">{{ order.solution }}</p>
+        }
+      </section>
+
+      <section class="card">
+        <header class="card__header"><h2>{{ 'workOrders.partsUsed' | translate }}</h2></header>
+        @if (partsUsed().length === 0) {
+          <p class="empty">{{ 'workOrders.noParts' | translate }}</p>
+        } @else {
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">SKU</th>
+                  <th scope="col">{{ 'inventory.part' | translate }}</th>
+                  <th scope="col" class="right">{{ 'inventory.quantity' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (usage of partsUsed(); track $index) {
+                  <tr>
+                    <td class="code">{{ usage.part?.sku }}</td>
+                    <td>{{ usage.part?.name }}</td>
+                    <td class="right num">{{ usage.quantity }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+    </div>
+
+    <section class="card">
+      <header class="card__header"><h2>{{ 'workOrders.activity' | translate }}</h2></header>
+      <ol class="log">
+        @for (entry of timeline(); track $index) {
+          <li class="log__item">
+            <span class="log__icon"><app-icon [name]="entry.icon" [size]="15" /></span>
+            <div>
+              <p class="log__text">{{ entry.text }}</p>
+              <p class="log__time">{{ entry.at | localizedDate: 'datetime' }}</p>
+              @if (entry.detail) {
+                <p class="log__detail">{{ entry.detail }}</p>
+              }
+            </div>
+          </li>
+        }
+      </ol>
+
+      @if (isAssignee() && order.status === 'in-progress') {
+        <form class="note" [formGroup]="noteForm" (ngSubmit)="addNote()" novalidate>
+          <app-field for="wo-note" [label]="'workOrders.noteLabel' | translate">
+            <textarea id="wo-note" appFieldInput formControlName="note" rows="3"></textarea>
+          </app-field>
+          <button type="submit" class="btn btn--primary btn--sm" [disabled]="busy()">{{ 'workOrders.saveNote' | translate }}</button>
+        </form>
+      }
+    </section>
+  </div>
+
+  <app-dialog [heading]="'workOrders.assignTitle' | translate" [open]="dialog() === 'assign'" (closed)="dialog.set(null)">
+    <form class="form-grid" [formGroup]="assignForm" (ngSubmit)="assign()" novalidate>
+      <app-field for="assign-tech" [label]="'workOrders.technician' | translate" [floating]="true">
+        <select id="assign-tech" appFieldInput formControlName="technicianId">
+          <option value="" disabled>{{ 'workOrders.pickTechnician' | translate }}</option>
+          @for (tech of plantTechnicians(); track tech.id) {
+            <option [value]="tech.id">{{ tech.fullName }} · {{ tech.jobTitle }}</option>
+          }
+        </select>
+      </app-field>
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" (click)="dialog.set(null)">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn--primary" [disabled]="busy()">{{ 'workOrders.assign' | translate }}</button>
+      </div>
+    </form>
+  </app-dialog>
+
+  <app-dialog [heading]="'workOrders.usePartTitle' | translate" [open]="dialog() === 'part'" (closed)="dialog.set(null)">
+    <form class="form-grid" [formGroup]="partForm" (ngSubmit)="usePart()" novalidate>
+      <app-field for="part-id" [label]="'inventory.part' | translate" [floating]="true">
+        <select id="part-id" appFieldInput formControlName="partId">
+          <option value="" disabled>{{ 'workOrders.pickPart' | translate }}</option>
+          @for (part of availableParts(); track part.id) {
+            <option [value]="part.id">{{ part.sku }} · {{ part.name }} ({{ part.stock }})</option>
+          }
+        </select>
+      </app-field>
+      <app-field for="part-qty" [label]="'inventory.quantity' | translate"
+        [hint]="partForm.controls.partId.value ? ('workOrders.inStock' | translate: { count: maxFor(partForm.controls.partId.value) }) : null">
+        <input id="part-qty" appFieldInput type="number" min="1" [attr.max]="maxFor(partForm.controls.partId.value) || null" step="1" formControlName="quantity" inputmode="numeric" />
+      </app-field>
+      @if (stockShort()) {
+        <p class="field__error">{{ 'workOrders.notEnoughStock' | translate }}</p>
+      }
+      <p class="muted small">{{ 'workOrders.partHint' | translate }}</p>
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" (click)="dialog.set(null)">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn--primary" [disabled]="busy()">{{ 'workOrders.registerPart' | translate }}</button>
+      </div>
+    </form>
+  </app-dialog>
+
+  <app-dialog [heading]="'workOrders.closeTitle' | translate: { code: order.code }" [open]="dialog() === 'close'" (closed)="dialog.set(null)">
+    <form class="form-grid" [formGroup]="closeForm" (ngSubmit)="close()" novalidate>
+      <app-field for="close-solution" [label]="'workOrders.solution' | translate" [hint]="'workOrders.solutionHint' | translate">
+        <textarea id="close-solution" appFieldInput formControlName="solution" rows="4"></textarea>
+      </app-field>
+      <p class="muted small">{{ 'workOrders.closeHint' | translate }}</p>
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" (click)="dialog.set(null)">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn--success" [disabled]="busy()">{{ 'workOrders.confirmClose' | translate }}</button>
+      </div>
+    </form>
+  </app-dialog>
+} @else {
+  <app-page-header [heading]="'workOrders.notFound' | translate" backLink="/work-orders" />
+}

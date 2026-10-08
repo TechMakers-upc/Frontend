@@ -1,0 +1,23 @@
+
+:host { display: block; min-width: 0; }
+.results { margin-top: 22px; }
+.figma-assets { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 28px 26px; align-items: start; }
+.figma-asset { display: block; min-height: 183px; min-width: 0; padding: 19px 23px; border: 1px solid #cbd0d6; border-radius: 12px; background: #fff; color: #15171b; font-weight: 400; text-decoration: none; transition: border-color .15s,box-shadow .15s; }
+.figma-asset:hover, .figma-asset:focus-visible { color: #15171b; text-decoration: none; border-color: #0369a1; box-shadow: 0 6px 16px rgb(15 23 42 / .09); }
+.figma-asset__top { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 7px; }
+.figma-asset__code { font-size: .85rem; color: #475569; font-weight: 450; }
+.figma-asset__badge { color: #047857; font-size: .79rem; font-weight: 700; text-transform: uppercase; }
+.figma-asset__badge--down { color: #b91c1c; }
+.figma-asset__badge--maintenance { color: #92400e; }
+.figma-asset h2 { margin: 2px 0 17px; font-size: 1.08rem; font-weight: 450; line-height: 1.3; color: #111827; overflow-wrap: anywhere; }
+.figma-asset p { font-size: .84rem; line-height: 1.45; color: #15171b; overflow-wrap: anywhere; }
+.figma-asset p + p:last-child { margin-top: 13px; }
+.figma-asset p strong { font-weight: 450; }
+.figma-asset__critical--high { color: #b91c1c; }
+.figma-extra-filters { margin: 3px 0 9px; }
+.figma-extra-filters summary { display: inline-block; padding: 4px 0; color: #475569; font-size: .79rem; cursor: pointer; }
+.figma-extra-filters .chips { padding: 7px 0 5px; }
+.figma-optional { opacity: .75; }
+@media(min-width: 1024px) { .figma-assets { gap: 28px 25px; } }
+@media(max-width: 1200px) { .figma-assets { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 15px; } }
+@media(max-width: 700px) { .figma-assets { grid-template-columns: 1fr; gap: 12px; } .figma-asset { min-height: 0; padding: 16px 17px; } .figma-asset h2 { margin-bottom: 8px; } }

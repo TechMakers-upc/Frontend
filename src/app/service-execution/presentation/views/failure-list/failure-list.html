@@ -1,0 +1,73 @@
+<app-page-header [heading]="'failures.title' | translate" [subtitle]="'failures.subtitle' | translate">
+  <a class="btn btn--danger" routerLink="/failures/report">
+    <app-icon name="alert" [size]="18" />
+    {{ 'nav.reportFailure' | translate }}
+  </a>
+</app-page-header>
+
+<div class="chips toolbar" role="group" [attr.aria-label]="'failures.view' | translate">
+  <button type="button" class="chip" [attr.aria-pressed]="view() === 'pending'" (click)="view.set('pending')">
+    {{ 'failures.pending' | translate }} <span class="chip__count">{{ pending().length }}</span>
+  </button>
+  <button type="button" class="chip" [attr.aria-pressed]="view() === 'resolved'" (click)="view.set('resolved')">
+    {{ 'failures.resolved' | translate }} <span class="chip__count">{{ resolved().length }}</span>
+  </button>
+</div>
+
+<section class="card">
+  @if (visible().length === 0) {
+    <div class="empty">
+      <app-icon name="check" [size]="32" />
+      <p>{{ (view() === 'pending' ? 'failures.nonePending' : 'failures.none') | translate }}</p>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table class="table mobile-cards">
+        <caption class="visually-hidden">{{ 'failures.title' | translate }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'failures.machine' | translate }}</th>
+            <th scope="col">{{ 'failures.problem' | translate }}</th>
+            <th scope="col">{{ 'failures.reported' | translate }}</th>
+            <th scope="col">{{ 'failures.priority' | translate }}</th>
+            <th scope="col">{{ 'failures.status' | translate }}</th>
+            <th scope="col" class="right">{{ 'failures.downtime' | translate }}</th>
+            <th scope="col"><span class="visually-hidden">{{ 'common.actions' | translate }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (failure of visible(); track failure.id) {
+            <tr>
+              <td [attr.data-label]="'failures.machine' | translate">
+                <a class="cell-main" [routerLink]="['/failures', failure.id]">{{ assetLabel(failure.assetId) }}</a>
+                @if (showPlant()) {
+                  <div class="cell-sub">{{ plantName(failure.plantId) }}</div>
+                }
+              </td>
+              <td [attr.data-label]="'failures.problem' | translate">
+                {{ 'failureKind.' + failure.kind | translate }}
+                @if (failure.lineStopped) {
+                  <div class="cell-sub stopped">{{ 'failures.lineStopped' | translate }}</div>
+                }
+              </td>
+              <td [attr.data-label]="'failures.reported' | translate">
+                {{ failure.reportedAt | localizedDate: 'datetime' }}
+                <div class="cell-sub">{{ directory.find(failure.reportedBy)?.fullName }}</div>
+              </td>
+              <td [attr.data-label]="'failures.priority' | translate"><app-priority-select [failure]="failure" /></td>
+              <td [attr.data-label]="'failures.status' | translate"><app-status-badge [label]="'failureStatus.' + failure.status | translate" [tone]="statusTone[failure.status]" /></td>
+              <td [attr.data-label]="'failures.downtime' | translate" class="right num">{{ failure.downtimeHours() | hours }}</td>
+              <td [attr.data-label]="'common.actions' | translate" class="right">
+                @if (failure.needsWorkOrder) {
+                  <a class="btn btn--primary btn--sm" routerLink="/work-orders/new" [queryParams]="{ failureId: failure.id }">{{ 'failures.createOrder' | translate }}</a>
+                } @else if (failure.workOrderId) {
+                  <a class="btn btn--ghost btn--sm" [routerLink]="['/work-orders', failure.workOrderId]">{{ 'failures.viewOrder' | translate }}</a>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

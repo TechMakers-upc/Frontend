@@ -1,0 +1,15 @@
+<span
+  class="strip"
+  [class.strip--lg]="size() === 'lg'"
+  role="img"
+  [attr.aria-label]="(label() ? label() + '. ' : '') + ('board.summary.' + kind() | translate: counts())"
+>
+  @for (cell of cells(); track cell.date; let last = $last) {
+    <span
+      class="day"
+      [class]="'day day--' + cell.state"
+      [class.day--today]="last"
+      [attr.title]="(cell.date | localizedDate: 'short') + ' · ' + ('board.state.' + kind() + '.' + cell.state | translate)"
+    ></span>
+  }
+</span>

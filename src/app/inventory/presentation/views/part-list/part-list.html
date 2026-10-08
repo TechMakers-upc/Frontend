@@ -1,0 +1,74 @@
+<app-page-header [heading]="'inventory.title' | translate" [subtitle]="'inventory.subtitle' | translate: { count: inventory.inScope().length }">
+  @if (canManage()) {
+    <a class="btn btn--primary" routerLink="/inventory/new">
+      <app-icon name="plus" [size]="18" />
+      {{ 'inventory.register' | translate }}
+    </a>
+  }
+</app-page-header>
+
+<div class="toolbar">
+  <label class="search">
+    <span class="visually-hidden">{{ 'inventory.search' | translate }}</span>
+    <app-icon name="search" [size]="18" />
+    <input type="search" [placeholder]="'inventory.search' | translate" (input)="query.set($any($event.target).value)" />
+  </label>
+
+</div>
+<details class="figma-inventory-options"><summary>{{ 'inventory.category' | translate }} / {{ 'inventory.lowOnly' | translate }}</summary><div class="toolbar">  <label>
+    <span class="visually-hidden">{{ 'inventory.category' | translate }}</span>
+    <select class="select-inline" (change)="category.set($any($event.target).value)">
+      <option value="">{{ 'inventory.allCategories' | translate }}</option>
+      @for (c of categories; track c) {
+        <option [value]="c">{{ 'partCategory.' + c | translate }}</option>
+      }
+    </select>
+  </label>
+  <button type="button" class="chip" [attr.aria-pressed]="!!low()" (click)="toggleLow()">
+    <app-icon name="alert" [size]="16" />
+    {{ 'inventory.lowOnly' | translate }}
+    <span class="chip__count">{{ inventory.belowMinimum().length }}</span>
+  </button></div></details>
+
+<section class="card table-wrap">
+  @if (visible().length === 0) {
+    <div class="empty">
+      <app-icon name="box" [size]="32" />
+      <p>{{ 'inventory.empty' | translate }}</p>
+    </div>
+  } @else {
+    <table class="table mobile-cards">
+      <caption class="visually-hidden">{{ 'inventory.title' | translate }}</caption>
+      <thead>
+      <tr>
+        <th scope="col">SKU</th>
+        <th scope="col">{{ 'inventory.part' | translate }}</th>
+        <th scope="col">{{ 'inventory.location' | translate }}</th>
+        <th scope="col" class="right">{{ 'inventory.stock' | translate }}</th>
+        <th scope="col" class="right">{{ 'inventory.min' | translate }}</th>
+        <th scope="col">{{ 'inventory.level' | translate }}</th>
+      </tr>
+      </thead>
+      <tbody>
+        @for (part of visible(); track part.id) {
+          <tr>
+            <td data-label="SKU"><a class="code" [routerLink]="['/inventory', part.id]">{{ part.sku }}</a></td>
+            <td [attr.data-label]="'inventory.part' | translate">
+              <span class="cell-main">{{ part.name }}</span>
+              <div class="cell-sub">
+                {{ 'partCategory.' + part.category | translate }}
+                @if (showPlant()) {
+                  · {{ plantStore.find(part.plantId)?.displayName }}
+                }
+              </div>
+            </td>
+            <td [attr.data-label]="'inventory.location' | translate">{{ part.location }}</td>
+            <td [attr.data-label]="'inventory.stock' | translate" class="right num cell-main"><span class="stock-amount">{{ part.stock }} <span class="cell-sub">{{ 'unit.' + part.unit | translate }}</span></span></td>
+            <td [attr.data-label]="'inventory.min' | translate" class="right num">{{ part.minStock }}</td>
+            <td [attr.data-label]="'inventory.level' | translate"><app-status-badge [label]="'stockLevel.' + part.level | translate" [tone]="levelTone[part.level]" /></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

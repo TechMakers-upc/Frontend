@@ -1,0 +1,168 @@
+:host {
+  display: block;
+}
+
+/* FIXCORE RESPONSIVE SPRINT 2 */
+:host { display: block; min-width: 0; }
+@media (max-width: 700px) { .board-head h1 { overflow-wrap: anywhere; } .meeting__cell { min-width: 0; } }
+
+.figma-dashboard {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 0 36px;
+}
+.figma-dashboard__welcome { margin: 0 0 30px; }
+.figma-dashboard__welcome h1 { color: #101828; font-size: clamp(1.65rem, 2.3vw, 2.25rem); font-weight: 750; line-height: 1.25; letter-spacing: -.025em; }
+.figma-dashboard__plant { color: #667085; margin-top: 6px; font-size: .92rem; }
+.figma-overall {
+  min-height: 190px;
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  padding: 24px 40px;
+  color: #fff;
+  background: #ba1c1f;
+  border-radius: 12px;
+}
+.figma-overall__score { display: grid; place-items: center; flex: 0 0 140px; height: 140px; border-radius: 50%; background: #ef4444; }
+.figma-overall__score .num { font: 700 2.3rem/1 var(--font-display); color: #fff; }
+.figma-overall__score small { font-size: .65em; }
+.figma-overall__body { flex: 1; min-width: 0; }
+.figma-overall h2 { color: #fff; font-size: 1.35rem; font-weight: 700; margin-bottom: 17px; }
+.figma-overall__facts { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px 24px; }
+.figma-overall__facts p { color: #fff; font-size: 1rem; line-height: 1.45; }
+.figma-overall__facts strong { font-weight: 750; }
+.figma-dashboard__highlights { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; margin-top: 20px; }
+.figma-highlight {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr auto;
+  column-gap: 13px;
+  align-items: center;
+  min-height: 88px;
+  padding: 12px 22px;
+  background: #1e293b;
+  border-radius: 11px;
+  color: #fff;
+  font-weight: 400;
+  transition: background-color .18s, transform .18s;
+}
+.figma-highlight:hover, .figma-shortcut:hover { background: #263e56; color: #fff; text-decoration: none; transform: translateY(-2px); }
+.figma-highlight app-icon { grid-row: 1 / 3; color: #38bdf8; }
+.figma-highlight__count { font: 700 1.85rem/1 var(--font-display); }
+.figma-highlight__label { color: #38bdf8; font-size: .83rem; line-height: 1.2; }
+.figma-shortcuts { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 10px; margin-top: 20px; }
+.figma-shortcut {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  min-height: 136px;
+  padding: 14px;
+  border-radius: 11px;
+  background: #1e293b;
+  color: #38bdf8;
+  text-align: center;
+  font-size: .96rem;
+  font-weight: 500;
+  transition: background-color .18s, transform .18s;
+}
+.figma-shortcut span { color: #38bdf8; }
+.figma-shortcut app-icon { color: #38bdf8; }
+.figma-indicators { margin-top: 64px; }
+.figma-indicators h2 { font-size: 1.3rem; margin: 0 0 28px; color: #101828; }
+.figma-indicators__grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 14px; }
+.figma-indicator {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-width: 0;
+  min-height: 170px;
+  padding: 18px;
+  border: 1px solid #d0d5dd;
+  border-radius: 12px;
+  background: #fff;
+  color: #101828;
+  font-weight: 400;
+  transition: box-shadow .18s, border-color .18s;
+}
+.figma-indicator:hover { border-color: #38bdf8; box-shadow: 0 6px 18px rgb(15 23 42 / .08); color: #101828; text-decoration: none; }
+.figma-indicator__heading { display: flex; align-items: center; gap: 9px; min-height: 26px; font-size: .84rem; color: #475569; }
+.figma-indicator__heading app-icon { flex: none; }
+.figma-indicator__number { font: 750 1.9rem/1.1 var(--font-display); }
+.figma-indicator small { font-size: .8rem; line-height: 1.35; color: #475569; }
+.figma-extra { margin: 58px 0 0; border-top: 1px solid #d0d5dd; }
+.figma-extra > summary { list-style-position: inside; cursor: pointer; min-height: 48px; padding: 16px 3px; font-weight: 650; color: #0369a1; }
+.figma-extra__board { min-width: 0; }
+.figma-extra .board-grid { margin-top: 18px; }
+@media (max-width: 1090px) {
+  .figma-overall { padding: 24px; gap: 20px; }
+  .figma-overall__score { flex-basis: 118px; height: 118px; }
+  .figma-indicators__grid { gap: 10px; }
+  .figma-indicator { padding: 15px 12px; }
+}
+@media (max-width: 760px) {
+  .figma-dashboard { max-width: 550px; }
+  .figma-dashboard__welcome { margin-bottom: 22px; }
+  .figma-dashboard__welcome h1 { font-size: 1.85rem; }
+  .figma-overall { flex-direction: column; text-align: center; gap: 14px; padding: 22px 18px; }
+  .figma-overall__score { flex: none; width: 116px; height: 116px; }
+  .figma-overall__body { width: 100%; }
+  .figma-overall h2 { font-size: 1.1rem; }
+  .figma-overall__facts { text-align: left; gap: 10px; }
+  .figma-overall__facts p { font-size: .85rem; }
+  .figma-dashboard__highlights { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; margin-top: 12px; }
+  .figma-highlight { grid-template-columns: 1fr; grid-template-rows: 34px auto auto; text-align: center; justify-items: center; gap: 5px; min-height: 105px; padding: 12px 6px; border-radius: 9px; }
+  .figma-highlight app-icon { grid-row: auto; }
+  .figma-highlight__count { font-size: 1.5rem; }
+  .figma-highlight__label { font-size: .68rem; }
+  .figma-shortcuts { gap: 8px; margin-top: 14px; grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .figma-shortcut { min-height: 120px; gap: 7px; padding: 12px 8px; font-size: .84rem; }
+  .figma-indicators { margin-top: 30px; }
+  .figma-indicators h2 { margin-bottom: 14px; font-size: 1.15rem; }
+  .figma-indicators__grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .figma-indicator { min-height: 145px; }
+  .figma-indicator__heading { font-size: .76rem; }
+  .figma-indicator__heading app-icon { width: 19px; height: 19px; }
+  .figma-indicator__number { font-size: 1.5rem; }
+  .figma-extra { margin-top: 35px; }
+}
+@media (max-width: 355px) {
+  .figma-overall__facts { grid-template-columns: 1fr; }
+  .figma-shortcut { min-height: 108px; }
+}
+
+@media (min-width: 1024px) {
+  .figma-dashboard { max-width: 1030px; margin: 0 auto; }
+  .figma-dashboard__welcome { margin-bottom: 26px; }
+  .figma-dashboard__welcome h1 { font-size: 1.7rem; }
+  .figma-dashboard__plant { display: none; }
+  .figma-overall { min-height: 190px; padding: 24px 30px; background: #ba191b; border-radius: 9px; }
+  .figma-overall__score { flex-basis: 145px; height: 145px; }
+  .figma-overall__facts { max-width: 670px; }
+  .figma-dashboard__highlights { margin-top: 18px; gap: 10px; }
+  .figma-shortcuts { margin-top: 18px; gap: 10px; }
+  .figma-indicators { margin-top: 58px; }
+}
+
+/* Auditoría integral: tres indicadores legibles en teléfonos de 360 a 480 px. */
+@media (max-width: 520px) {
+  .figma-dashboard__highlights {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+  .figma-highlight { min-height: 102px; padding: 12px 10px; }
+  .figma-highlight__label { font-size: .82rem; line-height: 1.3; }
+  .figma-highlight__count { font-size: 1.6rem; }
+  .figma-highlight:last-child {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 67px;
+  }
+  .figma-highlight:last-child .figma-highlight__label { max-width: 180px; text-align: left; }
+}

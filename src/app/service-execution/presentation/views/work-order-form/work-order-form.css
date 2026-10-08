@@ -1,0 +1,12 @@
+
+
+/* FIXCORE RESPONSIVE SPRINT 2 */
+:host { display: block; min-width: 0; }
+@media (max-width: 700px) { .form-card { width: 100%; } }
+
+@media (min-width: 1024px) {
+  :host { display: block; max-width: 1030px; margin: 0 auto; }
+  .form-card { max-width: 940px; margin: 0 auto; border: 1px solid #e1e5ea; padding: 20px 26px; border-radius: 7px; }
+  .form-card .form-grid { column-gap: 13px; row-gap: 10px; }
+  .form-card .form-actions { padding-top: 15px; }
+}

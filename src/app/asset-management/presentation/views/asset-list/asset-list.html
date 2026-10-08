@@ -1,0 +1,74 @@
+<app-page-header
+  [heading]="'assets.title' | translate"
+  [subtitle]="'assets.subtitle' | translate: { count: assetStore.inScope().length }"
+>
+  @if (canPrintLabels()) {
+    <a class="btn btn--ghost figma-optional" routerLink="/assets/labels">
+      <app-icon name="qr" [size]="18" />
+      {{ 'assets.qr.open' | translate }}
+    </a>
+  }
+  @if (canManage()) {
+    <a class="btn btn--primary" routerLink="/assets/new">
+      <app-icon name="plus" [size]="18" />
+      {{ 'assets.register' | translate }}
+    </a>
+  }
+</app-page-header>
+
+<div class="toolbar">
+  <label class="search">
+    <span class="visually-hidden">{{ 'assets.search' | translate }}</span>
+    <app-icon name="search" [size]="18" />
+    <input type="search" [placeholder]="'assets.search' | translate" (input)="onSearch($event)" />
+  </label>
+  <label>
+    <span class="visually-hidden">{{ 'assets.criticality' | translate }}</span>
+    <select class="select-inline" (change)="onCriticality($event)">
+      <option value="">{{ 'assets.allCriticalities' | translate }}</option>
+      @for (level of criticalities; track level) {
+        <option [value]="level">{{ 'criticality.' + level | translate }}</option>
+      }
+    </select>
+  </label>
+</div>
+
+<details class="figma-extra-filters"><summary>{{ 'assets.filterStatus' | translate }}</summary><div class="chips" role="group" [attr.aria-label]="'assets.filterStatus' | translate">
+  <button type="button" class="chip" [attr.aria-pressed]="!status()" (click)="filterStatus(null)">
+    {{ 'common.all' | translate }}
+    <span class="chip__count">{{ assetStore.inScope().length }}</span>
+  </button>
+  @for (value of statuses; track value) {
+    <button type="button" class="chip" [attr.aria-pressed]="status() === value" (click)="filterStatus(value)">
+      {{ 'assetStatus.' + value | translate }}
+      <span class="chip__count">{{ counts()[value] }}</span>
+    </button>
+  }
+</div></details>
+
+@if (assetStore.state() === 'loading') {
+  <div class="panel results"><div class="panel__body"><div class="skeleton" style="height: 240px"></div></div></div>
+} @else if (visible().length === 0) {
+  <div class="panel empty results">
+    <app-icon name="machine" [size]="32" />
+    <p>{{ 'assets.empty' | translate }}</p>
+  </div>
+} @else {
+  <section class="figma-assets results" [attr.aria-label]="'assets.title' | translate">
+    @for (row of rows(); track row.asset.id) {
+      <a class="figma-asset" [routerLink]="['/assets', row.asset.id]">
+        <div class="figma-asset__top">
+          <span class="figma-asset__code code">{{ row.asset.code }}</span>
+          <span class="figma-asset__badge" [class.figma-asset__badge--down]="row.asset.status === 'down'" [class.figma-asset__badge--maintenance]="row.asset.status === 'maintenance'">{{ 'assetStatus.' + row.asset.status | translate }}</span>
+        </div>
+        <h2>{{ row.asset.name }}</h2>
+        <p><strong>{{ 'figma.category' | translate }}:</strong> {{ 'assetCategory.' + row.asset.category | translate }}</p>
+        <p><strong>{{ 'figma.location' | translate }}:</strong> {{ row.asset.location }}</p>
+        <p><strong>{{ 'figma.criticality' | translate }}:</strong>&nbsp;<span [class.figma-asset__critical--high]="row.asset.criticality === 'high'">{{ 'criticality.' + row.asset.criticality | translate }}</span></p>
+        @if (showPlant()) {
+          <p><strong>{{ 'figma.plant' | translate }}:</strong> {{ plantStore.find(row.asset.plantId)?.displayName }}</p>
+        }
+      </a>
+    }
+  </section>
+}

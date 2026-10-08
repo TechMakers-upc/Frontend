@@ -1,0 +1,18 @@
+
+
+/* FIXCORE RESPONSIVE SPRINT 2 */
+:host { display: block; min-width: 0; }
+@media (max-width: 700px) { .mobile-cards td .cell-main { overflow-wrap: anywhere; } }
+
+:host { display: block; }
+.figma-inventory-options { margin: -8px 0 14px; }
+.figma-inventory-options summary { font-size: .8rem; color: #475569; cursor: pointer; padding: 4px 0; }
+.figma-inventory-options .toolbar { margin: 8px 0 0; }
+@media(min-width: 1024px) { :host > .toolbar .search { flex: 0 1 320px; max-width: 320px; } }
+
+/* Auditoría integral: número y unidad se presentan juntos. */
+.stock-amount { display: inline-flex; flex-wrap: nowrap; align-items: baseline; gap: 4px; white-space: nowrap; }
+.stock-amount .cell-sub { display: inline; white-space: nowrap; }
+@media (max-width: 700px) {
+  .mobile-cards td:has(.stock-amount) { align-items: baseline; }
+}

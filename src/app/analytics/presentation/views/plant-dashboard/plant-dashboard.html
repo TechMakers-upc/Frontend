@@ -1,0 +1,198 @@
+<section class="figma-dashboard" aria-labelledby="figma-dashboard-title">
+  <header class="figma-dashboard__welcome">
+    <div>
+      <h1 id="figma-dashboard-title">{{ 'figma.welcome' | translate: { name: demoName() } }}</h1>
+      <p class="figma-dashboard__plant">{{ plant()?.displayName ?? ('nav.dashboard' | translate) }}</p>
+    </div>
+  </header>
+
+  <section class="figma-overall" aria-labelledby="figma-overall-title">
+    <div class="figma-overall__score">
+      <span class="num">{{ percent(summary().availability) }}<small>%</small></span>
+    </div>
+    <div class="figma-overall__body">
+      <h2 id="figma-overall-title">{{ 'figma.overall' | translate }}</h2>
+      <div class="figma-overall__facts">
+        <p>{{ 'figma.downMachines' | translate }}: <strong>{{ summary().down }}</strong></p>
+        <p>{{ 'figma.criticalFailures' | translate }}: <strong>{{ criticalFailures() }}</strong></p>
+        <p>{{ 'figma.registeredMachines' | translate }}: <strong>{{ summary().assets }}</strong></p>
+        <p>{{ 'figma.inMaintenance' | translate }}: <strong>{{ summary().inMaintenance }}</strong></p>
+      </div>
+    </div>
+  </section>
+
+  <div class="figma-dashboard__highlights">
+    <a class="figma-highlight" routerLink="/assets" [queryParams]="{ status: 'down' }">
+      <app-icon name="alert" [size]="34" />
+      <span class="figma-highlight__count num">{{ summary().down }}</span>
+      <span class="figma-highlight__label">{{ 'figma.down' | translate }}</span>
+    </a>
+    <a class="figma-highlight" routerLink="/work-orders" [queryParams]="{ status: 'open' }">
+      <app-icon name="clipboard" [size]="34" />
+      <span class="figma-highlight__count num">{{ summary().openOrders }}</span>
+      <span class="figma-highlight__label">{{ 'figma.openOrders' | translate }}</span>
+    </a>
+    <a class="figma-highlight" routerLink="/maintenance">
+      <app-icon name="calendar" [size]="34" />
+      <span class="figma-highlight__count num">{{ maintenanceThisWeek() }}</span>
+      <span class="figma-highlight__label">{{ 'figma.maintenanceWeek' | translate }}</span>
+    </a>
+  </div>
+
+  <nav class="figma-shortcuts" [attr.aria-label]="'figma.shortcuts' | translate">
+    <a class="figma-shortcut" routerLink="/work-orders">
+      <app-icon name="clipboard" [size]="52" />
+      <span>{{ 'figma.viewOrders' | translate }}</span>
+    </a>
+    <a class="figma-shortcut" routerLink="/assets">
+      <app-icon name="machine" [size]="52" />
+      <span>{{ 'figma.machines' | translate }}</span>
+    </a>
+    <a class="figma-shortcut" routerLink="/work-orders/new">
+      <app-icon name="plus" [size]="52" />
+      <span>{{ 'figma.newOrder' | translate }}</span>
+    </a>
+    <a class="figma-shortcut" routerLink="/inventory">
+      <app-icon name="box" [size]="52" />
+      <span>{{ 'figma.spareParts' | translate }}</span>
+    </a>
+  </nav>
+
+  <section class="figma-indicators" aria-labelledby="figma-indicators-title">
+    <h2 id="figma-indicators-title">{{ 'figma.indicators' | translate }}</h2>
+    <div class="figma-indicators__grid">
+      <a class="figma-indicator" routerLink="/reports">
+        <div class="figma-indicator__heading"><app-icon name="clock" [size]="24" /><span>{{ 'kpi.downtime' | translate }}</span></div>
+        <strong class="figma-indicator__number num">{{ summary().downtimeHours | hours }}</strong>
+        <small>{{ 'kpi.downtimeHint' | translate }}</small>
+      </a>
+      <a class="figma-indicator" routerLink="/reports">
+        <div class="figma-indicator__heading"><app-icon name="wrench" [size]="24" /><span>{{ 'kpi.mttr' | translate }}</span></div>
+        <strong class="figma-indicator__number num">{{ summary().mttrHours | hours }}</strong>
+        <small>{{ 'kpi.mttrHint' | translate }}</small>
+      </a>
+      <a class="figma-indicator" routerLink="/maintenance">
+        <div class="figma-indicator__heading"><app-icon name="calendar" [size]="24" /><span>{{ 'kpi.compliance' | translate }}</span></div>
+        <strong class="figma-indicator__number num">{{ summary().compliance === null ? '—' : summary().compliance + '%' }}</strong>
+        <small>{{ 'figma.overdue' | translate }}: {{ summary().overduePlans }}</small>
+      </a>
+      <a class="figma-indicator" routerLink="/inventory" [queryParams]="{ low: 1 }">
+        <div class="figma-indicator__heading"><app-icon name="box" [size]="24" /><span>{{ 'figma.criticalStock' | translate }}</span></div>
+        <strong class="figma-indicator__number num">{{ summary().lowStock }}</strong>
+        <small>{{ 'kpi.criticalStockHint' | translate }}</small>
+      </a>
+    </div>
+  </section>
+
+  <details class="figma-extra">
+    <summary>{{ 'figma.operationalDetail' | translate }}</summary>
+    <app-board-legend />
+    <div class="figma-extra__board">
+<div class="board-grid">
+  <section class="panel queue" aria-labelledby="queue-title">
+    <header class="panel__head">
+      <h2 id="queue-title">{{ 'board.queue.title' | translate }}</h2>
+      @if (decisions().length > 0) {
+        <span class="panel__count num">{{ decisions().length }}</span>
+      }
+    </header>
+
+    @if (loading()) {
+      <div class="panel__body"><div class="skeleton" style="height: 180px"></div></div>
+    } @else {
+      <ol class="queue__list">
+        @for (item of visibleDecisions(); track item.key; let first = $first) {
+          <li class="queue__item" [class]="'queue__item queue__item--' + item.tone">
+            <span class="queue__state" aria-hidden="true"><app-icon [name]="item.icon" [size]="20" /></span>
+            <span class="queue__text">
+              <span class="queue__title"><span class="code">{{ item.code }}</span> {{ item.name }}</span>
+              <span class="queue__reason">{{ item.reasonKey | translate: item.reasonParams }}</span>
+            </span>
+            <a
+              class="btn btn--sm"
+              [class]="first ? (item.tone === 'down' ? 'btn btn--sm btn--danger' : 'btn btn--sm btn--primary') : 'btn btn--sm btn--ghost'"
+              [routerLink]="item.link"
+              [queryParams]="item.query"
+            >
+              {{ item.actionKey | translate }}
+              <span class="visually-hidden">: {{ item.code }}</span>
+            </a>
+          </li>
+        } @empty {
+          <li class="queue__empty">
+            <app-icon name="check" [size]="22" />
+            {{ 'board.queue.empty' | translate }}
+          </li>
+        }
+      </ol>
+      @if (decisions().length > visibleDecisions().length) {
+        <a class="panel__more" routerLink="/failures">{{ 'board.queue.more' | translate: { count: decisions().length - visibleDecisions().length } }}</a>
+      }
+    }
+
+    <h3 class="agenda__title">{{ 'dashboard.maintenanceWeek' | translate }}</h3>
+    <ul class="agenda">
+      @for (plan of agenda(); track plan.id) {
+        <li>
+          <a class="agenda__row" routerLink="/maintenance">
+            <span class="agenda__date num">{{ plan.nextDueDate | localizedDate: 'short' }}</span>
+            <span class="agenda__text"><span class="code">{{ assetCode(plan.assetId) }}</span> {{ plan.title }}</span>
+          </a>
+        </li>
+      } @empty {
+        <li class="agenda__empty">{{ 'dashboard.noMaintenance' | translate }}</li>
+      }
+    </ul>
+  </section>
+
+  <section class="panel matrix" aria-labelledby="matrix-title">
+    <header class="panel__head">
+      <h2 id="matrix-title">{{ 'board.matrix.title' | translate }}</h2>
+      <a class="panel__link" routerLink="/assets">{{ 'common.viewAll' | translate }}</a>
+    </header>
+
+    <div class="matrix__head" aria-hidden="true">
+      <span></span>
+      <span class="matrix__days">
+        @for (day of dayHeads(); track day.date; let last = $last) {
+          <span [class.matrix__today]="last">{{ day.letter }}</span>
+        }
+      </span>
+    </div>
+
+    @if (loading()) {
+      <div class="panel__body"><div class="skeleton" style="height: 240px"></div></div>
+    } @else {
+      <ul class="matrix__rows">
+        @for (row of machines(); track row.asset.id) {
+          <li>
+            <a class="matrix__row" [routerLink]="['/assets', row.asset.id]">
+              <span class="matrix__name">
+                <span class="matrix__state" [class]="'matrix__state matrix__state--' + row.asset.status">
+                  <span class="code">{{ row.asset.code }}</span>
+                </span>
+                <span class="matrix__text">
+                  <span class="matrix__asset">{{ row.asset.name }}</span>
+                  <span class="matrix__status" [class.matrix__status--down]="row.asset.status === 'down'">
+                    @if (row.asset.status === 'down') {
+                      {{ 'board.matrix.downFor' | translate: { hours: (row.stoppedHours | hours) } }}
+                    } @else {
+                      {{ 'assetStatus.' + row.asset.status | translate }}
+                    }
+                  </span>
+                </span>
+              </span>
+              <app-day-strip [cells]="row.cells" [label]="row.asset.code" />
+            </a>
+          </li>
+        } @empty {
+          <li class="queue__empty">{{ 'assets.empty' | translate }}</li>
+        }
+      </ul>
+    }
+  </section>
+</div>
+
+    </div>
+  </details>
+</section>

@@ -42,3 +42,7 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Copias de seguridad y registros locales de auditoría
+*.bak
+errores-build.txt

@@ -1,0 +1,27 @@
+<app-page-header
+  [heading]="(editing() ? 'plants.editTitle' : 'plants.newTitle') | translate"
+  [subtitle]="'plants.formHint' | translate"
+  [backLink]="isOwnPlant() ? null : '/plants'"
+/>
+
+<form class="card form-card" [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <div class="form-grid form-grid--two">
+    <app-field class="form-grid__full" for="plant-name" [label]="'fields.plantName' | translate">
+      <input id="plant-name" appFieldInput formControlName="name" />
+    </app-field>
+    <app-field for="plant-city" [label]="'fields.city' | translate">
+      <input id="plant-city" appFieldInput formControlName="city" autocomplete="address-level2" />
+    </app-field>
+    <app-field for="plant-address" [label]="'fields.address' | translate">
+      <input id="plant-address" appFieldInput formControlName="address" autocomplete="street-address" />
+    </app-field>
+  </div>
+  <div class="form-actions">
+    <button type="submit" class="btn btn--primary" [disabled]="saving() || (isOwnPlant() && !plantDataReady()) || (editing() && form.pristine)">
+      @if (saving()) {
+        <span class="spinner" aria-hidden="true"></span>
+      }
+      {{ (editing() ? 'common.saveChanges' : 'plants.register') | translate }}
+    </button>
+  </div>
+</form>

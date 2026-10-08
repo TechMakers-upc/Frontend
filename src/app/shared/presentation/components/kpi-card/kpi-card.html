@@ -1,0 +1,19 @@
+@if (link()) {
+  <a class="kpi" [class]="'kpi kpi--' + tone()" [routerLink]="link()" [queryParams]="query()">
+    <ng-container *ngTemplateOutlet="body" />
+  </a>
+} @else {
+  <div [class]="'kpi kpi--' + tone()">
+    <ng-container *ngTemplateOutlet="body" />
+  </div>
+}
+<ng-template #body>
+  <span class="kpi__head">
+    <span class="kpi__icon"><app-icon [name]="icon()" [size]="18" /></span>
+    <span class="kpi__label">{{ label() }}</span>
+  </span>
+  <span class="kpi__value num">{{ value() }}</span>
+  @if (hint()) {
+    <span class="kpi__hint">{{ hint() }}</span>
+  }
+</ng-template>

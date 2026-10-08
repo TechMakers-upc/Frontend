@@ -1,0 +1,43 @@
+<button
+  type="button"
+  class="bell"
+  [attr.aria-expanded]="open()"
+  aria-controls="alert-panel"
+  [attr.aria-label]="'alerts.button' | translate: { count: center.unseenCount() }"
+  (click)="toggle()"
+>
+  <app-icon name="bell" [size]="22" />
+  @if (center.unseenCount() > 0) {
+    <span class="bell__count num" aria-hidden="true">{{ center.unseenCount() > 9 ? '9+' : center.unseenCount() }}</span>
+  }
+</button>
+
+@if (open()) {
+  <section id="alert-panel" class="panel" [attr.aria-label]="'alerts.title' | translate">
+    <header class="panel__header">
+      <h2>{{ 'alerts.title' | translate }}</h2>
+      <span class="muted">{{ center.alerts().length }}</span>
+    </header>
+    @if (center.alerts().length === 0) {
+      <p class="empty">{{ 'alerts.empty' | translate }}</p>
+    } @else {
+      <ul class="list panel__list">
+        @for (alert of center.alerts(); track alert.id) {
+          <li>
+            <a class="list-row" [routerLink]="alert.link" (click)="open.set(false)">
+              <span class="dot" [class]="'dot dot--' + alert.severity">
+                <app-icon [name]="icons[alert.kind]" [size]="16" />
+              </span>
+              <span class="list-row__main">
+                <span class="panel__text">{{ 'alerts.' + alert.kind | translate: alert.params }}</span>
+              </span>
+              @if (!center.isSeen(alert.id)) {
+                <span class="new">{{ 'alerts.new' | translate }}</span>
+              }
+            </a>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+}

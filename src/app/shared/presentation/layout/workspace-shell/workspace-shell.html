@@ -1,0 +1,145 @@
+@if (account(); as user) {
+  <a class="skip-link" href="#main">{{ 'nav.skip' | translate }}</a>
+
+  <div class="shell">
+    <aside class="sidebar" [class.sidebar--open]="menuOpen()">
+      <div class="sidebar__brand">
+        <app-brand-mark [size]="26" />
+        <span class="wordmark">FIX<span>CORE</span></span>
+        <button type="button" class="sidebar__close icon-btn" [attr.aria-label]="'common.close' | translate" (click)="menuOpen.set(false)">
+          <app-icon name="close" />
+        </button>
+      </div>
+
+      <nav class="sidebar__nav" [attr.aria-label]="'nav.main' | translate">
+        @for (section of groups(); track section.labelKey) {
+          <div class="nav-group">
+            @if (groups().length > 1) {
+              <h2 class="nav-group__label">{{ section.labelKey | translate }}</h2>
+            }
+            @for (entry of section.items; track entry.path) {
+              <a class="nav-link" [routerLink]="entry.path" routerLinkActive="nav-link--active" ariaCurrentWhenActive="page">
+                <app-icon [name]="entry.icon" />
+                <span class="nav-link__label">{{ entry.labelKey | translate }}</span>
+                @if (entry.count && counts()[entry.count] > 0) {
+                  <span
+                    class="nav-link__count num"
+                    [class.nav-link__count--alarm]="alarming.has(entry.count)"
+                    [attr.aria-label]="'nav.counts.' + entry.count | translate: { count: counts()[entry.count] }"
+                  >{{ counts()[entry.count] }}</span>
+                }
+              </a>
+            }
+          </div>
+        }
+      </nav>
+
+      @if (isTechnician()) {
+        <a class="sidebar__report" routerLink="/failures/report">
+          <app-icon name="alert" />
+          {{ 'nav.reportFailure' | translate }}
+        </a>
+      }
+
+      <div class="sidebar__footer">
+        <p class="demo-mark">{{ 'brand.demoData' | translate }}</p>
+        <a class="user" routerLink="/demo">
+          <span class="user__avatar" aria-hidden="true">{{ user.initials }}</span>
+          <span class="user__text">
+            <span class="user__name">{{ user.fullName }}</span>
+            <span class="user__role">{{ 'roles.' + user.role + '.title' | translate }}</span>
+          </span>
+        </a>
+        <button type="button" class="nav-link nav-link--button" (click)="signOut()">
+          <app-icon name="logout" />
+          <span>Cambiar perfil</span>
+        </button>
+      </div>
+    </aside>
+
+    @if (menuOpen()) {
+      <div class="scrim" (click)="menuOpen.set(false)" aria-hidden="true"></div>
+    }
+
+    <div class="main-column">
+      <header class="topbar no-print">
+        <button type="button" class="icon-btn topbar__menu" [attr.aria-label]="'nav.openMenu' | translate" (click)="menuOpen.set(true)">
+          <app-icon name="menu" />
+        </button>
+        <span class="topbar__brand">
+          <app-brand-mark [size]="22" />
+          <span class="wordmark wordmark--dark">FIX<span>CORE</span></span>
+          <span class="topbar__demo" [attr.title]="'brand.demoDataLong' | translate">{{ 'brand.demoShort' | translate }}</span>
+        </span>
+
+        <form class="code-jump" role="search" (submit)="goToCode($event)">
+          <label class="visually-hidden" for="code-jump">{{ 'nav.codeLabel' | translate }}</label>
+          <app-icon name="search" [size]="18" />
+          <input
+            #codeInput
+            id="code-jump"
+            type="search"
+            autocomplete="off"
+            spellcheck="false"
+            [placeholder]="'nav.codePlaceholder' | translate"
+            [attr.aria-keyshortcuts]="'/'"
+          />
+          <kbd aria-hidden="true">/</kbd>
+        </form>
+
+        <div class="topbar__context">
+          @if (scope.canSwitch()) {
+            <label class="visually-hidden" for="plant-scope">{{ 'nav.plantScope' | translate }}</label>
+            <select id="plant-scope" class="select-inline" [value]="scope.selectedPlantId() ?? ''" (change)="selectPlant($event)">
+              <option value="">{{ 'common.allPlants' | translate }}</option>
+              @for (plant of plantStore.plants(); track plant.id) {
+                <option [value]="plant.id" [selected]="plant.id === scope.selectedPlantId()">{{ plant.displayName }}</option>
+              }
+            </select>
+          } @else if (plantName()) {
+            <span class="topbar__plant">
+              <app-icon name="pin" [size]="16" />
+              {{ plantName() }}
+            </span>
+          }
+        </div>
+
+        <app-alert-bell />
+      </header>
+
+      <main id="main" class="content" tabindex="-1">
+        @if (loadFailed()) {
+          <div class="alert load-error" role="alert">
+            <app-icon name="alert" [size]="18" />
+            <span>{{ 'common.loadError' | translate }}</span>
+            <button type="button" class="alert__action" (click)="reload()">{{ 'common.retry' | translate }}</button>
+          </div>
+        }
+        <router-outlet />
+      </main>
+    </div>
+
+    <nav class="bottom-bar no-print" [attr.aria-label]="'nav.mobile' | translate">
+      @for (entry of mobileNavigation(); track entry.path; let index = $index) {
+        @if (isTechnician() && index === 2 && !inReport()) {
+          <a class="bottom-bar__fab" routerLink="/failures/report" [attr.aria-label]="'nav.reportFailure' | translate">
+            <app-icon name="alert" [size]="24" />
+            <span>{{ 'nav.report' | translate }}</span>
+          </a>
+        }
+        <a class="bottom-bar__link" [routerLink]="entry.path" routerLinkActive="bottom-bar__link--active" ariaCurrentWhenActive="page">
+          <app-icon [name]="entry.icon" [size]="22" />
+          <span>{{ entry.labelKey | translate }}</span>
+        </a>
+      }
+      @if (!isTechnician()) {
+        <button type="button" class="bottom-bar__link" (click)="menuOpen.set(true)">
+          <app-icon name="menu" [size]="22" />
+          <span>{{ 'nav.more' | translate }}</span>
+        </button>
+      }
+    </nav>
+  </div>
+
+  <app-toast-host />
+}

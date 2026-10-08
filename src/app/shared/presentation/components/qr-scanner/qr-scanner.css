@@ -1,0 +1,57 @@
+:host {
+  display: contents;
+}
+
+.scan-btn {
+  width: 100%;
+  min-height: 56px;
+}
+
+.scanner {
+  position: fixed;
+  z-index: 60;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgb(15 23 42 / 0.92);
+}
+
+.scanner__frame {
+  position: relative;
+  display: grid;
+  gap: 16px;
+  width: min(100%, 420px);
+}
+
+.scanner__video {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  background: var(--slate-800);
+}
+
+.scanner__target {
+  position: absolute;
+  top: 18%;
+  left: 18%;
+  width: 64%;
+  aspect-ratio: 1;
+  border: 3px solid var(--core);
+  pointer-events: none;
+}
+
+.scanner__hint,
+.scanner__message {
+  color: var(--white);
+  text-align: center;
+}
+
+.scanner__message {
+  padding: 32px 8px;
+  font-size: 1.0625rem;
+}
+
+.scanner__close {
+  width: 100%;
+}
