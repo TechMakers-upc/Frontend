@@ -9,7 +9,8 @@ import { homeRedirectGuard, signedInGuard } from './shared/presentation/session/
 
 export const routes: Routes = [
   {
-    path: 'demo',
+    path: 'start',
+    title: 'FixCore',
     loadComponent: () =>
       import('./shared/presentation/views/demo-access/demo-access')
         .then((m) => m.DemoAccess),
@@ -34,5 +35,5 @@ export const routes: Routes = [
       ...inventoryRoutes,
     ],
   },
-  { path: '**', redirectTo: 'demo' },
+  { path: '**', redirectTo: 'start' },
 ];
