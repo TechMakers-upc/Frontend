@@ -1,10 +1,11 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
+import {provideRouter, TitleStrategy, withComponentInputBinding} from '@angular/router';
 import { routes } from './app.routes';
 import {provideHttpClient, withInterceptors} from '@angular/common/http';
 import { demoApiInterceptor } from './shared/infrastructure/demo-api.interceptor';
 import {provideTranslateService} from '@ngx-translate/core';
 import {provideTranslateHttpLoader} from '@ngx-translate/http-loader';
+import {TranslatedTitleStrategy} from './shared/infrastructure/translated-title.strategy';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -14,6 +15,10 @@ export const appConfig: ApplicationConfig = {
       loader: provideTranslateHttpLoader({prefix: './i18n/', suffix: '.json'}),
       fallbackLang: 'en'
     }),
-    provideRouter(routes, withComponentInputBinding())
+    provideRouter(routes, withComponentInputBinding()),
+    {
+      provide: TitleStrategy,
+      useClass: TranslatedTitleStrategy
+    }
   ]
 };

@@ -20,10 +20,11 @@ import { BrandMark } from '../../components/brand-mark/brand-mark';
 import { Icon } from '../../components/icon/icon';
 import { ToastHost } from '../../components/toast-host/toast-host';
 import { MOBILE_NAVIGATION, NAVIGATION, NavCount, flatten } from '../navigation';
+import {LanguageSwitcher} from '../../components/language-switcher/language-switcher';
 
 @Component({
   selector: 'app-workspace-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe, BrandMark, Icon, ToastHost, AlertBell],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe, BrandMark, Icon, ToastHost, AlertBell, LanguageSwitcher],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './workspace-shell.html',
   styleUrl: './workspace-shell.css',
