@@ -10,6 +10,7 @@ import { Field, FieldInput } from '../../../../shared/presentation/components/fi
 import { PageHeader } from '../../../../shared/presentation/components/page-header/page-header';
 import { AssetStore } from '../../../application/asset.store';
 import { ASSET_CATEGORIES, AssetCategory, AssetDetails, CRITICALITIES, Criticality } from '../../../domain/model/asset.entity';
+import { installationDateValidator, machineCodeValidator, nonBlankValidator } from '../../validators/form-validators';
 
 @Component({
   selector: 'app-asset-form',
@@ -31,17 +32,19 @@ export class AssetForm {
   protected readonly criticalities = CRITICALITIES;
   protected readonly saving = signal(false);
   protected readonly editing = computed(() => this.assetStore.find(this.id()));
+  protected readonly dataReady = computed(() => this.assetStore.state() === 'ready');
+  protected readonly maxInstalledAt = todayDate();
 
   protected readonly form = inject(FormBuilder).nonNullable.group({
-    code: ['', [Validators.required, Validators.maxLength(20)]],
-    name: ['', [Validators.required, Validators.maxLength(80)]],
+    code: ['', [Validators.required, nonBlankValidator, machineCodeValidator, Validators.maxLength(20)]],
+    name: ['', [Validators.required, nonBlankValidator, Validators.maxLength(80)]],
     category: ['compressor' as AssetCategory, Validators.required],
     criticality: ['medium' as Criticality, Validators.required],
-    location: ['', Validators.required],
-    brand: [''],
-    model: [''],
-    serialNumber: [''],
-    installedAt: [todayDate(), Validators.required],
+    location: ['', [Validators.required, nonBlankValidator, Validators.maxLength(120)]],
+    brand: ['', Validators.maxLength(80)],
+    model: ['', Validators.maxLength(80)],
+    serialNumber: ['', Validators.maxLength(80)],
+    installedAt: [todayDate(), [Validators.required, installationDateValidator]],
     description: ['', Validators.maxLength(600)],
   });
 
@@ -53,11 +56,23 @@ export class AssetForm {
   }
 
   protected async save(): Promise<void> {
+    if (!this.dataReady() || (!!this.id() && !this.editing())) return;
     if (this.form.invalid || this.saving()) {
       this.form.markAllAsTouched();
       return;
     }
-    const details: AssetDetails = this.form.getRawValue();
+    const raw = this.form.getRawValue();
+    const details: AssetDetails = {
+      ...raw,
+      code: raw.code.trim().toUpperCase(),
+      name: raw.name.trim(),
+      location: raw.location.trim(),
+      brand: raw.brand.trim(),
+      model: raw.model.trim(),
+      serialNumber: raw.serialNumber.trim(),
+      description: raw.description.trim(),
+    };
+    if (!this.editing() && !this.session.currentAccount()?.plantId) return;
     this.saving.set(true);
     try {
       const existing = this.editing();

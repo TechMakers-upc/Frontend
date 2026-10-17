@@ -7,10 +7,10 @@
 <form class="card card__body form-card" [formGroup]="form" (ngSubmit)="save()" novalidate>
   <div class="form-grid form-grid--two">
     <app-field for="asset-code" [label]="'assets.fields.code' | translate" [hint]="'assets.fields.codeHint' | translate">
-      <input id="asset-code" appFieldInput formControlName="code" autocomplete="off" />
+      <input id="asset-code" appFieldInput formControlName="code" autocomplete="off" maxlength="20" required />
     </app-field>
     <app-field for="asset-name" [label]="'assets.fields.name' | translate">
-      <input id="asset-name" appFieldInput formControlName="name" autocomplete="off" />
+      <input id="asset-name" appFieldInput formControlName="name" autocomplete="off" maxlength="80" required />
     </app-field>
     <app-field for="asset-category" [label]="'assets.fields.category' | translate" [floating]="true">
       <select id="asset-category" appFieldInput formControlName="category">
@@ -27,22 +27,22 @@
       </select>
     </app-field>
     <app-field class="form-grid__full" for="asset-location" [label]="'assets.fields.location' | translate" [hint]="'assets.fields.locationHint' | translate">
-      <input id="asset-location" appFieldInput formControlName="location" />
+      <input id="asset-location" appFieldInput formControlName="location" maxlength="120" required />
     </app-field>
     <app-field for="asset-brand" [label]="'assets.fields.brand' | translate">
-      <input id="asset-brand" appFieldInput formControlName="brand" />
+      <input id="asset-brand" appFieldInput formControlName="brand" maxlength="80" />
     </app-field>
     <app-field for="asset-model" [label]="'assets.fields.model' | translate">
-      <input id="asset-model" appFieldInput formControlName="model" />
+      <input id="asset-model" appFieldInput formControlName="model" maxlength="80" />
     </app-field>
     <app-field for="asset-serial" [label]="'assets.fields.serialNumber' | translate">
-      <input id="asset-serial" appFieldInput formControlName="serialNumber" />
+      <input id="asset-serial" appFieldInput formControlName="serialNumber" maxlength="80" />
     </app-field>
     <app-field for="asset-installed" [label]="'assets.fields.installedAt' | translate" [floating]="true">
-      <input id="asset-installed" appFieldInput type="date" formControlName="installedAt" />
+      <input id="asset-installed" appFieldInput type="date" formControlName="installedAt" [max]="maxInstalledAt" required />
     </app-field>
     <app-field class="form-grid__full" for="asset-description" [label]="'assets.fields.description' | translate">
-      <textarea id="asset-description" appFieldInput formControlName="description" rows="4"></textarea>
+      <textarea id="asset-description" appFieldInput formControlName="description" maxlength="600" rows="4"></textarea>
     </app-field>
   </div>
 
@@ -50,7 +50,7 @@
     <button type="button" class="btn btn--ghost" (click)="router.navigateByUrl(editing() ? '/assets/' + editing()!.id : '/assets')">
       {{ 'common.cancel' | translate }}
     </button>
-    <button type="submit" class="btn btn--primary" [disabled]="saving()">
+    <button type="submit" class="btn btn--primary" [disabled]="saving() || !dataReady() || (!!id() && !editing()) || (editing() && form.pristine)">
       @if (saving()) {
         <span class="spinner" aria-hidden="true"></span>
       }

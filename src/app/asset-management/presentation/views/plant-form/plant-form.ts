@@ -9,6 +9,7 @@ import { Field, FieldInput } from '../../../../shared/presentation/components/fi
 import { PageHeader } from '../../../../shared/presentation/components/page-header/page-header';
 import { PlantStore } from '../../../application/plant.store';
 import { PlantScope } from '../../../application/plant-scope';
+import { nonBlankValidator } from '../../validators/form-validators';
 
 
 @Component({
@@ -34,10 +35,13 @@ export class PlantForm {
   protected readonly editing = computed(() =>
     this.plantStore.find(this.isOwnPlant() ? this.scope.currentPlantId() : this.id()),
   );
+  protected readonly unavailable = computed(() =>
+    !this.plantDataReady() || (!!this.id() || this.isOwnPlant()) && !this.editing(),
+  );
 
   protected readonly form = inject(FormBuilder).nonNullable.group({
-    name: ['', [Validators.required, Validators.maxLength(80)]],
-    city: ['', [Validators.required, Validators.maxLength(60)]],
+    name: ['', [Validators.required, nonBlankValidator, Validators.maxLength(80)]],
+    city: ['', [Validators.required, nonBlankValidator, Validators.maxLength(60)]],
     address: ['', Validators.maxLength(120)],
   });
 
@@ -48,13 +52,19 @@ export class PlantForm {
     });
   }
 
+  protected cancel(): void {
+    const plant = this.editing();
+    void this.router.navigateByUrl(this.isOwnPlant() ? '/dashboard' : plant ? `/plants/${plant.id}` : '/plants');
+  }
+
   protected async save(): Promise<void> {
-    if (this.isOwnPlant() && !this.plantDataReady()) return;
+    if (this.unavailable()) return;
     if (this.form.invalid || this.saving()) {
       this.form.markAllAsTouched();
       return;
     }
-    const details = this.form.getRawValue();
+    const raw = this.form.getRawValue();
+    const details = { name: raw.name.trim(), city: raw.city.trim(), address: raw.address.trim() };
     this.saving.set(true);
     try {
       const existing = this.editing();

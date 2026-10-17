@@ -7,17 +7,18 @@
 <form class="card form-card" [formGroup]="form" (ngSubmit)="save()" novalidate>
   <div class="form-grid form-grid--two">
     <app-field class="form-grid__full" for="plant-name" [label]="'fields.plantName' | translate">
-      <input id="plant-name" appFieldInput formControlName="name" />
+      <input id="plant-name" appFieldInput formControlName="name" maxlength="80" required />
     </app-field>
     <app-field for="plant-city" [label]="'fields.city' | translate">
-      <input id="plant-city" appFieldInput formControlName="city" autocomplete="address-level2" />
+      <input id="plant-city" appFieldInput formControlName="city" autocomplete="address-level2" maxlength="60" required />
     </app-field>
     <app-field for="plant-address" [label]="'fields.address' | translate">
-      <input id="plant-address" appFieldInput formControlName="address" autocomplete="street-address" />
+      <input id="plant-address" appFieldInput formControlName="address" autocomplete="street-address" maxlength="120" />
     </app-field>
   </div>
   <div class="form-actions">
-    <button type="submit" class="btn btn--primary" [disabled]="saving() || (isOwnPlant() && !plantDataReady()) || (editing() && form.pristine)">
+    <button type="button" class="btn btn--ghost" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
+    <button type="submit" class="btn btn--primary" [disabled]="saving() || unavailable() || (editing() && form.pristine)">
       @if (saving()) {
         <span class="spinner" aria-hidden="true"></span>
       }

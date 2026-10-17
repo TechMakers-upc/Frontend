@@ -1,4 +1,4 @@
-import { Component, Directive, ElementRef, contentChild, inject, input } from '@angular/core';
+import { ChangeDetectorRef, Component, Directive, ElementRef, contentChild, effect, inject, input } from '@angular/core';
 import { NgControl, ValidationErrors } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -11,6 +11,9 @@ function errorMessage(errors: ValidationErrors): { key: string; params?: Record<
   if (errors['email']) return { key: 'fields.errors.emailInvalid' };
   if (errors['url']) return { key: 'fields.errors.url' };
   if (errors['integer']) return { key: 'fields.errors.integer' };
+  if (errors['codeFormat']) return { key: 'fields.errors.codeFormat' };
+  if (errors['futureDate']) return { key: 'fields.errors.futureDate' };
+  if (errors['invalidDate']) return { key: 'fields.errors.invalidDate' };
   return { key: 'fields.errors.invalid' };
 }
 
@@ -50,6 +53,16 @@ export class Field {
   readonly floating = input(false);
 
   private readonly control = contentChild(NgControl, { descendants: true });
+  private readonly changeDetector = inject(ChangeDetectorRef);
+
+  constructor() {
+    effect((onCleanup) => {
+      const control = this.control()?.control;
+      if (!control) return;
+      const subscription = control.events.subscribe(() => this.changeDetector.markForCheck());
+      onCleanup(() => subscription.unsubscribe());
+    });
+  }
 
   protected error(): { key: string; params?: Record<string, unknown> } | null {
     const control = this.control();
