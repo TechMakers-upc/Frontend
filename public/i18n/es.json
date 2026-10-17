@@ -76,7 +76,7 @@
     "passwordPlaceholder": "Ingresa tu contraseña",
     "unavailable": "El inicio de sesión estará disponible cuando se integre el servicio de autenticación. Por ahora puedes explorar los perfiles de demostración.",
     "exploreDemo": "Explorar la demostración",
-    "disclaimer": "Esta pantalla no valida, envía ni guarda credenciales.",
+    "disclaimer": "El formulario solo valida los campos en este navegador. No se envían ni se guardan credenciales.",
     "showcaseTitle": "Mantenimiento industrial en un solo lugar",
     "showcaseDescription": "Organiza la operación de mantenimiento y consulta información importante desde una interfaz centralizada.",
     "featurePlants": "Gestión de plantas y máquinas",

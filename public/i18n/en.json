@@ -76,7 +76,7 @@
     "passwordPlaceholder": "Enter your password",
     "unavailable": "Sign-in will be available when the authentication service is integrated. For now, you can explore the demonstration profiles.",
     "exploreDemo": "Explore the demo",
-    "disclaimer": "This screen does not validate, send, or store credentials.",
+    "disclaimer": "The form only validates the fields in your browser. Credentials are not sent or stored.",
     "showcaseTitle": "Industrial maintenance in one place",
     "showcaseDescription": "Organize maintenance operations and access important information from a central interface.",
     "featurePlants": "Plant and machine management",

@@ -14,18 +14,25 @@
         <h1 id="login-title">{{ 'signIn.title' | translate }}</h1>
         <p class="login-description">{{ 'loginPreview.description' | translate }}</p>
 
-        <form class="login-form" (submit)="preventPreviewSubmit($event)" novalidate>
+        <form class="login-form" [formGroup]="form" (ngSubmit)="preventPreviewSubmit($event)" novalidate>
           <div class="login-field">
             <label for="login-email">{{ 'fields.workEmail' | translate }}</label>
             <input
               id="login-email"
-              name="email"
               type="email"
               inputmode="email"
               autocomplete="username"
               maxlength="254"
+              formControlName="email"
+              [attr.aria-invalid]="emailErrorKey() ? 'true' : null"
+              [attr.aria-describedby]="emailErrorKey() ? 'login-email-error' : null"
               [placeholder]="'loginPreview.emailPlaceholder' | translate"
             />
+            @if (emailErrorKey(); as error) {
+              <p class="login-field__error" id="login-email-error" role="alert">
+                {{ error | translate: { requiredLength: 254 } }}
+              </p>
+            }
           </div>
 
           <div class="login-field">
@@ -33,9 +40,12 @@
             <div class="login-password">
               <input
                 id="login-password"
-                name="password"
                 [type]="showPassword() ? 'text' : 'password'"
                 autocomplete="current-password"
+                maxlength="128"
+                formControlName="password"
+                [attr.aria-invalid]="passwordErrorKey() ? 'true' : null"
+                [attr.aria-describedby]="passwordErrorKey() ? 'login-password-hint login-password-error' : 'login-password-hint'"
                 [placeholder]="'loginPreview.passwordPlaceholder' | translate"
               />
               <button
@@ -48,6 +58,12 @@
                 {{ (showPassword() ? 'fields.hidePassword' : 'fields.showPassword') | translate }}
               </button>
             </div>
+            <p class="login-field__hint" id="login-password-hint">{{ 'fields.passwordHint' | translate }}</p>
+            @if (passwordErrorKey(); as error) {
+              <p class="login-field__error" id="login-password-error" role="alert">
+                {{ error | translate: { requiredLength: 128 } }}
+              </p>
+            }
           </div>
 
           <button type="submit" class="login-submit" disabled aria-describedby="login-unavailable">

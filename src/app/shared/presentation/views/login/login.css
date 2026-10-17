@@ -46,3 +46,8 @@ h1 { font-size: clamp(2rem, 4.5vw, 2.75rem); font-weight: 750; letter-spacing: -
 @media (max-width: 900px) { .login-layout { grid-template-columns: minmax(0, 1fr); } .login-content { min-height: 100dvh; } .login-showcase { display: none; } }
 @media (max-width: 520px) { .login-content { padding: 20px 18px 26px; } .login-card { padding: 48px 0 42px; } .login-header { gap: 10px; } .login-brand { font-size: 1.1rem; letter-spacing: .06em; } .login-description { font-size: .94rem; } }
 @media (prefers-reduced-motion: reduce) { .login-field input { transition: none; } }
+
+.login-field input[aria-invalid='true'] { border-color: var(--down-ink); }
+.login-field input[aria-invalid='true']:focus-visible { box-shadow: 0 0 0 3px rgb(239 68 68 / .16); }
+.login-field__error { color: var(--down-ink); font-size: .85rem; line-height: 1.4; }
+.login-field__hint { color: var(--slate-500); font-size: .8rem; line-height: 1.4; }
