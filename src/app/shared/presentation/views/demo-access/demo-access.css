@@ -17,6 +17,8 @@ h1 { margin-top: 8px; font-size: clamp(1.6rem, 4vw, 2rem); text-align: center; }
 .demo-option__text small { color: var(--slate-600); font-size: .8125rem; line-height: 1.4; }
 .demo-option > app-icon { color: var(--slate-500); }
 .demo-footnote { margin-top: 24px; color: var(--slate-500); font-size: .8125rem; text-align: center; }
+.demo-login-link { display: flex; width: fit-content; min-height: 42px; align-items: center; justify-content: center; margin: 14px auto 0; padding: 8px 16px; border: 1px solid var(--core-ink); border-radius: 7px; color: var(--core-ink); font-size: .875rem; text-align: center; }
+.demo-login-link:hover { background: #f0f9ff; text-decoration: none; }
 @media (max-width: 420px) {
   .demo-page { padding: 12px; }
   .demo-card { padding: 24px 16px; }

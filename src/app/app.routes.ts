@@ -9,6 +9,13 @@ import { homeRedirectGuard, signedInGuard } from './shared/presentation/session/
 
 export const routes: Routes = [
   {
+    path: 'login',
+    title: 'titles.signIn',
+    loadComponent: () =>
+      import('./shared/presentation/views/login/login')
+        .then((m) => m.Login),
+  },
+  {
     path: 'start',
     title: 'FixCore',
     loadComponent: () =>

@@ -69,6 +69,21 @@
       "plantsUnavailable": "The plant list couldn't load. Reload the page."
     }
   },
+  "loginPreview": {
+    "previewLabel": "Preview · Sprint 3",
+    "description": "This is the upcoming FixCore sign-in screen. Authentication is not enabled yet.",
+    "emailPlaceholder": "name@company.com",
+    "passwordPlaceholder": "Enter your password",
+    "unavailable": "Sign-in will be available when the authentication service is integrated. For now, you can explore the demonstration profiles.",
+    "exploreDemo": "Explore the demo",
+    "disclaimer": "This screen does not validate, send, or store credentials.",
+    "showcaseTitle": "Industrial maintenance in one place",
+    "showcaseDescription": "Organize maintenance operations and access important information from a central interface.",
+    "featurePlants": "Plant and machine management",
+    "featureFailures": "Failure and work order tracking",
+    "featureReports": "Maintenance metrics and reports",
+    "viewLogin": "View the sign-in screen"
+  },
   "signIn": {
     "title": "Welcome back!",
     "noAccount": "Don't have an account yet?",

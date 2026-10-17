@@ -1,0 +1,90 @@
+<div class="login-page">
+  <main class="login-layout">
+    <section class="login-content" aria-labelledby="login-title">
+      <header class="login-header">
+        <a class="login-brand" routerLink="/start" aria-label="FixCore">
+          <app-brand-mark [size]="32" />
+          <span>FIX<span class="login-brand__accent">CORE</span></span>
+        </a>
+        <app-language-switcher />
+      </header>
+
+      <div class="login-card">
+        <p class="login-eyebrow">{{ 'loginPreview.previewLabel' | translate }}</p>
+        <h1 id="login-title">{{ 'signIn.title' | translate }}</h1>
+        <p class="login-description">{{ 'loginPreview.description' | translate }}</p>
+
+        <form class="login-form" (submit)="preventPreviewSubmit($event)" novalidate>
+          <div class="login-field">
+            <label for="login-email">{{ 'fields.workEmail' | translate }}</label>
+            <input
+              id="login-email"
+              name="email"
+              type="email"
+              inputmode="email"
+              autocomplete="username"
+              maxlength="254"
+              [placeholder]="'loginPreview.emailPlaceholder' | translate"
+            />
+          </div>
+
+          <div class="login-field">
+            <label for="login-password">{{ 'fields.password' | translate }}</label>
+            <div class="login-password">
+              <input
+                id="login-password"
+                name="password"
+                [type]="showPassword() ? 'text' : 'password'"
+                autocomplete="current-password"
+                [placeholder]="'loginPreview.passwordPlaceholder' | translate"
+              />
+              <button
+                type="button"
+                class="login-password__toggle"
+                aria-controls="login-password"
+                [attr.aria-label]="(showPassword() ? 'fields.hidePassword' : 'fields.showPassword') | translate"
+                (click)="togglePasswordVisibility()"
+              >
+                {{ (showPassword() ? 'fields.hidePassword' : 'fields.showPassword') | translate }}
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="login-submit" disabled aria-describedby="login-unavailable">
+            {{ 'signIn.submit' | translate }}
+          </button>
+        </form>
+
+        <div class="login-notice" id="login-unavailable" role="note">
+          <span class="login-notice__marker" aria-hidden="true">i</span>
+          <p>{{ 'loginPreview.unavailable' | translate }}</p>
+        </div>
+
+        <a class="login-demo-link" routerLink="/start">
+          {{ 'loginPreview.exploreDemo' | translate }}
+          <span aria-hidden="true">→</span>
+        </a>
+        <p class="login-disclaimer">{{ 'loginPreview.disclaimer' | translate }}</p>
+      </div>
+      <footer class="login-footer">© FixCore · TechMakers</footer>
+    </section>
+
+    <aside class="login-showcase" [attr.aria-label]="'loginPreview.showcaseTitle' | translate">
+      <div class="login-showcase__visual" aria-hidden="true">
+        <div class="login-showcase__orbit login-showcase__orbit--one"></div>
+        <div class="login-showcase__orbit login-showcase__orbit--two"></div>
+        <app-brand-mark [size]="92" />
+      </div>
+      <div class="login-showcase__copy">
+        <p class="login-showcase__eyebrow">FIXCORE</p>
+        <h2>{{ 'loginPreview.showcaseTitle' | translate }}</h2>
+        <p>{{ 'loginPreview.showcaseDescription' | translate }}</p>
+        <ul>
+          <li>{{ 'loginPreview.featurePlants' | translate }}</li>
+          <li>{{ 'loginPreview.featureFailures' | translate }}</li>
+          <li>{{ 'loginPreview.featureReports' | translate }}</li>
+        </ul>
+      </div>
+    </aside>
+  </main>
+</div>

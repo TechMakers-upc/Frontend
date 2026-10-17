@@ -69,6 +69,21 @@
       "plantsUnavailable": "No se pudo cargar la lista de plantas. Recarga la página."
     }
   },
+  "loginPreview": {
+    "previewLabel": "Vista preliminar · Sprint 3",
+    "description": "Esta es la futura pantalla de inicio de sesión de FixCore. La autenticación todavía no está habilitada.",
+    "emailPlaceholder": "nombre@empresa.com",
+    "passwordPlaceholder": "Ingresa tu contraseña",
+    "unavailable": "El inicio de sesión estará disponible cuando se integre el servicio de autenticación. Por ahora puedes explorar los perfiles de demostración.",
+    "exploreDemo": "Explorar la demostración",
+    "disclaimer": "Esta pantalla no valida, envía ni guarda credenciales.",
+    "showcaseTitle": "Mantenimiento industrial en un solo lugar",
+    "showcaseDescription": "Organiza la operación de mantenimiento y consulta información importante desde una interfaz centralizada.",
+    "featurePlants": "Gestión de plantas y máquinas",
+    "featureFailures": "Seguimiento de fallas y órdenes de trabajo",
+    "featureReports": "Indicadores y reportes de mantenimiento",
+    "viewLogin": "Ver pantalla de inicio de sesión"
+  },
   "signIn": {
     "title": "¡Hola de nuevo!",
     "noAccount": "¿Todavía no tienes cuenta?",

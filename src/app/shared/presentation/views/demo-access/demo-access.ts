@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { SessionStore } from '../../../application/session.store';
 import { Role } from '../../../domain/model/role';
 import { ROLE_HOME } from '../../session/role-presentation';
@@ -8,7 +9,7 @@ import { Icon } from '../../components/icon/icon';
 
 @Component({
   selector: 'app-demo-access',
-  imports: [BrandMark, Icon],
+  imports: [BrandMark, Icon, RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './demo-access.html',
   styleUrl: './demo-access.css',
