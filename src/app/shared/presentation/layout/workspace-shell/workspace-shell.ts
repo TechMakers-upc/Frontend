@@ -57,6 +57,8 @@ export class WorkspaceShell implements OnInit {
   ];
 
   private readonly codeInput = viewChild<ElementRef<HTMLInputElement>>('codeInput');
+  private readonly menuButton = viewChild<ElementRef<HTMLButtonElement>>('menuButton');
+  private readonly sidebarElement = viewChild<ElementRef<HTMLElement>>('sidebar');
 
   protected readonly account = this.session.currentAccount;
   protected readonly menuOpen = signal(false);
@@ -128,7 +130,49 @@ export class WorkspaceShell implements OnInit {
     this.scope.select(value || null);
   }
 
+  protected openMenu(): void {
+    if (this.menuOpen()) return;
+    this.menuOpen.set(true);
+    requestAnimationFrame(() => {
+      if (this.menuOpen()) {
+        this.sidebarElement()?.nativeElement.querySelector<HTMLButtonElement>('.sidebar__close')?.focus();
+      }
+    });
+  }
+
+  protected closeMenu(): void {
+    if (!this.menuOpen()) return;
+    this.menuOpen.set(false);
+    this.menuButton()?.nativeElement.focus();
+  }
+
+  private keepFocusInMenu(event: KeyboardEvent): void {
+    const sidebar = this.sidebarElement()?.nativeElement;
+    if (!sidebar) return;
+    const focusable = Array.from(sidebar.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'));
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const active = document.activeElement;
+    if (event.shiftKey && (active === first || !sidebar.contains(active))) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && (active === last || !sidebar.contains(active))) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
   protected onKeydown(event: KeyboardEvent): void {
+    if (this.menuOpen()) {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        this.closeMenu();
+      } else if (event.key === 'Tab') {
+        this.keepFocusInMenu(event);
+      }
+      return;
+    }
     if (event.key !== '/' || event.ctrlKey || event.metaKey || event.altKey) return;
     const target = event.target as HTMLElement | null;
     if (target?.closest('input, textarea, select, [contenteditable="true"]')) return;

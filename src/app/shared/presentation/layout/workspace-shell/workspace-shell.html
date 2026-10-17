@@ -2,11 +2,11 @@
   <a class="skip-link" href="#main">{{ 'nav.skip' | translate }}</a>
 
   <div class="shell">
-    <aside class="sidebar" [class.sidebar--open]="menuOpen()">
+    <aside #sidebar id="workspace-menu" class="sidebar" [class.sidebar--open]="menuOpen()">
       <div class="sidebar__brand">
         <app-brand-mark [size]="26" />
         <span class="wordmark">FIX<span>CORE</span></span>
-        <button type="button" class="sidebar__close icon-btn" [attr.aria-label]="'common.close' | translate" (click)="menuOpen.set(false)">
+        <button type="button" class="sidebar__close icon-btn" [attr.aria-label]="'common.close' | translate" (click)="closeMenu()">
           <app-icon name="close" />
         </button>
       </div>
@@ -62,12 +62,12 @@
     </aside>
 
     @if (menuOpen()) {
-      <div class="scrim" (click)="menuOpen.set(false)" aria-hidden="true"></div>
+      <div class="scrim" (click)="closeMenu()" aria-hidden="true"></div>
     }
 
     <div class="main-column">
       <header class="topbar no-print">
-        <button type="button" class="icon-btn topbar__menu" [attr.aria-label]="'nav.openMenu' | translate" (click)="menuOpen.set(true)">
+        <button #menuButton type="button" class="icon-btn topbar__menu" [attr.aria-label]="'nav.openMenu' | translate" aria-controls="workspace-menu" [attr.aria-expanded]="menuOpen()" (click)="openMenu()">
           <app-icon name="menu" />
         </button>
         <span class="topbar__brand">
@@ -137,7 +137,7 @@
         </a>
       }
       @if (!isTechnician()) {
-        <button type="button" class="bottom-bar__link" (click)="menuOpen.set(true)">
+        <button type="button" class="bottom-bar__link" aria-controls="workspace-menu" [attr.aria-expanded]="menuOpen()" (click)="openMenu()">
           <app-icon name="menu" [size]="22" />
           <span>{{ 'nav.more' | translate }}</span>
         </button>

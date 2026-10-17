@@ -501,3 +501,25 @@
   .sidebar { background: #1e293b; }
   .nav-link--active, .nav-link--active:hover { background: #2c5075; box-shadow: none; }
 }
+/* Mobile workspace navigation */
+@media (max-width: 1023px) {
+  .sidebar--open { visibility: visible; }
+  .sidebar__close { display: grid; }
+  .sidebar:focus-within { outline-offset: -2px; }
+  .topbar__menu { flex: none; }
+  .topbar app-language-switcher,
+  .topbar app-alert-bell { flex: none; }
+}
+
+@media (max-width: 479px) {
+  .topbar { gap: 4px; padding: 8px; }
+  .topbar__brand { display: none; }
+  .topbar__context { margin-left: auto; padding-left: 0; min-width: 0; }
+  .topbar__context .select-inline {
+    min-width: 0;
+    max-width: min(26vw, 105px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .bottom-bar__link, .bottom-bar__fab { min-width: 0; }
+}
