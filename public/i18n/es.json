@@ -542,6 +542,7 @@
     "created": "{{code}} creada.",
     "updated": "Se guardaron los cambios de {{code}}.",
     "notFound": "No encontramos esta orden",
+    "readOnlyNotice": "Esta orden ya se completó y no puede editarse.",
     "search": "Buscar OT o máquina",
     "filterStatus": "Filtrar por estado",
     "allPriorities": "Toda prioridad",

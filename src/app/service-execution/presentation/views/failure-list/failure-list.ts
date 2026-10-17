@@ -6,6 +6,7 @@ import { AssetStore } from '../../../../asset-management/application/asset.store
 import { PlantScope } from '../../../../asset-management/application/plant-scope';
 import { PlantStore } from '../../../../asset-management/application/plant.store';
 import { UserDirectoryStore } from '../../../../shared/application/user-directory.store';
+import { SessionStore } from '../../../../shared/application/session.store';
 import { Icon } from '../../../../shared/presentation/components/icon/icon';
 import { PageHeader } from '../../../../shared/presentation/components/page-header/page-header';
 import { StatusBadge } from '../../../../shared/presentation/components/status-badge/status-badge';
@@ -26,9 +27,11 @@ export class FailureList {
   private readonly assetStore = inject(AssetStore);
   private readonly plantStore = inject(PlantStore);
   private readonly scope = inject(PlantScope);
+  private readonly session = inject(SessionStore);
   protected readonly directory = inject(UserDirectoryStore);
 
   protected readonly view = signal<'pending' | 'resolved'>('pending');
+  protected readonly canReport = computed(() => this.session.role() === 'plant-manager');
   protected readonly statusTone = FAILURE_STATUS_TONE;
   protected readonly showPlant = computed(() => this.scope.plantIds().length > 1);
 

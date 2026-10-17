@@ -165,6 +165,10 @@ export class FailureReport {
   }
 
   protected pickAsset(asset: Asset): void {
+    if (this.alreadyReported(asset)) {
+      this.presetNotice.set({ tone: 'warn', key: 'report.preset.alreadyReported', code: asset.code });
+      return;
+    }
     this.selectedAsset.set(asset);
     this.attempted.set(false);
     this.step.set(2);

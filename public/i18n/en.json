@@ -542,6 +542,7 @@
     "created": "{{code}} created.",
     "updated": "Changes to {{code}} saved.",
     "notFound": "We couldn't find this order",
+    "readOnlyNotice": "This work order has been completed and cannot be edited.",
     "search": "Search WO or machine",
     "filterStatus": "Filter by status",
     "allPriorities": "Any priority",

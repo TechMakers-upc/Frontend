@@ -62,7 +62,7 @@
         <ul class="machines">
           @for (asset of assets(); track asset.id) {
             <li>
-              <button type="button" class="machine" (click)="pickAsset(asset)">
+              <button type="button" class="machine" (click)="pickAsset(asset)" [disabled]="alreadyReported(asset)">
                 <span class="machine__state" [class]="'machine__state machine__state--' + asset.status" aria-hidden="true">
                   <app-icon [name]="asset.status === 'down' ? 'alert' : asset.status === 'maintenance' ? 'wrench' : 'check'" [size]="20" />
                 </span>

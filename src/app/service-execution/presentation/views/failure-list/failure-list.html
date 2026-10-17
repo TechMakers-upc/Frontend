@@ -1,8 +1,10 @@
 <app-page-header [heading]="'failures.title' | translate" [subtitle]="'failures.subtitle' | translate">
-  <a class="btn btn--danger" routerLink="/failures/report">
-    <app-icon name="alert" [size]="18" />
-    {{ 'nav.reportFailure' | translate }}
-  </a>
+  @if (canReport()) {
+    <a class="btn btn--danger" routerLink="/failures/report">
+      <app-icon name="alert" [size]="18" />
+      {{ 'nav.reportFailure' | translate }}
+    </a>
+  }
 </app-page-header>
 
 <div class="chips toolbar" role="group" [attr.aria-label]="'failures.view' | translate">

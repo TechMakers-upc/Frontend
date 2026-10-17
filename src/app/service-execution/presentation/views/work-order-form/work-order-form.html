@@ -10,6 +10,12 @@
   [backLink]="editing() ? ['/work-orders', editing()!.id] : '/work-orders'"
 />
 
+@if (editUnavailable()) {
+  <p class="alert" role="alert">{{ 'workOrders.notFound' | translate }}</p>
+} @else if (editing()?.status === 'completed') {
+  <p class="alert" role="status">{{ 'workOrders.readOnlyNotice' | translate }}</p>
+}
+
 <form class="card form-card" [formGroup]="form" (ngSubmit)="save()" novalidate>
   <div class="form-grid form-grid--two">
     <app-field for="wo-type" [label]="'workOrders.type' | translate" [floating]="true">
@@ -68,7 +74,7 @@
     <button type="button" class="btn btn--ghost" (click)="router.navigateByUrl(editing() ? '/work-orders/' + editing()!.id : '/work-orders')">
       {{ 'common.cancel' | translate }}
     </button>
-    <button type="submit" class="btn btn--primary" [disabled]="saving()">
+    <button type="submit" class="btn btn--primary" [disabled]="saving() || cannotSave()">
       @if (saving()) {
         <span class="spinner" aria-hidden="true"></span>
       }

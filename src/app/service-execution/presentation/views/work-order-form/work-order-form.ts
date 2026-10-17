@@ -52,13 +52,15 @@ export class WorkOrderForm {
   protected readonly saving = signal(false);
 
   protected readonly editing = computed(() => this.workOrderStore.find(this.id()));
+  protected readonly editUnavailable = computed(() => !!this.id() && this.workOrderStore.state() === 'ready' && !this.editing());
+  protected readonly cannotSave = computed(() => !!this.id() && (!this.editing() || this.editing()?.status === 'completed'));
   protected readonly failure = computed(() => this.failureStore.find(this.failureId()));
   protected readonly plan = computed(() => this.planStore.find(this.planId()));
 
   protected readonly form = inject(FormBuilder).nonNullable.group({
     type: ['corrective' as WorkOrderType, Validators.required],
     assetId: ['', Validators.required],
-    title: ['', [Validators.required, Validators.maxLength(100)]],
+    title: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(100)]],
     description: ['', Validators.maxLength(800)],
     priority: ['medium' as Priority, Validators.required],
     dueDate: [addDays(todayDate(), 3), Validators.required],
@@ -121,7 +123,7 @@ export class WorkOrderForm {
   }
 
   protected async save(): Promise<void> {
-    if (this.form.invalid || this.saving()) {
+    if (this.form.invalid || this.saving() || this.cannotSave()) {
       this.form.markAllAsTouched();
       return;
     }
