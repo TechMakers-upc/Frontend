@@ -69,6 +69,18 @@
       "plantsUnavailable": "The plant list couldn't load. Reload the page."
     }
   },
+  "demoAccess": {
+    "eyebrow": "ACADEMIC PROTOTYPE · SPRINT 3",
+    "title": "Welcome to FixCore",
+    "intro": "Choose a profile to explore industrial maintenance using demonstration data.",
+    "selectProfile": "Choose your profile",
+    "plantManagerHint": "Machines, failures and maintenance",
+    "operationsManagerHint": "Plants, metrics and reports",
+    "technicianHint": "Work orders, equipment and spare parts",
+    "footnote": "Open demo access. No username or password required.",
+    "changeProfile": "Change profile",
+    "backToLogin": "Back to Login"
+  },
   "loginPreview": {
     "previewLabel": "Preview · Sprint 3",
     "description": "This is the upcoming FixCore sign-in screen. Authentication is not enabled yet.",

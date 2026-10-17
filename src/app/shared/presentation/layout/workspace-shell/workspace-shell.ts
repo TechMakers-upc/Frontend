@@ -155,8 +155,13 @@ export class WorkspaceShell implements OnInit {
     await this.router.navigate(target);
   }
 
-  protected async signOut(): Promise<void> {
+  protected async changeProfile(): Promise<void> {
     this.session.signOut();
-    await this.router.navigateByUrl('/demo');
+    await this.router.navigateByUrl('/start');
+  }
+
+  protected async returnToLogin(): Promise<void> {
+    this.session.signOut();
+    await this.router.navigateByUrl('/login');
   }
 }

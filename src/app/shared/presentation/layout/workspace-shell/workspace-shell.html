@@ -43,16 +43,20 @@
 
       <div class="sidebar__footer">
         <p class="demo-mark">{{ 'brand.demoData' | translate }}</p>
-        <a class="user" routerLink="/demo">
+        <a class="user" routerLink="/start">
           <span class="user__avatar" aria-hidden="true">{{ user.initials }}</span>
           <span class="user__text">
             <span class="user__name">{{ user.fullName }}</span>
             <span class="user__role">{{ 'roles.' + user.role + '.title' | translate }}</span>
           </span>
         </a>
-        <button type="button" class="nav-link nav-link--button" (click)="signOut()">
+        <button type="button" class="nav-link nav-link--button" (click)="changeProfile()">
+          <app-icon name="users" />
+          <span>{{ 'demoAccess.changeProfile' | translate }}</span>
+        </button>
+        <button type="button" class="nav-link nav-link--button" (click)="returnToLogin()">
           <app-icon name="logout" />
-          <span>Cambiar perfil</span>
+          <span>{{ 'demoAccess.backToLogin' | translate }}</span>
         </button>
       </div>
     </aside>

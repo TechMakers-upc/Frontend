@@ -69,6 +69,18 @@
       "plantsUnavailable": "No se pudo cargar la lista de plantas. Recarga la página."
     }
   },
+  "demoAccess": {
+    "eyebrow": "PROTOTIPO ACADÉMICO · SPRINT 3",
+    "title": "Bienvenido a FixCore",
+    "intro": "Elige un perfil para explorar el mantenimiento industrial con datos de demostración.",
+    "selectProfile": "Selecciona tu perfil",
+    "plantManagerHint": "Máquinas, fallas y mantenimiento",
+    "operationsManagerHint": "Plantas, indicadores y reportes",
+    "technicianHint": "Órdenes, equipos y repuestos",
+    "footnote": "Acceso libre para demostración. No se requiere usuario ni contraseña.",
+    "changeProfile": "Cambiar perfil",
+    "backToLogin": "Volver al Login"
+  },
   "loginPreview": {
     "previewLabel": "Vista preliminar · Sprint 3",
     "description": "Esta es la futura pantalla de inicio de sesión de FixCore. La autenticación todavía no está habilitada.",
