@@ -1,4 +1,5 @@
 import { Injectable, computed, inject } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 
 import { PlantScope } from '../../asset-management/application/plant-scope';
 import { CollectionStore } from '../../shared/application/collection.store';
@@ -21,6 +22,27 @@ export class MaintenancePlanStore extends CollectionStore<MaintenancePlan> {
     const today = todayDate();
     return this.inScope().filter((plan) => plan.isOverdue(today));
   });
+
+  async reschedule(
+    id: string,
+    nextDueDate: string,
+  ): Promise<MaintenancePlan> {
+    const current = this.find(id);
+
+    if (!current) {
+      throw new Error(`Unknown maintenance plan ${id}`);
+    }
+
+    const saved = await firstValueFrom(
+      this.api.reschedulePlan(current, nextDueDate),
+    );
+
+    this.itemsSignal.update((items) =>
+      items.map((item) => item.id === saved.id ? saved : item),
+    );
+
+    return saved;
+  }
 
   async schedule(plantId: string, details: MaintenancePlanDetails): Promise<MaintenancePlan> {
     const plan = new MaintenancePlan({

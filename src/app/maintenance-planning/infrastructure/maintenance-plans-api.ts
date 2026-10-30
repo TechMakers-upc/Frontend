@@ -6,7 +6,10 @@ import { BaseApi } from '../../shared/infrastructure/base-api';
 import { AuthTokenStorage } from '../../shared/infrastructure/auth-token.storage';
 import { MaintenancePlan, MaintenancePlanProps } from '../domain/model/maintenance-plan.entity';
 import { MaintenancePlanApiMapper } from './maintenance-plan-api.mapper';
-import { MaintenancePlanApiResource } from './maintenance-plan-api.models';
+import {
+  MaintenancePlanApiResource,
+  RescheduleMaintenancePlanRequest,
+} from './maintenance-plan-api.models';
 
 @Injectable({ providedIn: 'root' })
 export class MaintenancePlansApi extends BaseApi<MaintenancePlan, MaintenancePlanProps> {
@@ -49,6 +52,29 @@ export class MaintenancePlansApi extends BaseApi<MaintenancePlan, MaintenancePla
     return this.http.put<MaintenancePlanApiResource>(
       `${this.url}/${entity.id}`,
       MaintenancePlanApiMapper.toSaveRequest(entity),
+    ).pipe(
+      map((resource) => MaintenancePlanApiMapper.toEntity(resource)),
+    );
+  }
+
+  reschedulePlan(
+    plan: MaintenancePlan,
+    nextDueDate: string,
+  ): Observable<MaintenancePlan> {
+    const draft = plan.clone();
+    draft.reschedule(nextDueDate);
+
+    if (!this.tokenStorage.read()) {
+      return this.update(draft);
+    }
+
+    const request: RescheduleMaintenancePlanRequest = {
+      nextDueDate: draft.nextDueDate,
+    };
+
+    return this.http.patch<MaintenancePlanApiResource>(
+      `${this.url}/${plan.id}/schedule`,
+      request,
     ).pipe(
       map((resource) => MaintenancePlanApiMapper.toEntity(resource)),
     );

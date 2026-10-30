@@ -113,7 +113,7 @@ export class PlanList {
       return;
     }
     const { date } = this.rescheduleForm.getRawValue();
-    if (await this.run(() => this.planStore.change(plan.id, (draft) => draft.reschedule(date)), 'maintenance.rescheduled', plan)) {
+    if (await this.run(() => this.planStore.reschedule(plan.id, date), 'maintenance.rescheduled', plan)) {
       this.rescheduling.set(null);
     }
   }
