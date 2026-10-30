@@ -1,11 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { AuthenticationApi } from '../../../infrastructure/authentication-api';
 import { SessionStore } from '../../../application/session.store';
+import { ROLE_HOME } from '../../session/role-presentation';
 import { UserAccount } from '../../../domain/model/user-account.entity';
 import { isRole } from '../../../domain/model/role';
 import { AuthTokenStorage } from '../../../infrastructure/auth-token.storage';
@@ -23,6 +24,7 @@ export class Login {
   private readonly authenticationApi = inject(AuthenticationApi);
   private readonly tokenStorage = inject(AuthTokenStorage);
   private readonly sessionStore = inject(SessionStore);
+  private readonly router = inject(Router);
 
   protected readonly showPassword = signal(false);
   protected readonly isSubmitting = signal(false);
@@ -88,6 +90,7 @@ export class Login {
             this.sessionStore.signIn(account);
             this.authenticationSuccess.set(true);
             this.form.controls.password.reset();
+            void this.router.navigateByUrl(ROLE_HOME[role]);
           }
         }
         this.isSubmitting.set(false);
