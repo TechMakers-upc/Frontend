@@ -120,11 +120,19 @@ export class MaintenanceExecutionService {
   async useParts(workOrderId: string, partId: string, quantity: number): Promise<WorkOrder> {
     const order = this.workOrders.find(workOrderId);
     if (!order) throw new Error('Unknown work order');
+
     const at = nowIso();
     const check = order.clone();
     check.registerPartUsage(partId, quantity, at);
+
+    if (this.tokenStorage.read()) {
+      const saved = await this.workOrders.addPartUsage(workOrderId, partId, quantity, at);
+      this.inventory.load(true);
+      return saved;
+    }
+
     await this.inventory.consume(partId, quantity, workOrderId, order.code);
-    return this.workOrders.change(workOrderId, (draft) => draft.registerPartUsage(partId, quantity, at));
+    return this.workOrders.addPartUsage(workOrderId, partId, quantity, at);
   }
 
   /** US30: closing the order resolves its failure, frees the machine and rolls the plan forward. */
