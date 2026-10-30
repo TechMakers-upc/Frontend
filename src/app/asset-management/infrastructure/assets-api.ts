@@ -29,4 +29,22 @@ export class AssetsApi extends BaseApi<Asset, AssetProps> {
       map((items) => items.map((item) => AssetApiMapper.toEntity(item))),
     );
   }
+
+  override create(entity: Asset): Observable<Asset> {
+    if (!this.tokenStorage.read()) {
+      return this.http.post<AssetProps>(
+        '/demo-api/assets',
+        { ...entity },
+      ).pipe(
+        map((resource) => this.toEntity(resource)),
+      );
+    }
+
+    return this.http.post<AssetApiResource>(
+      this.url,
+      AssetApiMapper.toSaveRequest(entity),
+    ).pipe(
+      map((resource) => AssetApiMapper.toEntity(resource)),
+    );
+  }
 }
