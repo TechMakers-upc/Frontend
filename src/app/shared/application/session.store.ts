@@ -37,7 +37,7 @@ export class SessionStore {
 
   private restoreAccount(): UserAccount | null {
     if (this.tokenStorage.read()) {
-      const account = this.sessionStorage.read();
+      const account = this.sessionStorage.readAuthenticated();
       if (account) return account;
       this.tokenStorage.clear();
     }

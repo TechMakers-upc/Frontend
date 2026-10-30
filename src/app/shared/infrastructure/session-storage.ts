@@ -19,6 +19,16 @@ export class SessionStorage {
     }
   }
 
+  readAuthenticated(): UserAccount | null {
+    const raw = this.safeGet(sessionStorage);
+    if (!raw) return null;
+
+    try {
+      return UserAccountAssembler.toEntity(JSON.parse(raw) as StoredUserAccount);
+    } catch {
+      return null;
+    }
+  }
   write(account: UserAccount, persistent: boolean): void {
     this.clear();
     const target = persistent ? localStorage : sessionStorage;
