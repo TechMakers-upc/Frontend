@@ -25,6 +25,28 @@ export class FailureStore extends CollectionStore<Failure> {
       .sort((a, b) => priorityRank(a.priority) - priorityRank(b.priority) || a.reportedAt.localeCompare(b.reportedAt)),
   );
 
+  async resolveFailure(id: string): Promise<Failure> {
+    const current = this.find(id);
+
+    if (!current) {
+      throw new Error(`Unknown failure ${id}`);
+    }
+
+    if (current.isResolved) {
+      return current;
+    }
+
+    const saved = await firstValueFrom(
+      this.api.resolveFailure(current),
+    );
+
+    this.itemsSignal.update((items) =>
+      items.map((item) => (item.id === saved.id ? saved : item)),
+    );
+
+    return saved;
+  }
+
   async setPriority(id: string, priority: Priority): Promise<Failure> {
     const current = this.find(id);
 

@@ -31,6 +31,27 @@ export class FailuresApi extends BaseApi<Failure, FailureProps> {
     );
   }
 
+  resolveFailure(failure: Failure): Observable<Failure> {
+    if (!this.tokenStorage.read()) {
+      const draft = failure.clone();
+      draft.resolve(new Date().toISOString());
+
+      return this.http.put<FailureProps>(
+        `/demo-api/failures/${failure.id}`,
+        { ...draft },
+      ).pipe(
+        map((resource) => this.toEntity(resource)),
+      );
+    }
+
+    return this.http.post<FailureApiResource>(
+      `${this.url}/${failure.id}/resolution`,
+      {},
+    ).pipe(
+      map((resource) => FailureApiMapper.toEntity(resource)),
+    );
+  }
+
   prioritize(failure: Failure, priority: Priority): Observable<Failure> {
     if (!this.tokenStorage.read()) {
       const draft = failure.clone();
