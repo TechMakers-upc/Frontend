@@ -1,7 +1,9 @@
 import { Injectable, computed, inject } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 
 import { PlantScope } from '../../asset-management/application/plant-scope';
 import { SessionStore } from '../../shared/application/session.store';
+import { AuthTokenStorage } from '../../shared/infrastructure/auth-token.storage';
 import { CollectionStore } from '../../shared/application/collection.store';
 import { nowIso } from '../../shared/domain/model/date-time';
 import { SparePart, SparePartDetails } from '../domain/model/spare-part.entity';
@@ -24,6 +26,7 @@ export class InventoryStore extends CollectionStore<SparePart> {
   protected readonly api = inject(SparePartsApi);
   private readonly scope = inject(PlantScope);
   private readonly session = inject(SessionStore);
+  private readonly tokenStorage = inject(AuthTokenStorage);
   private readonly movements = inject(StockMovementStore);
 
   readonly inScope = computed(() =>
@@ -37,10 +40,27 @@ export class InventoryStore extends CollectionStore<SparePart> {
   async register(plantId: string, details: SparePartDetails, initialStock: number): Promise<SparePart> {
     const part = new SparePart({ id: crypto.randomUUID(), plantId, stock: 0, ...details });
     part.updateDetails(details);
+
+    if (this.tokenStorage.read()) {
+      const created = await firstValueFrom(
+        this.api.createWithInitialStock(part, initialStock),
+      );
+
+      this.itemsSignal.update((items) => [...items, created]);
+
+      if (initialStock > 0) {
+        this.movements.load(true);
+      }
+
+      return created;
+    }
+
     const created = await this.add(part);
+
     if (initialStock > 0) {
       return this.receive(created.id, initialStock, 'initial-stock');
     }
+
     return created;
   }
 

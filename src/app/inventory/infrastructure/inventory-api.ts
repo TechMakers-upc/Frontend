@@ -19,6 +19,58 @@ export class SparePartsApi extends BaseApi<SparePart, SparePartProps> {
     return new SparePart(resource);
   }
 
+  override create(entity: SparePart): Observable<SparePart> {
+    if (!this.tokenStorage.read()) {
+      return this.http.post<SparePartProps>(
+        '/demo-api/spare-parts',
+        { ...entity },
+      ).pipe(
+        map((resource) => this.toEntity(resource)),
+      );
+    }
+
+    return this.http.post<SparePartApiResource>(
+      this.url,
+      SparePartApiMapper.toSaveRequest(entity),
+    ).pipe(
+      map((resource) => SparePartApiMapper.toEntity(resource)),
+    );
+  }
+
+  createWithInitialStock(
+    entity: SparePart,
+    initialStock: number,
+  ): Observable<SparePart> {
+    if (!this.tokenStorage.read()) {
+      return this.create(entity);
+    }
+
+    return this.http.post<SparePartApiResource>(
+      this.url,
+      SparePartApiMapper.toSaveRequest(entity, initialStock),
+    ).pipe(
+      map((resource) => SparePartApiMapper.toEntity(resource)),
+    );
+  }
+
+  override update(entity: SparePart): Observable<SparePart> {
+    if (!this.tokenStorage.read()) {
+      return this.http.put<SparePartProps>(
+        `/demo-api/spare-parts/${entity.id}`,
+        { ...entity },
+      ).pipe(
+        map((resource) => this.toEntity(resource)),
+      );
+    }
+
+    return this.http.put<SparePartApiResource>(
+      `${this.url}/${entity.id}`,
+      SparePartApiMapper.toSaveRequest(entity),
+    ).pipe(
+      map((resource) => SparePartApiMapper.toEntity(resource)),
+    );
+  }
+
   override getAll(): Observable<SparePart[]> {
     if (!this.tokenStorage.read()) {
       return this.http.get<SparePartProps[]>('/demo-api/spare-parts').pipe(
@@ -40,6 +92,19 @@ export class StockMovementsApi extends BaseApi<StockMovement, StockMovementProps
 
   protected toEntity(resource: StockMovementProps): StockMovement {
     return new StockMovement(resource);
+  }
+
+  override create(entity: StockMovement): Observable<StockMovement> {
+    if (this.tokenStorage.read()) {
+      throw new Error('Backend stock movements are created through stock operations');
+    }
+
+    return this.http.post<StockMovementProps>(
+      '/demo-api/stock-movements',
+      { ...entity },
+    ).pipe(
+      map((resource) => this.toEntity(resource)),
+    );
   }
 
   override getAll(): Observable<StockMovement[]> {
