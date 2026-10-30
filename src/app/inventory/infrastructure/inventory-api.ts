@@ -9,6 +9,7 @@ import { StockMovement, StockMovementProps } from '../domain/model/stock-movemen
 import { SparePartApiMapper, StockMovementApiMapper } from './inventory-api.mapper';
 import {
   AdjustStockRequest,
+  ConsumeStockRequest,
   ReceiveStockRequest,
   SparePartApiResource,
   StockMovementApiResource,
@@ -128,6 +129,49 @@ export class SparePartsApi extends BaseApi<SparePart, SparePartProps> {
 
     return this.http.post<SparePartApiResource>(
       `${this.url}/${id}/adjustments`,
+      request,
+    ).pipe(
+      map((resource) => SparePartApiMapper.toEntity(resource)),
+    );
+  }
+
+  consumeStock(
+    partId: string,
+    quantity: number,
+    workOrderId: string | null,
+    reason: string,
+  ): Observable<SparePart> {
+    if (!this.tokenStorage.read()) {
+      throw new Error('This operation requires backend authentication');
+    }
+
+    const id = Number(partId);
+
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      throw new Error('A valid backend spare part ID is required');
+    }
+
+    if (!Number.isSafeInteger(quantity) || quantity < 1) {
+      throw new Error('Quantity must be a positive integer');
+    }
+
+    const orderId = workOrderId === null ? null : Number(workOrderId);
+
+    if (
+      orderId !== null &&
+      (!Number.isSafeInteger(orderId) || orderId <= 0)
+    ) {
+      throw new Error('A valid backend work order ID is required');
+    }
+
+    const request: ConsumeStockRequest = {
+      quantity,
+      workOrderId: orderId,
+      reason,
+    };
+
+    return this.http.post<SparePartApiResource>(
+      `${this.url}/${id}/consumptions`,
       request,
     ).pipe(
       map((resource) => SparePartApiMapper.toEntity(resource)),
