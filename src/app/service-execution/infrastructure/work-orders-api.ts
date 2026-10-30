@@ -33,4 +33,22 @@ export class WorkOrdersApi extends BaseApi<WorkOrder, WorkOrderProps> {
       map((items) => items.map((item) => WorkOrderApiMapper.toEntity(item))),
     );
   }
+
+  override create(entity: WorkOrder): Observable<WorkOrder> {
+    if (!this.tokenStorage.read()) {
+      return this.http.post<WorkOrderProps>(
+        '/demo-api/work-orders',
+        { ...entity },
+      ).pipe(
+        map((resource) => this.toEntity(resource)),
+      );
+    }
+
+    return this.http.post<WorkOrderApiResource>(
+      this.url,
+      WorkOrderApiMapper.toCreateRequest(entity),
+    ).pipe(
+      map((resource) => WorkOrderApiMapper.toEntity(resource)),
+    );
+  }
 }

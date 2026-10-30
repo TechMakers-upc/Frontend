@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 
 import { AssetStore } from '../../asset-management/application/asset.store';
 import { SessionStore } from '../../shared/application/session.store';
+import { AuthTokenStorage } from '../../shared/infrastructure/auth-token.storage';
 import { InventoryStore } from '../../inventory/application/inventory.store';
 import { MaintenancePlanStore } from '../../maintenance-planning/application/maintenance-plan.store';
 import { nowIso, todayDate } from '../../shared/domain/model/date-time';
@@ -31,6 +32,7 @@ export interface NewWorkOrder {
 @Injectable({ providedIn: 'root' })
 export class MaintenanceExecutionService {
   private readonly session = inject(SessionStore);
+  private readonly tokenStorage = inject(AuthTokenStorage);
   private readonly assets = inject(AssetStore);
   private readonly failures = inject(FailureStore);
   private readonly workOrders = inject(WorkOrderStore);
@@ -88,7 +90,11 @@ export class MaintenanceExecutionService {
     order.updateDetails(input);
     const created = await this.workOrders.add(order);
     if (input.failureId) {
-      await this.failures.change(input.failureId, (draft) => draft.attachWorkOrder(created.id));
+      if (this.tokenStorage.read()) {
+        this.failures.load(true);
+      } else {
+        await this.failures.change(input.failureId, (draft) => draft.attachWorkOrder(created.id));
+      }
     }
     return created;
   }
