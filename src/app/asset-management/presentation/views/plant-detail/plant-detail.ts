@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { MaintenanceAnalytics } from '../../../../analytics/application/maintenance-analytics';
 import { UserDirectoryStore } from '../../../../shared/application/user-directory.store';
+import { SessionStore } from '../../../../shared/application/session.store';
 import { FailureStore } from '../../../../service-execution/application/failure.store';
 import { WorkOrderStore } from '../../../../service-execution/application/work-order.store';
 import { Icon } from '../../../../shared/presentation/components/icon/icon';
@@ -25,6 +26,8 @@ import { ASSET_STATUS_TONE } from '../../asset-presentation';
 })
 export class PlantDetail {
   private readonly plantStore = inject(PlantStore);
+  private readonly router = inject(Router);
+  private readonly sessionStore = inject(SessionStore);
   private readonly assetStore = inject(AssetStore);
   private readonly workOrderStore = inject(WorkOrderStore);
   private readonly failureStore = inject(FailureStore);
@@ -36,6 +39,7 @@ export class PlantDetail {
 
   protected readonly statusTone = ASSET_STATUS_TONE;
   protected readonly plant = computed(() => this.plantStore.find(this.id()));
+  protected readonly canDelete = computed(() => this.sessionStore.role() === 'operations-manager');
   protected readonly summary = computed(() => this.analytics.summarize([this.id()]));
   protected readonly assets = computed(() => this.assetStore.items().filter((a) => a.plantId === this.id()));
   protected readonly openOrders = computed(() =>
@@ -58,5 +62,21 @@ export class PlantDetail {
 
   protected focus(): void {
     this.scope.select(this.id());
+  }
+
+  protected async deletePlant(): Promise<void> {
+    if (!this.canDelete()) return;
+
+    const plant = this.plant();
+    if (!plant) return;
+
+    if (!window.confirm(`¿Eliminar la planta "${plant.name}"?`)) return;
+
+    try {
+      await this.plantStore.remove(plant.id);
+      await this.router.navigateByUrl('/plants');
+    } catch {
+      window.alert('No se pudo eliminar la planta.');
+    }
   }
 }

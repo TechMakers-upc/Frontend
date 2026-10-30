@@ -4,6 +4,12 @@
       <app-icon name="pencil" [size]="18" />
       {{ 'common.edit' | translate }}
     </a>
+    @if (canDelete()) {
+      <button type="button" class="btn btn--ghost" (click)="deletePlant()">
+        <app-icon name="trash-2" [size]="18" />
+        Eliminar planta
+      </button>
+    }
     <a class="btn btn--primary" routerLink="/work-orders" (click)="focus()">{{ 'plants.viewOrders' | translate }}</a>
   </app-page-header>
 
