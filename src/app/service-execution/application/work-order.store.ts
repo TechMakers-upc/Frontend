@@ -1,4 +1,5 @@
 import { Injectable, computed, inject } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 
 import { PlantScope } from '../../asset-management/application/plant-scope';
 import { SessionStore } from '../../shared/application/session.store';
@@ -29,6 +30,24 @@ export class WorkOrderStore extends CollectionStore<WorkOrder> {
     const id = this.session.currentAccount()?.id;
     return this.inScope().filter((order) => order.technicianId === id);
   });
+
+  async assignTechnician(id: string, technicianId: string): Promise<WorkOrder> {
+    const current = this.find(id);
+
+    if (!current) {
+      throw new Error(`Unknown work order ${id}`);
+    }
+
+    const saved = await firstValueFrom(
+      this.api.assignTechnician(current, technicianId),
+    );
+
+    this.itemsSignal.update((items) =>
+      items.map((item) => (item.id === saved.id ? saved : item)),
+    );
+
+    return saved;
+  }
 
   /** Codes follow OT-<year>-<sequence>, numbered per year. */
   nextCode(): string {

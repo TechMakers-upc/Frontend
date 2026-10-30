@@ -136,10 +136,14 @@ export class WorkOrderForm {
       if (existing) {
         const saved = await this.workOrderStore.change(existing.id, (draft) => {
           draft.updateDetails(values);
-          if (technicianId && technicianId !== draft.technicianId) draft.assign(technicianId);
         });
-        orderId = saved.id;
-        this.toast.success(this.translate.instant('workOrders.updated', { code: saved.code }));
+
+        const updated = technicianId && technicianId !== saved.technicianId
+          ? await this.workOrderStore.assignTechnician(saved.id, technicianId)
+          : saved;
+
+        orderId = updated.id;
+        this.toast.success(this.translate.instant('workOrders.updated', { code: updated.code }));
       } else {
         const created = await this.execution.createWorkOrder({
           ...values,

@@ -34,6 +34,45 @@ export class WorkOrdersApi extends BaseApi<WorkOrder, WorkOrderProps> {
     );
   }
 
+  override update(entity: WorkOrder): Observable<WorkOrder> {
+    if (!this.tokenStorage.read()) {
+      return this.http.put<WorkOrderProps>(
+        `/demo-api/work-orders/${entity.id}`,
+        { ...entity },
+      ).pipe(
+        map((resource) => this.toEntity(resource)),
+      );
+    }
+
+    return this.http.put<WorkOrderApiResource>(
+      `${this.url}/${entity.id}`,
+      WorkOrderApiMapper.toUpdateRequest(entity),
+    ).pipe(
+      map((resource) => WorkOrderApiMapper.toEntity(resource)),
+    );
+  }
+
+  assignTechnician(order: WorkOrder, technicianId: string): Observable<WorkOrder> {
+    if (!this.tokenStorage.read()) {
+      const draft = order.clone();
+      draft.assign(technicianId);
+      return this.update(draft);
+    }
+
+    const id = Number(technicianId);
+
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      throw new Error('A valid backend technician ID is required');
+    }
+
+    return this.http.patch<WorkOrderApiResource>(
+      `${this.url}/${order.id}/assignment`,
+      { technicianId: id },
+    ).pipe(
+      map((resource) => WorkOrderApiMapper.toEntity(resource)),
+    );
+  }
+
   override create(entity: WorkOrder): Observable<WorkOrder> {
     if (!this.tokenStorage.read()) {
       return this.http.post<WorkOrderProps>(
