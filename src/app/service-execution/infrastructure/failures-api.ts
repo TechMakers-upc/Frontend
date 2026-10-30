@@ -29,4 +29,22 @@ export class FailuresApi extends BaseApi<Failure, FailureProps> {
       map((items) => items.map((item) => FailureApiMapper.toEntity(item))),
     );
   }
+
+  override create(entity: Failure): Observable<Failure> {
+    if (!this.tokenStorage.read()) {
+      return this.http.post<FailureProps>(
+        '/demo-api/failures',
+        { ...entity },
+      ).pipe(
+        map((resource) => this.toEntity(resource)),
+      );
+    }
+
+    return this.http.post<FailureApiResource>(
+      this.url,
+      FailureApiMapper.toReportRequest(entity),
+    ).pipe(
+      map((resource) => FailureApiMapper.toEntity(resource)),
+    );
+  }
 }
