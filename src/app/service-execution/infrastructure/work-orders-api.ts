@@ -82,36 +82,6 @@ export class WorkOrdersApi extends BaseApi<WorkOrder, WorkOrderProps> {
     );
   }
 
-  registerPartUsage(
-    order: WorkOrder,
-    partId: string,
-    quantity: number,
-    at: string,
-  ): Observable<WorkOrder> {
-    if (!Number.isSafeInteger(quantity) || quantity <= 0) {
-      throw new Error('Quantity must be a positive integer');
-    }
-
-    if (!this.tokenStorage.read()) {
-      const draft = order.clone();
-      draft.registerPartUsage(partId, quantity, at);
-      return this.update(draft);
-    }
-
-    const id = Number(partId);
-
-    if (!Number.isSafeInteger(id) || id <= 0) {
-      throw new Error('A valid backend spare part ID is required');
-    }
-
-    return this.http.post<WorkOrderApiResource>(
-      `${this.url}/${order.id}/part-usages`,
-      { partId: id, quantity },
-    ).pipe(
-      map((resource) => WorkOrderApiMapper.toEntity(resource)),
-    );
-  }
-
   logWork(
     order: WorkOrder,
     note: string,
