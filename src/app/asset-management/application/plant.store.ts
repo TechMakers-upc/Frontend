@@ -1,4 +1,5 @@
 import { Injectable, computed, inject } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 
 import { CollectionStore } from '../../shared/application/collection.store';
 import { Plant } from '../domain/model/plant.entity';
@@ -18,5 +19,10 @@ export class PlantStore extends CollectionStore<Plant> {
     const plant = new Plant({ id: crypto.randomUUID(), name: '', city: '', address: '' });
     plant.updateDetails(details);
     return this.add(plant);
+  }
+
+  async remove(id: string): Promise<void> {
+    await firstValueFrom(this.api.delete(id));
+    this.itemsSignal.update((items) => items.filter((item) => item.id !== id));
   }
 }
