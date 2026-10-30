@@ -54,7 +54,7 @@ export class MaintenanceExecutionService {
       Failure.report({ ...input, plantId: asset.plantId, reportedBy: this.userId }),
     );
     if (input.lineStopped) {
-      await this.assets.change(asset.id, (draft) => draft.markDown(failure.reportedAt));
+      await this.assets.setStatus(asset.id, 'down', failure.reportedAt);
     }
     return failure;
   }
@@ -99,7 +99,7 @@ export class MaintenanceExecutionService {
     const order = await this.workOrders.change(workOrderId, (draft) => draft.start(at));
     const asset = this.assets.find(order.assetId);
     if (asset && asset.status === 'operational') {
-      await this.assets.change(asset.id, (draft) => draft.markInMaintenance(at));
+      await this.assets.setStatus(asset.id, 'maintenance', at);
     }
     return order;
   }
@@ -133,7 +133,7 @@ export class MaintenanceExecutionService {
       .some((other) => other.assetId === order.assetId && other.id !== order.id && other.status === 'in-progress');
     const asset = this.assets.find(order.assetId);
     if (asset && !stillFailing && !otherWorkInProgress) {
-      await this.assets.change(asset.id, (draft) => draft.markOperational(at));
+      await this.assets.setStatus(asset.id, 'operational', at);
     }
     return order;
   }

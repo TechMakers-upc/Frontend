@@ -4,7 +4,7 @@ import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { BaseApi } from '../../shared/infrastructure/base-api';
 import { AuthTokenStorage } from '../../shared/infrastructure/auth-token.storage';
-import { Asset, AssetProps } from '../domain/model/asset.entity';
+import { Asset, AssetProps, AssetStatus } from '../domain/model/asset.entity';
 import { AssetApiMapper } from './asset-api.mapper';
 import { AssetApiResource } from './asset-api.models';
 
@@ -72,6 +72,29 @@ export class AssetsApi extends BaseApi<Asset, AssetProps> {
     }
 
     return this.http.delete<void>(`${this.url}/${id}`);
+  }
+
+  changeStatus(asset: Asset, status: AssetStatus, at: string): Observable<Asset> {
+    if (!this.tokenStorage.read()) {
+      const draft = asset.clone();
+
+      if (status === 'down') {
+        draft.markDown(at);
+      } else if (status === 'maintenance') {
+        draft.markInMaintenance(at);
+      } else {
+        draft.markOperational(at);
+      }
+
+      return this.update(draft);
+    }
+
+    return this.http.patch<AssetApiResource>(
+      `${this.url}/${asset.id}/status`,
+      { status },
+    ).pipe(
+      map((resource) => AssetApiMapper.toEntity(resource)),
+    );
   }
 
   addManual(asset: Asset, title: string, url: string): Observable<Asset> {
