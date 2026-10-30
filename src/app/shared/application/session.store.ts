@@ -44,6 +44,8 @@ export class SessionStore {
     return this.restoreDemoAccount();
   }
   selectDemoRole(role: Role): void {
+    this.tokenStorage.clear();
+    this.sessionStorage.clear();
     this.accountSignal.set(this.demoAccount(role));
     try {
       sessionStorage.setItem(DEMO_ROLE_KEY, role);
