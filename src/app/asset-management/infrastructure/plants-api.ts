@@ -62,4 +62,12 @@ export class PlantsApi extends BaseApi<Plant, PlantProps> {
       map((resource) => PlantApiMapper.toEntity(resource)),
     );
   }
+
+  override delete(id: string): Observable<void> {
+    if (!this.tokenStorage.read()) {
+      return this.http.delete<void>(`/demo-api/plants/${id}`);
+    }
+
+    return this.http.delete<void>(`${this.url}/${id}`);
+  }
 }
