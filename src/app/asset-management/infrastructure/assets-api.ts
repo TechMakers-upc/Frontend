@@ -47,4 +47,22 @@ export class AssetsApi extends BaseApi<Asset, AssetProps> {
       map((resource) => AssetApiMapper.toEntity(resource)),
     );
   }
+
+  override update(entity: Asset): Observable<Asset> {
+    if (!this.tokenStorage.read()) {
+      return this.http.put<AssetProps>(
+        `/demo-api/assets/${entity.id}`,
+        { ...entity },
+      ).pipe(
+        map((resource) => this.toEntity(resource)),
+      );
+    }
+
+    return this.http.put<AssetApiResource>(
+      `${this.url}/${entity.id}`,
+      AssetApiMapper.toSaveRequest(entity),
+    ).pipe(
+      map((resource) => AssetApiMapper.toEntity(resource)),
+    );
+  }
 }
