@@ -1,7 +1,6 @@
 import { HttpErrorResponse, HttpInterceptorFn, HttpRequest, HttpResponse } from '@angular/common/http';
 import { from, map, catchError, throwError } from 'rxjs';
 
-import { environment } from '../../../environments/environment';
 
 // Datos exclusivamente locales al navegador. No constituyen un backend ni un servicio IAM.
 type DemoRecord = Record<string, unknown> & { id: string };
@@ -89,7 +88,7 @@ async function execute(request: HttpRequest<unknown>): Promise<unknown> {
 }
 
 export const demoApiInterceptor: HttpInterceptorFn = (request, next) => {
-  if (!environment.production || !request.url.startsWith('/demo-api/')) return next(request);
+  if (!request.url.startsWith('/demo-api/')) return next(request);
   return from(execute(request)).pipe(
     map((body) => new HttpResponse({ status: 200, body, url: request.url })),
     catchError((error: unknown) => throwError(() => error instanceof HttpErrorResponse
