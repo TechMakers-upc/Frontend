@@ -18,6 +18,42 @@ export class MaintenancePlansApi extends BaseApi<MaintenancePlan, MaintenancePla
     return new MaintenancePlan(resource);
   }
 
+  override create(entity: MaintenancePlan): Observable<MaintenancePlan> {
+    if (!this.tokenStorage.read()) {
+      return this.http.post<MaintenancePlanProps>(
+        '/demo-api/maintenance-plans',
+        { ...entity },
+      ).pipe(
+        map((resource) => this.toEntity(resource)),
+      );
+    }
+
+    return this.http.post<MaintenancePlanApiResource>(
+      this.url,
+      MaintenancePlanApiMapper.toSaveRequest(entity),
+    ).pipe(
+      map((resource) => MaintenancePlanApiMapper.toEntity(resource)),
+    );
+  }
+
+  override update(entity: MaintenancePlan): Observable<MaintenancePlan> {
+    if (!this.tokenStorage.read()) {
+      return this.http.put<MaintenancePlanProps>(
+        `/demo-api/maintenance-plans/${entity.id}`,
+        { ...entity },
+      ).pipe(
+        map((resource) => this.toEntity(resource)),
+      );
+    }
+
+    return this.http.put<MaintenancePlanApiResource>(
+      `${this.url}/${entity.id}`,
+      MaintenancePlanApiMapper.toSaveRequest(entity),
+    ).pipe(
+      map((resource) => MaintenancePlanApiMapper.toEntity(resource)),
+    );
+  }
+
   override getAll(): Observable<MaintenancePlan[]> {
     if (!this.tokenStorage.read()) {
       return this.http.get<MaintenancePlanProps[]>('/demo-api/maintenance-plans').pipe(
