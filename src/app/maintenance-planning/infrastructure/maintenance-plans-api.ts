@@ -57,6 +57,36 @@ export class MaintenancePlansApi extends BaseApi<MaintenancePlan, MaintenancePla
     );
   }
 
+  suspendPlan(plan: MaintenancePlan): Observable<MaintenancePlan> {
+    if (!this.tokenStorage.read()) {
+      const draft = plan.clone();
+      draft.suspend();
+      return this.update(draft);
+    }
+
+    return this.http.post<MaintenancePlanApiResource>(
+      `${this.url}/${plan.id}/suspension`,
+      {},
+    ).pipe(
+      map((resource) => MaintenancePlanApiMapper.toEntity(resource)),
+    );
+  }
+
+  reactivatePlan(plan: MaintenancePlan): Observable<MaintenancePlan> {
+    if (!this.tokenStorage.read()) {
+      const draft = plan.clone();
+      draft.reactivate();
+      return this.update(draft);
+    }
+
+    return this.http.post<MaintenancePlanApiResource>(
+      `${this.url}/${plan.id}/reactivation`,
+      {},
+    ).pipe(
+      map((resource) => MaintenancePlanApiMapper.toEntity(resource)),
+    );
+  }
+
   reschedulePlan(
     plan: MaintenancePlan,
     nextDueDate: string,

@@ -23,6 +23,42 @@ export class MaintenancePlanStore extends CollectionStore<MaintenancePlan> {
     return this.inScope().filter((plan) => plan.isOverdue(today));
   });
 
+  async suspend(id: string): Promise<MaintenancePlan> {
+    const current = this.find(id);
+
+    if (!current) {
+      throw new Error(`Unknown maintenance plan ${id}`);
+    }
+
+    const saved = await firstValueFrom(
+      this.api.suspendPlan(current),
+    );
+
+    this.itemsSignal.update((items) =>
+      items.map((item) => item.id === saved.id ? saved : item),
+    );
+
+    return saved;
+  }
+
+  async reactivate(id: string): Promise<MaintenancePlan> {
+    const current = this.find(id);
+
+    if (!current) {
+      throw new Error(`Unknown maintenance plan ${id}`);
+    }
+
+    const saved = await firstValueFrom(
+      this.api.reactivatePlan(current),
+    );
+
+    this.itemsSignal.update((items) =>
+      items.map((item) => item.id === saved.id ? saved : item),
+    );
+
+    return saved;
+  }
+
   async reschedule(
     id: string,
     nextDueDate: string,

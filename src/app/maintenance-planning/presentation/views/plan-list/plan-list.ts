@@ -120,8 +120,8 @@ export class PlanList {
 
   protected toggle(plan: MaintenancePlan): Promise<boolean> {
     return plan.active
-      ? this.run(() => this.planStore.change(plan.id, (draft) => draft.suspend()), 'maintenance.suspended', plan)
-      : this.run(() => this.planStore.change(plan.id, (draft) => draft.reactivate()), 'maintenance.reactivated', plan);
+      ? this.run(() => this.planStore.suspend(plan.id), 'maintenance.suspended', plan)
+      : this.run(() => this.planStore.reactivate(plan.id), 'maintenance.reactivated', plan);
   }
 
   private async run(action: () => Promise<unknown>, key: string, plan: MaintenancePlan): Promise<boolean> {
