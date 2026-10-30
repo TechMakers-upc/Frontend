@@ -154,7 +154,7 @@ export class WorkOrderDetail {
     const { note } = this.noteForm.getRawValue();
     const author = this.me()!.id;
     const done = await this.run(
-      () => this.workOrderStore.change(this.id(), (draft) => draft.logWork(note, author, nowIso())),
+      () => this.workOrderStore.addWorkLog(this.id(), note, author, nowIso()),
       'workOrders.noteSaved',
     );
     if (done) this.noteForm.reset();

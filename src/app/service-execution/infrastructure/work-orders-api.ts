@@ -52,6 +52,32 @@ export class WorkOrdersApi extends BaseApi<WorkOrder, WorkOrderProps> {
     );
   }
 
+  logWork(
+    order: WorkOrder,
+    note: string,
+    authorId: string,
+    at: string,
+  ): Observable<WorkOrder> {
+    const trimmedNote = note.trim();
+
+    if (!trimmedNote) {
+      throw new Error('A work note is required');
+    }
+
+    if (!this.tokenStorage.read()) {
+      const draft = order.clone();
+      draft.logWork(trimmedNote, authorId, at);
+      return this.update(draft);
+    }
+
+    return this.http.post<WorkOrderApiResource>(
+      `${this.url}/${order.id}/work-logs`,
+      { note: trimmedNote },
+    ).pipe(
+      map((resource) => WorkOrderApiMapper.toEntity(resource)),
+    );
+  }
+
   startOrder(order: WorkOrder, at: string): Observable<WorkOrder> {
     if (!this.tokenStorage.read()) {
       const draft = order.clone();
