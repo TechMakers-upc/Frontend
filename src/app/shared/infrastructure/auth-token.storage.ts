@@ -6,7 +6,15 @@ const TOKEN_KEY = 'fixcore.auth-token';
 export class AuthTokenStorage {
   read(): string | null {
     try {
-      return sessionStorage.getItem(TOKEN_KEY);
+      const token = sessionStorage.getItem(TOKEN_KEY);
+      if (!token) return null;
+
+      if (this.isExpired(token)) {
+        this.clear();
+        return null;
+      }
+
+      return token;
     } catch {
       return null;
     }
@@ -16,7 +24,7 @@ export class AuthTokenStorage {
     try {
       sessionStorage.setItem(TOKEN_KEY, token);
     } catch {
-      // Storage may be unavailable in restricted browser contexts.
+      // Browser storage may be unavailable.
     }
   }
 
@@ -24,7 +32,25 @@ export class AuthTokenStorage {
     try {
       sessionStorage.removeItem(TOKEN_KEY);
     } catch {
-      // Storage may be unavailable in restricted browser contexts.
+      // Browser storage may be unavailable.
+    }
+  }
+
+  private isExpired(token: string): boolean {
+    try {
+      const payload = token.split('.')[1];
+      if (!payload) return true;
+
+      const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+      const decoded = JSON.parse(atob(base64)) as { exp?: unknown };
+
+      if (typeof decoded.exp !== 'number' || !Number.isFinite(decoded.exp)) {
+        return true;
+      }
+
+      return decoded.exp * 1000 <= Date.now();
+    } catch {
+      return true;
     }
   }
 }
