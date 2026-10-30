@@ -108,6 +108,31 @@ export class WorkOrdersApi extends BaseApi<WorkOrder, WorkOrderProps> {
     );
   }
 
+  completeOrder(
+    order: WorkOrder,
+    solution: string,
+    at: string,
+  ): Observable<WorkOrder> {
+    const trimmedSolution = solution.trim();
+
+    if (!trimmedSolution) {
+      throw new Error('A work order solution is required');
+    }
+
+    if (!this.tokenStorage.read()) {
+      const draft = order.clone();
+      draft.complete(trimmedSolution, at);
+      return this.update(draft);
+    }
+
+    return this.http.post<WorkOrderApiResource>(
+      `${this.url}/${order.id}/completion`,
+      { solution: trimmedSolution },
+    ).pipe(
+      map((resource) => WorkOrderApiMapper.toEntity(resource)),
+    );
+  }
+
   startOrder(order: WorkOrder, at: string): Observable<WorkOrder> {
     if (!this.tokenStorage.read()) {
       const draft = order.clone();

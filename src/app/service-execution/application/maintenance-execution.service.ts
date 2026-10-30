@@ -138,11 +138,22 @@ export class MaintenanceExecutionService {
   /** US30: closing the order resolves its failure, frees the machine and rolls the plan forward. */
   async complete(workOrderId: string, solution: string): Promise<WorkOrder> {
     const at = nowIso();
-    const order = await this.workOrders.change(workOrderId, (draft) => draft.complete(solution, at));
+    const usesBackend = !!this.tokenStorage.read();
+    const order = await this.workOrders.completeOrder(workOrderId, solution, at);
 
+    if (usesBackend) {
+      // Spring Boot performs these changes in the completion transaction.
+      if (order.failureId) this.failures.load(true);
+      if (order.planId) this.plans.load(true);
+      this.assets.load(true);
+      return order;
+    }
+
+    // Preserve the existing demo workflow.
     if (order.failureId) {
       await this.failures.change(order.failureId, (draft) => draft.resolve(at));
     }
+
     if (order.planId && this.plans.find(order.planId)) {
       await this.plans.change(order.planId, (draft) => draft.registerCompletion(todayDate()));
     }
@@ -151,10 +162,13 @@ export class MaintenanceExecutionService {
     const otherWorkInProgress = this.workOrders
       .items()
       .some((other) => other.assetId === order.assetId && other.id !== order.id && other.status === 'in-progress');
+
     const asset = this.assets.find(order.assetId);
+
     if (asset && !stillFailing && !otherWorkInProgress) {
       await this.assets.setStatus(asset.id, 'operational', at);
     }
+
     return order;
   }
 }

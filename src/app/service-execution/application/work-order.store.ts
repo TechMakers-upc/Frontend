@@ -77,6 +77,28 @@ export class WorkOrderStore extends CollectionStore<WorkOrder> {
     return saved;
   }
 
+  async completeOrder(
+    id: string,
+    solution: string,
+    at: string,
+  ): Promise<WorkOrder> {
+    const current = this.find(id);
+
+    if (!current) {
+      throw new Error(`Unknown work order ${id}`);
+    }
+
+    const saved = await firstValueFrom(
+      this.api.completeOrder(current, solution, at),
+    );
+
+    this.itemsSignal.update((items) =>
+      items.map((item) => (item.id === saved.id ? saved : item)),
+    );
+
+    return saved;
+  }
+
   async startOrder(id: string, at: string): Promise<WorkOrder> {
     const current = this.find(id);
 
