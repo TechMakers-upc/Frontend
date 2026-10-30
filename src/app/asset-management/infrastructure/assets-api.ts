@@ -73,4 +73,33 @@ export class AssetsApi extends BaseApi<Asset, AssetProps> {
 
     return this.http.delete<void>(`${this.url}/${id}`);
   }
+
+  addManual(asset: Asset, title: string, url: string): Observable<Asset> {
+    if (!this.tokenStorage.read()) {
+      const draft = asset.clone();
+      draft.addManual(title, url, new Date().toISOString());
+      return this.update(draft);
+    }
+
+    return this.http.post<AssetApiResource>(
+      `${this.url}/${asset.id}/manuals`,
+      { title, url },
+    ).pipe(
+      map((resource) => AssetApiMapper.toEntity(resource)),
+    );
+  }
+
+  removeManual(asset: Asset, index: number): Observable<Asset> {
+    if (!this.tokenStorage.read()) {
+      const draft = asset.clone();
+      draft.removeManual(index);
+      return this.update(draft);
+    }
+
+    return this.http.delete<AssetApiResource>(
+      `${this.url}/${asset.id}/manuals/${index}`,
+    ).pipe(
+      map((resource) => AssetApiMapper.toEntity(resource)),
+    );
+  }
 }
