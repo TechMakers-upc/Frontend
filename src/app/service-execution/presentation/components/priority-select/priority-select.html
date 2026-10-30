@@ -3,7 +3,7 @@
   class="select-inline"
   [class]="'select-inline priority priority--' + (failure().priority ?? 'none')"
   [id]="'priority-' + failure().id"
-  [disabled]="saving() || failure().isResolved"
+  [disabled]="saving() || failure().isResolved || role() !== 'plant-manager'"
   (change)="change($event)"
 >
   @if (!failure().priority) {

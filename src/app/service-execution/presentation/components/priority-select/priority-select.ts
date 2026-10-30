@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angu
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { ToastService } from '../../../../shared/application/toast.service';
+import { SessionStore } from '../../../../shared/application/session.store';
 import { FailureStore } from '../../../application/failure.store';
 import { Failure } from '../../../domain/model/failure.entity';
 import { PRIORITIES, Priority } from '../../../domain/model/priority';
@@ -16,6 +17,7 @@ import { PRIORITIES, Priority } from '../../../domain/model/priority';
 })
 export class PrioritySelect {
   private readonly failureStore = inject(FailureStore);
+  protected readonly role = inject(SessionStore).role;
   private readonly toast = inject(ToastService);
   private readonly translate = inject(TranslateService);
 
@@ -25,10 +27,11 @@ export class PrioritySelect {
   protected readonly saving = signal(false);
 
   protected async change(event: Event): Promise<void> {
+    if (this.saving() || this.role() !== 'plant-manager') return;
     const priority = (event.target as HTMLSelectElement).value as Priority;
     this.saving.set(true);
     try {
-      await this.failureStore.change(this.failure().id, (draft) => draft.prioritize(priority));
+      await this.failureStore.setPriority(this.failure().id, priority);
       this.toast.success(this.translate.instant('failures.prioritized', { priority: this.translate.instant(`priority.${priority}`) }));
     } catch {
       this.toast.error(this.translate.instant('common.saveError'));
