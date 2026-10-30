@@ -10,7 +10,6 @@ import { MaintenancePlanStore } from '../../../../maintenance-planning/applicati
 import { FailureStore } from '../../../../service-execution/application/failure.store';
 import { WorkOrderStore } from '../../../../service-execution/application/work-order.store';
 import { ToastService } from '../../../../shared/application/toast.service';
-import { nowIso } from '../../../../shared/domain/model/date-time';
 import { PlantTimeline } from '../../../../analytics/application/plant-timeline';
 import { TranslatedTitleStrategy } from '../../../../shared/infrastructure/translated-title.strategy';
 import { DayStrip } from '../../../../shared/presentation/components/day-strip/day-strip';
@@ -153,7 +152,7 @@ export class AssetDetail {
     const { title, url } = this.manualForm.getRawValue();
     this.savingManual.set(true);
     try {
-      await this.assetStore.change(this.id(), (draft) => draft.addManual(title, url, nowIso()));
+      await this.assetStore.addManual(this.id(), title, url);
       this.manualForm.reset();
       this.toast.success(this.translate.instant('assets.manuals.added'));
     } catch {
@@ -165,7 +164,7 @@ export class AssetDetail {
 
   protected async removeManual(index: number): Promise<void> {
     try {
-      await this.assetStore.change(this.id(), (draft) => draft.removeManual(index));
+      await this.assetStore.removeManual(this.id(), index);
     } catch {
       this.toast.error(this.translate.instant('common.saveError'));
     }
