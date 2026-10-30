@@ -54,6 +54,8 @@ export class SessionStore {
 
   signOut(): void {
     this.accountSignal.set(null);
+    this.tokenStorage.clear();
+    this.sessionStorage.clear();
     try {
       sessionStorage.removeItem(DEMO_ROLE_KEY);
     } catch {
