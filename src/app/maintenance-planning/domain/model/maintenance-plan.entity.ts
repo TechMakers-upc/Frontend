@@ -18,7 +18,7 @@ export interface MaintenancePlanProps {
   lastCompletedAt: string | null;
   active: boolean;
   technicianId: string | null;
-  createdAt: string;
+  createdAt: string | null;
 }
 
 export type MaintenancePlanDetails = Pick<
