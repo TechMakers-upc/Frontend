@@ -44,4 +44,22 @@ export class PlantsApi extends BaseApi<Plant, PlantProps> {
       map((resource) => PlantApiMapper.toEntity(resource)),
     );
   }
+
+  override update(entity: Plant): Observable<Plant> {
+    if (!this.tokenStorage.read()) {
+      return this.http.put<PlantProps>(
+        `/demo-api/plants/${entity.id}`,
+        { ...entity },
+      ).pipe(
+        map((resource) => this.toEntity(resource)),
+      );
+    }
+
+    return this.http.put<PlantApiResource>(
+      `${this.url}/${entity.id}`,
+      PlantApiMapper.toSaveRequest(entity),
+    ).pipe(
+      map((resource) => PlantApiMapper.toEntity(resource)),
+    );
+  }
 }
