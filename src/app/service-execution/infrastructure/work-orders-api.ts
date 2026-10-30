@@ -169,6 +169,14 @@ export class WorkOrdersApi extends BaseApi<WorkOrder, WorkOrderProps> {
     );
   }
 
+  override delete(id: string): Observable<void> {
+    if (!this.tokenStorage.read()) {
+      return this.http.delete<void>(`/demo-api/work-orders/${id}`);
+    }
+
+    return this.http.delete<void>(`${this.url}/${id}`);
+  }
+
   override create(entity: WorkOrder): Observable<WorkOrder> {
     if (!this.tokenStorage.read()) {
       return this.http.post<WorkOrderProps>(

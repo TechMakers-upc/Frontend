@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink, TitleStrategy } from '@angular/router';
+import { Router, RouterLink, TitleStrategy } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { AssetStore } from '../../../../asset-management/application/asset.store';
@@ -56,6 +56,7 @@ export class WorkOrderDetail {
   private readonly inventory = inject(InventoryStore);
   private readonly execution = inject(MaintenanceExecutionService);
   private readonly session = inject(SessionStore);
+  private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
   private readonly translate = inject(TranslateService);
   protected readonly directory = inject(UserDirectoryStore);
@@ -80,6 +81,15 @@ export class WorkOrderDetail {
 
   private readonly me = computed(() => this.session.currentAccount());
   protected readonly isManager = computed(() => this.me()?.role !== 'technician');
+  protected readonly canDelete = computed(() => {
+    const role = this.session.role();
+    const order = this.order();
+
+    return !!order &&
+      (role === 'plant-manager' || role === 'operations-manager') &&
+      order.status === 'pending' &&
+      order.failureId === null;
+  });
   /** Only the assigned technician executes the order (US28–US30). */
   protected readonly isAssignee = computed(() => !!this.me() && this.order()?.technicianId === this.me()!.id);
 
@@ -140,6 +150,28 @@ export class WorkOrderDetail {
 
   protected maxFor(partId: string): number {
     return this.inventory.find(partId)?.stock ?? 0;
+  }
+
+  protected async deleteOrder(): Promise<void> {
+    if (!this.canDelete() || this.busy()) return;
+
+    const order = this.order();
+
+    if (!order || !window.confirm(`¿Eliminar la orden ${order.code}?`)) {
+      return;
+    }
+
+    this.busy.set(true);
+
+    try {
+      await this.workOrderStore.remove(order.id);
+      this.toast.success('Orden de trabajo eliminada.');
+      await this.router.navigateByUrl('/work-orders');
+    } catch {
+      this.toast.error('No se pudo eliminar la orden de trabajo.');
+    } finally {
+      this.busy.set(false);
+    }
   }
 
   protected async start(): Promise<void> {

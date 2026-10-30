@@ -31,6 +31,24 @@ export class WorkOrderStore extends CollectionStore<WorkOrder> {
     return this.inScope().filter((order) => order.technicianId === id);
   });
 
+  async remove(id: string): Promise<void> {
+    const current = this.find(id);
+
+    if (!current) {
+      throw new Error(`Unknown work order ${id}`);
+    }
+
+    if (current.status !== 'pending' || current.failureId !== null) {
+      throw new Error('Only pending work orders without a failure can be deleted');
+    }
+
+    await firstValueFrom(this.api.delete(id));
+
+    this.itemsSignal.update((items) =>
+      items.filter((item) => item.id !== id),
+    );
+  }
+
   async addPartUsage(
     id: string,
     partId: string,

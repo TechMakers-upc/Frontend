@@ -10,6 +10,12 @@
         {{ 'common.edit' | translate }}
       </a>
     }
+    @if (canDelete()) {
+      <button type="button" class="btn btn--ghost" [disabled]="busy()" (click)="deleteOrder()">
+        <app-icon name="trash-2" [size]="18" />
+        Eliminar orden
+      </button>
+    }
   </app-page-header>
 
   <div class="badges">
