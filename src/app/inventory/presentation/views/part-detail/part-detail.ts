@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { PlantStore } from '../../../../asset-management/application/plant.store';
@@ -41,6 +41,7 @@ export class PartDetail {
   private readonly plantStore = inject(PlantStore);
   private readonly workOrderStore = inject(WorkOrderStore);
   private readonly session = inject(SessionStore);
+  private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
   private readonly translate = inject(TranslateService);
   protected readonly directory = inject(UserDirectoryStore);
@@ -56,6 +57,12 @@ export class PartDetail {
   protected readonly plant = computed(() => this.plantStore.find(this.part()?.plantId));
   protected readonly history = computed(() => this.movements.forPart(this.id()));
   protected readonly canManage = computed(() => this.session.role() === 'plant-manager');
+
+  protected readonly canDelete = computed(() =>
+    this.canManage() &&
+    this.movements.state() === 'ready' &&
+    this.history().length === 0,
+  );
   protected readonly fill = computed(() => {
     const part = this.part();
     if (!part) return 0;
@@ -84,6 +91,28 @@ export class PartDetail {
     this.entryForm.reset({ quantity: 1, reason: '' });
     this.adjustForm.reset({ counted: this.part()?.stock ?? 0, reason: '' });
     this.dialog.set(name);
+  }
+
+  protected async deletePart(): Promise<void> {
+    if (!this.canDelete() || this.busy()) return;
+
+    const part = this.part();
+
+    if (!part || !window.confirm(`¿Eliminar el repuesto "${part.name}"?`)) {
+      return;
+    }
+
+    this.busy.set(true);
+
+    try {
+      await this.inventory.remove(part.id);
+      this.toast.success('Repuesto eliminado correctamente.');
+      await this.router.navigateByUrl('/inventory');
+    } catch {
+      this.toast.error('No se pudo eliminar el repuesto.');
+    } finally {
+      this.busy.set(false);
+    }
   }
 
   protected async receive(): Promise<void> {

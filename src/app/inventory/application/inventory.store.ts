@@ -64,6 +64,20 @@ export class InventoryStore extends CollectionStore<SparePart> {
     return created;
   }
 
+  async remove(id: string): Promise<void> {
+    const current = this.find(id);
+
+    if (!current) {
+      throw new Error(`Unknown spare part ${id}`);
+    }
+
+    await firstValueFrom(this.api.delete(id));
+
+    this.itemsSignal.update((items) =>
+      items.filter((item) => item.id !== id),
+    );
+  }
+
   receive(partId: string, quantity: number, reason: string): Promise<SparePart> {
     if (this.tokenStorage.read()) {
       return this.applyBackendStockOperation(

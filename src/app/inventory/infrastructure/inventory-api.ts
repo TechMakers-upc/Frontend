@@ -178,6 +178,14 @@ export class SparePartsApi extends BaseApi<SparePart, SparePartProps> {
     );
   }
 
+  override delete(id: string): Observable<void> {
+    if (!this.tokenStorage.read()) {
+      return this.http.delete<void>(`/demo-api/spare-parts/${id}`);
+    }
+
+    return this.http.delete<void>(`${this.url}/${id}`);
+  }
+
   override getAll(): Observable<SparePart[]> {
     if (!this.tokenStorage.read()) {
       return this.http.get<SparePartProps[]>('/demo-api/spare-parts').pipe(
