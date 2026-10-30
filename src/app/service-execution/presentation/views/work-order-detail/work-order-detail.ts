@@ -167,7 +167,7 @@ export class WorkOrderDetail {
     }
     const { technicianId } = this.assignForm.getRawValue();
     const done = await this.run(
-      () => this.workOrderStore.change(this.id(), (draft) => draft.assign(technicianId)),
+      () => this.workOrderStore.assignTechnician(this.id(), technicianId),
       'workOrders.assigned',
       { name: this.directory.find(technicianId)?.fullName ?? '' },
     );
