@@ -65,4 +65,12 @@ export class AssetsApi extends BaseApi<Asset, AssetProps> {
       map((resource) => AssetApiMapper.toEntity(resource)),
     );
   }
+
+  override delete(id: string): Observable<void> {
+    if (!this.tokenStorage.read()) {
+      return this.http.delete<void>(`/demo-api/assets/${id}`);
+    }
+
+    return this.http.delete<void>(`${this.url}/${id}`);
+  }
 }
