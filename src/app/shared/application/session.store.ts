@@ -39,8 +39,10 @@ export class SessionStore {
     if (this.tokenStorage.read()) {
       const account = this.sessionStorage.readAuthenticated();
       if (account) return account;
-      this.tokenStorage.clear();
     }
+
+    this.tokenStorage.clear();
+    this.sessionStorage.clear();
     return this.restoreDemoAccount();
   }
   selectDemoRole(role: Role): void {
