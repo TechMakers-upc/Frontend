@@ -4,6 +4,7 @@ import { routes } from './app.routes';
 import {provideHttpClient, withInterceptors} from '@angular/common/http';
 import { demoApiInterceptor } from './shared/infrastructure/demo-api.interceptor';
 import { authTokenInterceptor } from './shared/infrastructure/auth-token.interceptor';
+import { authErrorInterceptor } from './shared/infrastructure/auth-error.interceptor';
 import {provideTranslateService} from '@ngx-translate/core';
 import {provideTranslateHttpLoader} from '@ngx-translate/http-loader';
 import {TranslatedTitleStrategy} from './shared/infrastructure/translated-title.strategy';
@@ -11,7 +12,7 @@ import {TranslatedTitleStrategy} from './shared/infrastructure/translated-title.
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideHttpClient(withInterceptors([authTokenInterceptor, demoApiInterceptor])),
+    provideHttpClient(withInterceptors([authErrorInterceptor, authTokenInterceptor, demoApiInterceptor])),
     provideTranslateService({
       loader: provideTranslateHttpLoader({prefix: './i18n/', suffix: '.json'}),
       fallbackLang: 'en'
