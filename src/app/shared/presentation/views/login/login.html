@@ -71,10 +71,13 @@
           </button>
         </form>
 
-        <div class="login-notice" id="login-unavailable" role="note">
-          <span class="login-notice__marker" aria-hidden="true">i</span>
-          <p>{{ 'loginPreview.unavailable' | translate }}</p>
-        </div>
+        @if (authenticationError(); as error) {
+          <p class="login-field__error" role="alert">{{ error }}</p>
+        }
+
+        @if (authenticationSuccess()) {
+          <p role="status">Inicio de sesión correcto.</p>
+        }
 
         <a class="login-demo-link" routerLink="/start">
           {{ 'loginPreview.exploreDemo' | translate }}
