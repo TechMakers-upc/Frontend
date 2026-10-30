@@ -29,4 +29,19 @@ export class PlantsApi extends BaseApi<Plant, PlantProps> {
       map((items) => items.map((item) => PlantApiMapper.toEntity(item))),
     );
   }
+
+  override create(entity: Plant): Observable<Plant> {
+    if (!this.tokenStorage.read()) {
+      return this.http.post<PlantProps>('/demo-api/plants', { ...entity }).pipe(
+        map((resource) => this.toEntity(resource)),
+      );
+    }
+
+    return this.http.post<PlantApiResource>(
+      this.url,
+      PlantApiMapper.toSaveRequest(entity),
+    ).pipe(
+      map((resource) => PlantApiMapper.toEntity(resource)),
+    );
+  }
 }
