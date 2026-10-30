@@ -1,3 +1,4 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
@@ -11,7 +12,7 @@ describe('Login', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Login],
-      providers: [provideRouter([]), provideTranslateService()],
+      providers: [provideRouter([]), provideTranslateService(), provideHttpClient()],
     }).compileComponents();
     fixture = TestBed.createComponent(Login);
     fixture.detectChanges();
@@ -50,12 +51,12 @@ describe('Login', () => {
     expect(root.querySelector('#login-password-error')).not.toBeNull();
   });
 
-  it('clears errors after entering valid values without authenticating', () => {
+  it('enables login when credentials are valid', () => {
     setField('#login-email', 'worker@example.com');
     setField('#login-password', 'valid-password-123');
     expect(root.querySelector('#login-email-error')).toBeNull();
     expect(root.querySelector('#login-password-error')).toBeNull();
-    expect(root.querySelector<HTMLButtonElement>('.login-submit')?.disabled).toBe(true);
+    expect(root.querySelector<HTMLButtonElement>('.login-submit')?.disabled).toBe(false);
   });
 
   it('toggles password visibility', () => {

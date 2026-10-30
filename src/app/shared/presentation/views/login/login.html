@@ -14,7 +14,7 @@
         <h1 id="login-title">{{ 'signIn.title' | translate }}</h1>
         <p class="login-description">{{ 'loginPreview.description' | translate }}</p>
 
-        <form class="login-form" [formGroup]="form" (ngSubmit)="preventPreviewSubmit($event)" novalidate>
+        <form class="login-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
           <div class="login-field">
             <label for="login-email">{{ 'fields.workEmail' | translate }}</label>
             <input
@@ -66,7 +66,7 @@
             }
           </div>
 
-          <button type="submit" class="login-submit" disabled aria-describedby="login-unavailable">
+          <button type="submit" class="login-submit" [disabled]="form.invalid || isSubmitting()">
             {{ 'signIn.submit' | translate }}
           </button>
         </form>

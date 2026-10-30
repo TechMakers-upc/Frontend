@@ -1,8 +1,11 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
+import { AuthenticationApi } from '../../../infrastructure/authentication-api';
+import { AuthTokenStorage } from '../../../infrastructure/auth-token.storage';
 import { BrandMark } from '../../components/brand-mark/brand-mark';
 import { LanguageSwitcher } from '../../components/language-switcher/language-switcher';
 
@@ -14,7 +17,13 @@ import { LanguageSwitcher } from '../../components/language-switcher/language-sw
   styleUrl: './login.css',
 })
 export class Login {
+  private readonly authenticationApi = inject(AuthenticationApi);
+  private readonly tokenStorage = inject(AuthTokenStorage);
+
   protected readonly showPassword = signal(false);
+  protected readonly isSubmitting = signal(false);
+  protected readonly authenticationError = signal<string | null>(null);
+  protected readonly authenticationSuccess = signal(false);
 
   protected readonly form = inject(FormBuilder).nonNullable.group({
     email: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
@@ -41,8 +50,42 @@ export class Login {
     this.showPassword.update((visible) => !visible);
   }
 
-  protected preventPreviewSubmit(event: Event): void {
-    event.preventDefault();
+  protected submit(): void {
     this.form.markAllAsTouched();
+
+    if (this.form.invalid || this.isSubmitting()) return;
+
+    this.authenticationError.set(null);
+    this.authenticationSuccess.set(false);
+    this.isSubmitting.set(true);
+
+    const credentials = this.form.getRawValue();
+
+    this.authenticationApi.signIn(credentials).subscribe({
+      next: (response) => {
+        if (!response.token) {
+          this.authenticationError.set('El servidor no devolvió un token válido.');
+        } else {
+          this.tokenStorage.write(response.token);
+          this.authenticationSuccess.set(true);
+          this.form.controls.password.reset();
+        }
+        this.isSubmitting.set(false);
+      },
+      error: (error: unknown) => {
+        if (error instanceof HttpErrorResponse) {
+          if (error.status === 401) {
+            this.authenticationError.set('Correo o contraseña incorrectos.');
+          } else if (error.status === 0) {
+            this.authenticationError.set('No se pudo conectar con el servidor.');
+          } else {
+            this.authenticationError.set('No se pudo iniciar sesión. Inténtalo nuevamente.');
+          }
+        } else {
+          this.authenticationError.set('Ocurrió un error inesperado.');
+        }
+        this.isSubmitting.set(false);
+      },
+    });
   }
 }
