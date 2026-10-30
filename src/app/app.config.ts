@@ -12,7 +12,7 @@ import {TranslatedTitleStrategy} from './shared/infrastructure/translated-title.
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideHttpClient(withInterceptors([authErrorInterceptor, authTokenInterceptor, demoApiInterceptor])),
+    provideHttpClient(withInterceptors([authTokenInterceptor, authErrorInterceptor, demoApiInterceptor])),
     provideTranslateService({
       loader: provideTranslateHttpLoader({prefix: './i18n/', suffix: '.json'}),
       fallbackLang: 'en'
