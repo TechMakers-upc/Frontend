@@ -1,6 +1,8 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { Role, isRole } from '../domain/model/role';
 import { UserAccount } from '../domain/model/user-account.entity';
+import { AuthTokenStorage } from '../infrastructure/auth-token.storage';
+import { SessionStorage } from '../infrastructure/session-storage';
 
 const DEMO_ROLE_KEY = 'fixcore.demo-role';
 
@@ -14,12 +16,33 @@ const DEMO_ACCOUNTS: Record<Role, { id: string; name: string; title: string; pla
 
 @Injectable({ providedIn: 'root' })
 export class SessionStore {
-  private readonly accountSignal = signal<UserAccount | null>(this.restoreDemoAccount());
+  private readonly tokenStorage = inject(AuthTokenStorage);
+  private readonly sessionStorage = inject(SessionStorage);
+  private readonly accountSignal = signal<UserAccount | null>(this.restoreAccount());
 
   readonly currentAccount = this.accountSignal.asReadonly();
   readonly isSignedIn = computed(() => this.accountSignal() !== null);
   readonly role = computed(() => this.accountSignal()?.role ?? null);
 
+  signIn(account: UserAccount): void {
+    this.tokenStorage.read();
+    this.sessionStorage.write(account, false);
+    this.accountSignal.set(account);
+    try {
+      sessionStorage.removeItem(DEMO_ROLE_KEY);
+    } catch {
+      // Browser storage may be unavailable.
+    }
+  }
+
+  private restoreAccount(): UserAccount | null {
+    if (this.tokenStorage.read()) {
+      const account = this.sessionStorage.read();
+      if (account) return account;
+      this.tokenStorage.clear();
+    }
+    return this.restoreDemoAccount();
+  }
   selectDemoRole(role: Role): void {
     this.accountSignal.set(this.demoAccount(role));
     try {

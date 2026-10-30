@@ -5,6 +5,9 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { AuthenticationApi } from '../../../infrastructure/authentication-api';
+import { SessionStore } from '../../../application/session.store';
+import { UserAccount } from '../../../domain/model/user-account.entity';
+import { isRole } from '../../../domain/model/role';
 import { AuthTokenStorage } from '../../../infrastructure/auth-token.storage';
 import { BrandMark } from '../../components/brand-mark/brand-mark';
 import { LanguageSwitcher } from '../../components/language-switcher/language-switcher';
@@ -19,6 +22,7 @@ import { LanguageSwitcher } from '../../components/language-switcher/language-sw
 export class Login {
   private readonly authenticationApi = inject(AuthenticationApi);
   private readonly tokenStorage = inject(AuthTokenStorage);
+  private readonly sessionStore = inject(SessionStore);
 
   protected readonly showPassword = signal(false);
   protected readonly isSubmitting = signal(false);
@@ -66,9 +70,25 @@ export class Login {
         if (!response.token) {
           this.authenticationError.set('El servidor no devolvió un token válido.');
         } else {
-          this.tokenStorage.write(response.token);
-          this.authenticationSuccess.set(true);
-          this.form.controls.password.reset();
+          const role = response.account.role.toLowerCase().replaceAll('_', '-');
+
+          if (!isRole(role)) {
+            this.authenticationError.set('El usuario tiene un rol no reconocido.');
+          } else {
+            const account = new UserAccount(
+              String(response.account.id),
+              response.account.fullName,
+              response.account.email,
+              role,
+              response.account.plantId === null ? null : String(response.account.plantId),
+              response.account.jobTitle,
+            );
+
+            this.tokenStorage.write(response.token);
+            this.sessionStore.signIn(account);
+            this.authenticationSuccess.set(true);
+            this.form.controls.password.reset();
+          }
         }
         this.isSubmitting.set(false);
       },
