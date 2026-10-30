@@ -1,5 +1,5 @@
 import { Injectable, computed, inject } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 
 import { PlantScope } from '../../asset-management/application/plant-scope';
 import { SessionStore } from '../../shared/application/session.store';
@@ -65,6 +65,12 @@ export class InventoryStore extends CollectionStore<SparePart> {
   }
 
   receive(partId: string, quantity: number, reason: string): Promise<SparePart> {
+    if (this.tokenStorage.read()) {
+      return this.applyBackendStockOperation(
+        this.api.receiveStock(partId, quantity, reason),
+      );
+    }
+
     return this.applyMovement(partId, 'entry', reason, null, (part) => {
       part.receive(quantity);
       return quantity;
@@ -72,6 +78,12 @@ export class InventoryStore extends CollectionStore<SparePart> {
   }
 
   adjust(partId: string, counted: number, reason: string): Promise<SparePart> {
+    if (this.tokenStorage.read()) {
+      return this.applyBackendStockOperation(
+        this.api.adjustStock(partId, counted, reason),
+      );
+    }
+
     return this.applyMovement(partId, 'adjustment', reason, null, (part) => part.adjustTo(counted));
   }
 
@@ -80,6 +92,21 @@ export class InventoryStore extends CollectionStore<SparePart> {
       part.consume(quantity);
       return -quantity;
     });
+  }
+
+  private async applyBackendStockOperation(
+    operation: Observable<SparePart>,
+  ): Promise<SparePart> {
+    const saved = await firstValueFrom(operation);
+
+    this.itemsSignal.update((items) =>
+      items.map((item) => item.id === saved.id ? saved : item),
+    );
+
+    // Spring Boot already recorded the stock movement.
+    this.movements.load(true);
+
+    return saved;
   }
 
   private async applyMovement(

@@ -7,7 +7,12 @@ import { AuthTokenStorage } from '../../shared/infrastructure/auth-token.storage
 import { SparePart, SparePartProps } from '../domain/model/spare-part.entity';
 import { StockMovement, StockMovementProps } from '../domain/model/stock-movement.entity';
 import { SparePartApiMapper, StockMovementApiMapper } from './inventory-api.mapper';
-import { SparePartApiResource, StockMovementApiResource } from './inventory-api.models';
+import {
+  AdjustStockRequest,
+  ReceiveStockRequest,
+  SparePartApiResource,
+  StockMovementApiResource,
+} from './inventory-api.models';
 
 @Injectable({ providedIn: 'root' })
 export class SparePartsApi extends BaseApi<SparePart, SparePartProps> {
@@ -66,6 +71,64 @@ export class SparePartsApi extends BaseApi<SparePart, SparePartProps> {
     return this.http.put<SparePartApiResource>(
       `${this.url}/${entity.id}`,
       SparePartApiMapper.toSaveRequest(entity),
+    ).pipe(
+      map((resource) => SparePartApiMapper.toEntity(resource)),
+    );
+  }
+
+  receiveStock(
+    partId: string,
+    quantity: number,
+    reason: string,
+  ): Observable<SparePart> {
+    const id = Number(partId);
+
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      throw new Error('A valid backend spare part ID is required');
+    }
+
+    if (!Number.isSafeInteger(quantity) || quantity < 1) {
+      throw new Error('Quantity must be a positive integer');
+    }
+
+    if (!this.tokenStorage.read()) {
+      throw new Error('This operation requires backend authentication');
+    }
+
+    const request: ReceiveStockRequest = { quantity, reason };
+
+    return this.http.post<SparePartApiResource>(
+      `${this.url}/${id}/entries`,
+      request,
+    ).pipe(
+      map((resource) => SparePartApiMapper.toEntity(resource)),
+    );
+  }
+
+  adjustStock(
+    partId: string,
+    countedStock: number,
+    reason: string,
+  ): Observable<SparePart> {
+    const id = Number(partId);
+
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      throw new Error('A valid backend spare part ID is required');
+    }
+
+    if (!Number.isSafeInteger(countedStock) || countedStock < 0) {
+      throw new Error('Stock must be a non-negative integer');
+    }
+
+    if (!this.tokenStorage.read()) {
+      throw new Error('This operation requires backend authentication');
+    }
+
+    const request: AdjustStockRequest = { countedStock, reason };
+
+    return this.http.post<SparePartApiResource>(
+      `${this.url}/${id}/adjustments`,
+      request,
     ).pipe(
       map((resource) => SparePartApiMapper.toEntity(resource)),
     );
