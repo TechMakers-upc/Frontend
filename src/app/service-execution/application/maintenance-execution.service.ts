@@ -102,11 +102,17 @@ export class MaintenanceExecutionService {
   /** US28: the repair clock starts and the machine shows as in maintenance. */
   async start(workOrderId: string): Promise<WorkOrder> {
     const at = nowIso();
-    const order = await this.workOrders.change(workOrderId, (draft) => draft.start(at));
-    const asset = this.assets.find(order.assetId);
-    if (asset && asset.status === 'operational') {
-      await this.assets.setStatus(asset.id, 'maintenance', at);
+    const order = await this.workOrders.startOrder(workOrderId, at);
+
+    if (this.tokenStorage.read()) {
+      this.assets.load(true);
+    } else {
+      const asset = this.assets.find(order.assetId);
+      if (asset && asset.status === 'operational') {
+        await this.assets.setStatus(asset.id, 'maintenance', at);
+      }
     }
+
     return order;
   }
 

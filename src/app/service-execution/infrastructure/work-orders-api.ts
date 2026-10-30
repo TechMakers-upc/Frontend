@@ -52,6 +52,21 @@ export class WorkOrdersApi extends BaseApi<WorkOrder, WorkOrderProps> {
     );
   }
 
+  startOrder(order: WorkOrder, at: string): Observable<WorkOrder> {
+    if (!this.tokenStorage.read()) {
+      const draft = order.clone();
+      draft.start(at);
+      return this.update(draft);
+    }
+
+    return this.http.post<WorkOrderApiResource>(
+      `${this.url}/${order.id}/start`,
+      {},
+    ).pipe(
+      map((resource) => WorkOrderApiMapper.toEntity(resource)),
+    );
+  }
+
   assignTechnician(order: WorkOrder, technicianId: string): Observable<WorkOrder> {
     if (!this.tokenStorage.read()) {
       const draft = order.clone();

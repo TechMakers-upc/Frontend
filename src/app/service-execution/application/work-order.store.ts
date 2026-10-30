@@ -31,6 +31,24 @@ export class WorkOrderStore extends CollectionStore<WorkOrder> {
     return this.inScope().filter((order) => order.technicianId === id);
   });
 
+  async startOrder(id: string, at: string): Promise<WorkOrder> {
+    const current = this.find(id);
+
+    if (!current) {
+      throw new Error(`Unknown work order ${id}`);
+    }
+
+    const saved = await firstValueFrom(
+      this.api.startOrder(current, at),
+    );
+
+    this.itemsSignal.update((items) =>
+      items.map((item) => (item.id === saved.id ? saved : item)),
+    );
+
+    return saved;
+  }
+
   async assignTechnician(id: string, technicianId: string): Promise<WorkOrder> {
     const current = this.find(id);
 
