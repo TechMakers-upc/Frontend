@@ -1,4 +1,8 @@
-import { Injectable, computed, inject } from '@angular/core';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
+
+
+import { AuthTokenStorage } from '../../shared/infrastructure/auth-token.storage';
+import { AnalyticsApi } from '../infrastructure/analytics-api';
 
 import { AssetStore } from '../../asset-management/application/asset.store';
 import { PlantScope } from '../../asset-management/application/plant-scope';
@@ -44,6 +48,14 @@ export interface Period {
   to: string | null;
 }
 
+export const EMPTY_MAINTENANCE_SUMMARY: MaintenanceSummary = {
+  assets: 0, down: 0, inMaintenance: 0, availability: null,
+  orders: { pending: 0, 'in-progress': 0, completed: 0 },
+  openOrders: 0, criticalOpenOrders: 0, overdueOrders: 0,
+  pendingFailures: 0, criticalFailures: 0, downtimeHours: 0,
+  mttrHours: null, compliance: null, overduePlans: 0, lowStock: 0, technicians: 0,
+};
+
 /** Read model for dashboards and reports (Panel y Reportes context). */
 @Injectable({ providedIn: 'root' })
 export class MaintenanceAnalytics {
@@ -55,9 +67,41 @@ export class MaintenanceAnalytics {
   private readonly inventory = inject(InventoryStore);
   private readonly directory = inject(UserDirectoryStore);
 
-  readonly current = computed(() => this.summarize(this.scope.plantIds()));
+private readonly tokenStorage = inject(AuthTokenStorage);
+private readonly analyticsApi = inject(AnalyticsApi);
+private readonly remoteSummary = signal<MaintenanceSummary | null>(null);
+private readonly remoteRanking = signal<{ assetId: string; hours: number }[] | null>(null);
+readonly remoteState = signal<'idle' | 'loading' | 'ready' | 'error'>('idle');
 
-  readonly downtimeRanking = computed(() => this.rankDowntime(this.scope.plantIds()));
+constructor() {
+  effect((onCleanup) => {
+    const plantIds = this.scope.plantIds();
+    if (!this.tokenStorage.read()) return;
+    const selected = plantIds.length === 1 ? plantIds[0] : null;
+    this.remoteSummary.set(null);
+    this.remoteRanking.set(null);
+    this.remoteState.set('loading');
+    const summary = this.analyticsApi.getSummary(selected).subscribe({
+      next: (value) => { this.remoteSummary.set(value); this.remoteState.set('ready'); },
+      error: () => this.remoteState.set('error'),
+    });
+    const ranking = this.analyticsApi.getDowntimeRanking(selected).subscribe({
+      next: (rows) => this.remoteRanking.set(rows),
+      error: () => this.remoteState.set('error'),
+    });
+    onCleanup(() => { summary.unsubscribe(); ranking.unsubscribe(); });
+  });
+}
+
+  readonly current = computed(() => this.tokenStorage.read()
+    ? (this.remoteSummary() ?? EMPTY_MAINTENANCE_SUMMARY)
+    : this.summarize(this.scope.plantIds()));
+
+
+  readonly downtimeRanking = computed(() => this.tokenStorage.read()
+    ? (this.remoteRanking() ?? [])
+    : this.rankDowntime(this.scope.plantIds()));
+
 
   summarize(plantIds: string[], period: Period = { from: null, to: null }): MaintenanceSummary {
     const inPlants = (plantId: string) => plantIds.includes(plantId);
