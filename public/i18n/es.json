@@ -676,7 +676,13 @@
     "delete": "Eliminar",
     "deleteTitle": "Eliminar plan",
     "deleteConfirm": "¿Eliminar el plan {{title}}?",
-    "deleted": "{{title}} eliminado."
+    "deleted": "{{title}} eliminado.",
+    "complete": "Finalizar mantenimiento",
+    "completeTitle": "Registrar mantenimiento realizado",
+    "completeConfirm": "Registrar la finalización de {{title}}.",
+    "completedOn": "Fecha de finalización",
+    "completed": "Mantenimiento {{title}} registrado."
+
   },
   "today": {
     "greeting": "¡Hola, {{name}}!",

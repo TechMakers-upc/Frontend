@@ -676,7 +676,13 @@
     "delete": "Delete",
     "deleteTitle": "Delete plan",
     "deleteConfirm": "Delete the plan {{title}}?",
-    "deleted": "{{title}} deleted."
+    "deleted": "{{title}} deleted.",
+    "complete": "Complete maintenance",
+    "completeTitle": "Record completed maintenance",
+    "completeConfirm": "Record completion of {{title}}.",
+    "completedOn": "Completion date",
+    "completed": "Maintenance {{title}} recorded."
+
   },
   "today": {
     "greeting": "Hi, {{name}}!",
