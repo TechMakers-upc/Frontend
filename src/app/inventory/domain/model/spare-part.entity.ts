@@ -75,6 +75,7 @@ export class SparePart extends Entity {
 
   consume(quantity: number): void {
     if (quantity < 1) throw new Error('Consumption must be at least one unit');
+    SparePart.assertQuantity(quantity);
     if (quantity > this.stock) throw new Error('Not enough stock');
     this.stock -= quantity;
   }
