@@ -17,5 +17,10 @@ it('preserves the related plant and technical manuals', () => {
   expect(item.manuals[0].title).toBe('Manual');
 });
 
-  // INSERTAR_CASOS
+it('rejects a machine linked to an invalid plant', () => {
+  const item = AssetApiMapper.toEntity(resource);
+  item.plantId = 'demo-plant';
+  expect(() => AssetApiMapper.toSaveRequest(item)).toThrow();
+});
+
 });
