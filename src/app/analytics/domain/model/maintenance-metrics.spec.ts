@@ -39,5 +39,10 @@ it('averages completed corrective repair hours', () => {
   expect(mttrHours([metricOrder('preventive')])).toBeNull();
 });
 
+it('counts preventive orders completed before their deadline', () => {
+  expect(preventiveCompliance([metricOrder('preventive')])).toBe(100);
+  expect(preventiveCompliance([metricOrder('preventive', false)])).toBeNull();
+});
+
   // INSERTAR_CASOS
 });
