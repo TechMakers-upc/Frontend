@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
+import { AuthTokenStorage } from '../../../../shared/infrastructure/auth-token.storage';
+import { AnalyticsApi } from '../../../infrastructure/analytics-api';
+
 import { AssetStore } from '../../../../asset-management/application/asset.store';
 import { PlantScope } from '../../../../asset-management/application/plant-scope';
 import { PlantStore } from '../../../../asset-management/application/plant.store';
@@ -14,7 +17,8 @@ import { BrandMark } from '../../../../shared/presentation/components/brand-mark
 import { Icon } from '../../../../shared/presentation/components/icon/icon';
 import { PageHeader } from '../../../../shared/presentation/components/page-header/page-header';
 import { HoursPipe, LocalizedDatePipe } from '../../../../shared/presentation/pipes/localized-date.pipe';
-import { MaintenanceAnalytics, Period } from '../../../application/maintenance-analytics';
+import { EMPTY_MAINTENANCE_SUMMARY, MaintenanceAnalytics, MaintenanceSummary, Period } from '../../../application/maintenance-analytics';
+
 
 /** US47: a per-plant (per-client) maintenance report, printable and exportable. */
 @Component({
@@ -25,6 +29,11 @@ import { MaintenanceAnalytics, Period } from '../../../application/maintenance-a
   styleUrl: './maintenance-report.css',
 })
 export class MaintenanceReport {
+private readonly api = inject(AnalyticsApi);
+private readonly tokenStorage = inject(AuthTokenStorage);
+private readonly remoteSummary = signal<MaintenanceSummary | null>(null);
+private readonly remoteRanking = signal<{ assetId: string; hours: number }[] | null>(null);
+
   private readonly analytics = inject(MaintenanceAnalytics);
   private readonly scope = inject(PlantScope);
   private readonly session = inject(SessionStore);
@@ -52,10 +61,30 @@ export class MaintenanceReport {
     });
   }
 
+private readonly loadBackendReport = effect((onCleanup) => {
+  const plantId = this.plantId();
+  const from = this.from();
+  const to = this.to();
+  if (!this.tokenStorage.read() || !plantId || from > to) return;
+  const period = { from: from || null, to: to || null };
+  this.remoteSummary.set(null);
+  this.remoteRanking.set(null);
+  const summary = this.api.getSummary(plantId, period).subscribe({
+    next: (value) => this.remoteSummary.set(value),
+  });
+  const ranking = this.api.getDowntimeRanking(plantId, period).subscribe({
+    next: (rows) => this.remoteRanking.set(rows),
+  });
+  onCleanup(() => { summary.unsubscribe(); ranking.unsubscribe(); });
+});
+
   private readonly period = computed<Period>(() => ({ from: this.from() || null, to: this.to() || null }));
 
   protected readonly plant = computed(() => this.plantStore.find(this.plantId()));
-  protected readonly summary = computed(() => this.analytics.summarize([this.plantId()], this.period()));
+  protected readonly summary = computed(() => this.tokenStorage.read()
+    ? (this.remoteSummary() ?? EMPTY_MAINTENANCE_SUMMARY)
+    : this.analytics.summarize([this.plantId()], this.period()));
+
 
   protected readonly orders = computed(() =>
     this.workOrderStore
@@ -72,7 +101,9 @@ export class MaintenanceReport {
   );
 
   protected readonly downtime = computed(() =>
-    this.analytics.rankDowntime([this.plantId()], this.period()).map((row) => ({ ...row, asset: this.assetStore.find(row.assetId) })),
+    (this.tokenStorage.read() ? (this.remoteRanking() ?? []) : this.analytics.rankDowntime([this.plantId()], this.period()))
+      .map((row) => ({ ...row, asset: this.assetStore.find(row.assetId) })),
+
   );
 
   protected readonly consumption = computed(() => {
