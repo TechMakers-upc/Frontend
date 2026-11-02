@@ -18,7 +18,12 @@
       <h2>{{ 'alerts.title' | translate }}</h2>
       <span class="muted">{{ center.alerts().length }}</span>
     </header>
-    @if (center.alerts().length === 0) {
+    @if (center.isRemote() && center.loadError()) {
+      <p class="empty">{{ 'common.loadError' | translate }}</p>
+    } @else if (center.isRemote() && center.loading()) {
+      <p class="empty">{{ 'alerts.loading' | translate }}</p>
+    } @else if (center.alerts().length === 0) {
+
       <p class="empty">{{ 'alerts.empty' | translate }}</p>
     } @else {
       <ul class="list panel__list">

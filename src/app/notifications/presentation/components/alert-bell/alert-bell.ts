@@ -35,6 +35,8 @@ export class AlertBell {
   protected toggle(): void {
     const opening = !this.open();
     this.open.set(opening);
+    if (opening) this.center.refresh();
+
     if (!opening) this.center.markAllSeen();
   }
 

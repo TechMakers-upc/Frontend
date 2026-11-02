@@ -208,6 +208,8 @@
     "mobile": "Bottom navigation"
   },
   "alerts": {
+      "loading": "Loading alerts...",
+
     "button": "Unread alerts: {{count}}",
     "title": "Alerts",
     "empty": "All clear. No alerts.",
