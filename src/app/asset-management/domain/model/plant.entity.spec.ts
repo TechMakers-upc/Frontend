@@ -10,5 +10,11 @@ it('does not duplicate the city already present in a name', () => {
   expect(plant('Central', 'Lima').displayName).toBe('Central · Lima');
 });
 
+it('requires a nonempty name and city', () => {
+  const item = plant();
+  expect(() => item.updateDetails({name: ' ', city: 'Lima', address: ''})).toThrow();
+  expect(() => item.updateDetails({name: 'Central', city: ' ', address: ''})).toThrow();
+});
+
   // INSERTAR_CASOS
 });
