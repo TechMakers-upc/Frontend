@@ -672,7 +672,11 @@
       "365": "Anual",
       "custom": "Personalizada"
     },
-    "viewOrder": "Ver {{code}}"
+    "viewOrder": "Ver {{code}}",
+    "delete": "Eliminar",
+    "deleteTitle": "Eliminar plan",
+    "deleteConfirm": "¿Eliminar el plan {{title}}?",
+    "deleted": "{{title}} eliminado."
   },
   "today": {
     "greeting": "¡Hola, {{name}}!",

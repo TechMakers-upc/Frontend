@@ -672,7 +672,11 @@
       "365": "Yearly",
       "custom": "Custom"
     },
-    "viewOrder": "View {{code}}"
+    "viewOrder": "View {{code}}",
+    "delete": "Delete",
+    "deleteTitle": "Delete plan",
+    "deleteConfirm": "Delete the plan {{title}}?",
+    "deleted": "{{title}} deleted."
   },
   "today": {
     "greeting": "Hi, {{name}}!",

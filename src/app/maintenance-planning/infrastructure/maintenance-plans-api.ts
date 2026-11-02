@@ -110,6 +110,14 @@ export class MaintenancePlansApi extends BaseApi<MaintenancePlan, MaintenancePla
     );
   }
 
+  override delete(id: string): Observable<void> {
+    if (!this.tokenStorage.read()) {
+      return this.http.delete<void>(`/demo-api/maintenance-plans/${id}`);
+    }
+
+    return this.http.delete<void>(`${this.url}/${id}`);
+  }
+
   override getAll(): Observable<MaintenancePlan[]> {
     if (!this.tokenStorage.read()) {
       return this.http.get<MaintenancePlanProps[]>('/demo-api/maintenance-plans').pipe(

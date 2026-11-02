@@ -80,6 +80,14 @@ export class MaintenancePlanStore extends CollectionStore<MaintenancePlan> {
     return saved;
   }
 
+  async remove(id: string): Promise<void> {
+    await firstValueFrom(this.api.delete(id));
+
+    this.itemsSignal.update((items) =>
+      items.filter((plan) => plan.id !== id),
+    );
+  }
+
   async schedule(plantId: string, details: MaintenancePlanDetails): Promise<MaintenancePlan> {
     const plan = new MaintenancePlan({
       id: crypto.randomUUID(),

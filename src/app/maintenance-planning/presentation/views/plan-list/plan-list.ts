@@ -74,6 +74,8 @@ export class PlanList {
   });
 
   protected readonly rescheduling = signal<MaintenancePlan | null>(null);
+  protected readonly deleting = signal<MaintenancePlan | null>(null);
+
   protected readonly busy = signal(false);
   protected readonly rescheduleForm = inject(FormBuilder).nonNullable.group({
     date: ['', Validators.required],
@@ -122,6 +124,25 @@ export class PlanList {
     return plan.active
       ? this.run(() => this.planStore.suspend(plan.id), 'maintenance.suspended', plan)
       : this.run(() => this.planStore.reactivate(plan.id), 'maintenance.reactivated', plan);
+  }
+
+  protected async remove(): Promise<void> {
+    const plan = this.deleting();
+    if (!plan || this.busy()) return;
+
+    this.busy.set(true);
+
+    try {
+      await this.planStore.remove(plan.id);
+      this.deleting.set(null);
+      this.toast.success(this.translate.instant('maintenance.deleted', {
+        title: plan.title,
+      }));
+    } catch {
+      this.toast.error(this.translate.instant('common.saveError'));
+    } finally {
+      this.busy.set(false);
+    }
   }
 
   private async run(action: () => Promise<unknown>, key: string, plan: MaintenancePlan): Promise<boolean> {

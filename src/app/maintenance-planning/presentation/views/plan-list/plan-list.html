@@ -73,6 +73,11 @@
         <button type="button" class="btn btn--ghost btn--sm" [disabled]="busy()" (click)="toggle(plan)">
           {{ (plan.active ? 'maintenance.suspend' : 'maintenance.reactivate') | translate }}
         </button>
+        <button type="button" class="btn btn--ghost btn--sm"
+                [disabled]="busy()" (click)="deleting.set(plan)">
+          {{ 'maintenance.delete' | translate }}
+        </button>
+
         <a class="icon-btn" [routerLink]="['/maintenance', plan.id, 'edit']" [attr.aria-label]="'common.edit' | translate">
           <app-icon name="pencil" [size]="18" />
         </a>
@@ -134,4 +139,22 @@
       <button type="submit" class="btn btn--primary" [disabled]="busy()">{{ 'maintenance.reschedule' | translate }}</button>
     </div>
   </form>
+</app-dialog>
+
+<app-dialog [heading]="'maintenance.deleteTitle' | translate"
+            [open]="deleting() !== null"
+            (closed)="deleting.set(null)">
+  <p>{{ 'maintenance.deleteConfirm' | translate: { title: deleting()?.title ?? '' } }}</p>
+
+  <div class="form-actions">
+    <button type="button" class="btn btn--ghost"
+            (click)="deleting.set(null)">
+      {{ 'common.cancel' | translate }}
+    </button>
+
+    <button type="button" class="btn btn--primary"
+            [disabled]="busy()" (click)="remove()">
+      {{ 'maintenance.delete' | translate }}
+    </button>
+  </div>
 </app-dialog>
