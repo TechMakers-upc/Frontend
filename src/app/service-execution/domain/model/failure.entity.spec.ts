@@ -46,5 +46,11 @@ it('does not link a second order to one incident', () => {
   expect(item.workOrderId).toBe('51');
 });
 
-  // INSERTAR_CASOS
+it('counts stopped hours until resolution but not running-line incidents', () => {
+  const stopped = failure(true);
+  stopped.resolve('2026-10-01T13:00:00Z');
+  expect(stopped.downtimeHours()).toBe(3);
+  expect(failure(false).downtimeHours('2026-10-01T13:00:00Z')).toBe(0);
+});
+
 });
