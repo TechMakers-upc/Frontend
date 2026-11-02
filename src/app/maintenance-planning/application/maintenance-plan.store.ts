@@ -80,6 +80,19 @@ export class MaintenancePlanStore extends CollectionStore<MaintenancePlan> {
     return saved;
   }
 
+async complete(id: string, completedOn: string): Promise<MaintenancePlan> {
+  const current = this.find(id);
+  if (!current) throw new Error(`Unknown maintenance plan ${id}`);
+  if (current.lastCompletedAt?.slice(0, 10) === completedOn) {
+    throw new Error('This date has already been registered');
+  }
+  const saved = await firstValueFrom(this.api.registerCompletion(current, completedOn));
+  this.itemsSignal.update((items) =>
+    items.map((item) => item.id === saved.id ? saved : item),
+  );
+  return saved;
+}
+
   async remove(id: string): Promise<void> {
     await firstValueFrom(this.api.delete(id));
 
