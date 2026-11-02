@@ -14,5 +14,11 @@ it('rejects fractional usage without changing stock', () => {
   expect(item.stock).toBe(8);
 });
 
+it('adds received stock to the current quantity', () => {
+  const item = part();
+  item.receive(5);
+  expect(item.stock).toBe(13);
+});
+
   // INSERTAR_CASOS
 });
