@@ -44,5 +44,11 @@ it('counts preventive orders completed before their deadline', () => {
   expect(preventiveCompliance([metricOrder('preventive', false)])).toBeNull();
 });
 
-  // INSERTAR_CASOS
+it('counts pending and completed work orders separately', () => {
+  const counts = statusCounts([metricOrder('corrective'), metricOrder('preventive', false)]);
+  expect(counts.completed).toBe(1);
+  expect(counts.pending).toBe(1);
+  expect(counts['in-progress']).toBe(0);
+});
+
 });
