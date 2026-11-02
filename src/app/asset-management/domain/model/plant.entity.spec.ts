@@ -16,5 +16,12 @@ it('requires a nonempty name and city', () => {
   expect(() => item.updateDetails({name: 'Central', city: ' ', address: ''})).toThrow();
 });
 
-  // INSERTAR_CASOS
+it('trims plant name, city and address on update', () => {
+  const item = plant();
+  item.updateDetails({name: ' Norte ', city: ' Piura ', address: ' Av. 10 '});
+  expect(item.name).toBe('Norte');
+  expect(item.city).toBe('Piura');
+  expect(item.address).toBe('Av. 10');
+});
+
 });
