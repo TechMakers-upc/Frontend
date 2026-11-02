@@ -1,5 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+
 import { TranslatePipe } from '@ngx-translate/core';
+
+import { AuthTokenStorage } from '../../../../shared/infrastructure/auth-token.storage';
+import { AnalyticsApi } from '../../../infrastructure/analytics-api';
+import type { TechnicianPerformance as TechnicianMetrics } from '../../../domain/model/maintenance-metrics';
 
 import { PlantStore } from '../../../../asset-management/application/plant.store';
 import { UserDirectoryStore } from '../../../../shared/application/user-directory.store';
@@ -19,6 +24,10 @@ type Range = '30' | '90' | 'all';
   styleUrl: './technician-performance.css',
 })
 export class TechnicianPerformance {
+private readonly api = inject(AnalyticsApi);
+private readonly tokenStorage = inject(AuthTokenStorage);
+private readonly remote = signal<Record<string, TechnicianMetrics>>({});
+
   private readonly analytics = inject(MaintenanceAnalytics);
   private readonly directory = inject(UserDirectoryStore);
   protected readonly plantStore = inject(PlantStore);
@@ -30,10 +39,27 @@ export class TechnicianPerformance {
     return range === 'all' ? { from: null, to: null } : { from: addDays(todayDate(), -Number(range)), to: null };
   });
 
+private readonly fetchPerformance = effect((onCleanup) => {
+  const technicians = this.directory.techniciansInScope();
+  const period = this.period();
+  if (!this.tokenStorage.read()) return;
+  this.remote.set({});
+  const requests = technicians.map((tech) => this.api.getTechnicianPerformance(tech.id, period).subscribe({
+    next: (stats) => this.remote.update((rows) => ({ ...rows, [tech.id]: stats })),
+  }));
+  onCleanup(() => requests.forEach((request) => request.unsubscribe()));
+});
+
   protected readonly rows = computed(() =>
     this.directory
       .techniciansInScope()
-      .map((tech) => ({ tech, stats: this.analytics.technicianPerformance(tech.id, this.period()) }))
+      .map((tech) => ({ tech, stats: this.tokenStorage.read()
+        ? (this.remote()[tech.id] ?? {
+            technicianId: tech.id, assigned: 0, inProgress: 0, completed: 0,
+            overdue: 0, avgRepairHours: null, lastActivity: null,
+          })
+        : this.analytics.technicianPerformance(tech.id, this.period()) }))
+
       .sort((a, b) => b.stats.completed - a.stats.completed),
   );
 }
