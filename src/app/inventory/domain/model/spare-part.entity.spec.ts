@@ -38,5 +38,12 @@ it('classifies zero, low and sufficient stock', () => {
   expect(part(4).level).toBe('ok');
 });
 
+it('rejects negative and fractional counted stock', () => {
+  const item = part();
+  expect(() => item.adjustTo(-1)).toThrow();
+  expect(() => item.adjustTo(2.5)).toThrow();
+  expect(item.stock).toBe(8);
+});
+
   // INSERTAR_CASOS
 });
