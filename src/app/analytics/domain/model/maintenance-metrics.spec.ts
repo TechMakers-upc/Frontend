@@ -29,5 +29,10 @@ it('counts downtime from stopped incidents only', () => {
   expect(downtimeHours([f])).toBe(3);
 });
 
+it('reports the percentage of running machines', () => {
+  expect(availability([machine('operational'), machine('down')])).toBe(50);
+  expect(availability([])).toBeNull();
+});
+
   // INSERTAR_CASOS
 });
