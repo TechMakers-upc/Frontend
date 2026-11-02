@@ -26,5 +26,11 @@ it('starts after assignment and saves the start timestamp', () => {
   expect(item.startedAt).toBe('2026-10-02T10:00:00Z');
 });
 
+it('rejects starting a work order twice', () => {
+  const item = order('4');
+  item.start('2026-10-02T10:00:00Z');
+  expect(() => item.start('2026-10-02T11:00:00Z')).toThrow();
+});
+
   // INSERTAR_CASOS
 });
