@@ -53,5 +53,13 @@ it('requires a title and http(s) link for a manual', () => {
   expect(item.manuals).toHaveLength(0);
 });
 
+it('adds a manual and removes it by index', () => {
+  const item = asset();
+  item.addManual(' Guia ', ' https://example.org/guia ', '2026-10-01');
+  expect(item.manuals[0].title).toBe('Guia');
+  item.removeManual(0);
+  expect(item.manuals).toHaveLength(0);
+});
+
   // INSERTAR_CASOS
 });
