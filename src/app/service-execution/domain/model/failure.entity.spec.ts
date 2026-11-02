@@ -32,5 +32,12 @@ it('rejects changes to resolved incident priority', () => {
   expect(() => item.prioritize('high')).toThrow();
 });
 
+it('associates the first order and marks the incident in progress', () => {
+  const item = failure();
+  item.attachWorkOrder('51');
+  expect(item.workOrderId).toBe('51');
+  expect(item.status).toBe('in-progress');
+});
+
   // INSERTAR_CASOS
 });
