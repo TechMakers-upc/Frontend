@@ -32,5 +32,13 @@ it('rejects starting a work order twice', () => {
   expect(() => item.start('2026-10-02T11:00:00Z')).toThrow();
 });
 
+it('records trimmed work logs only during execution', () => {
+  const item = order('4');
+  expect(() => item.logWork('Nota', '4', '2026-10-02T11:00:00Z')).toThrow();
+  item.start('2026-10-02T10:00:00Z');
+  item.logWork(' Revisar faja ', '4', '2026-10-02T11:00:00Z');
+  expect(item.workLog[0].note).toBe('Revisar faja');
+});
+
   // INSERTAR_CASOS
 });
