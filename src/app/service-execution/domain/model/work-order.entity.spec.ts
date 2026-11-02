@@ -60,5 +60,19 @@ it('closes active work with a trimmed solution', () => {
   expect(item.repairHours()).toBe(2);
 });
 
-  // INSERTAR_CASOS
+it('rejects closing a completed work order twice', () => {
+  const item = order('4');
+  item.start('2026-10-02T10:00:00Z');
+  item.complete('Solucion', '2026-10-02T11:00:00Z');
+  expect(() => item.complete('Otra', '2026-10-02T12:00:00Z')).toThrow();
+});
+
+it('marks pending past-due work as overdue but not completed work', () => {
+  const item = order('4');
+  expect(item.isOverdue('2026-10-09')).toBe(true);
+  item.start('2026-10-02T10:00:00Z');
+  item.complete('Listo', '2026-10-02T12:00:00Z');
+  expect(item.isOverdue('2026-10-09')).toBe(false);
+});
+
 });
