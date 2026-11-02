@@ -8,7 +8,9 @@ import { MaintenancePlan, MaintenancePlanProps } from '../domain/model/maintenan
 import { MaintenancePlanApiMapper } from './maintenance-plan-api.mapper';
 import {
   MaintenancePlanApiResource,
+  RegisterPlanCompletionRequest,
   RescheduleMaintenancePlanRequest,
+
 } from './maintenance-plan-api.models';
 
 @Injectable({ providedIn: 'root' })
@@ -109,6 +111,24 @@ export class MaintenancePlansApi extends BaseApi<MaintenancePlan, MaintenancePla
       map((resource) => MaintenancePlanApiMapper.toEntity(resource)),
     );
   }
+
+registerCompletion(plan: MaintenancePlan, completedOn: string): Observable<MaintenancePlan> {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(completedOn)) {
+    throw new Error('A valid completion date is required');
+  }
+
+  if (!this.tokenStorage.read()) {
+    const draft = plan.clone();
+    draft.registerCompletion(completedOn);
+    return this.update(draft);
+  }
+
+  const request: RegisterPlanCompletionRequest = { completedOn };
+  return this.http.post<MaintenancePlanApiResource>(
+    `${this.url}/${plan.id}/completions`,
+    request,
+  ).pipe(map((resource) => MaintenancePlanApiMapper.toEntity(resource)));
+}
 
   override delete(id: string): Observable<void> {
     if (!this.tokenStorage.read()) {
