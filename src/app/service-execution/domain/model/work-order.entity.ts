@@ -75,6 +75,7 @@ export class WorkOrder extends Entity {
 
   assign(technicianId: string): void {
     if (!this.isOpen) throw new Error('Completed work orders cannot be reassigned');
+    if (!technicianId.trim()) throw new Error('A technician identifier is required');
     this.technicianId = technicianId;
   }
 
