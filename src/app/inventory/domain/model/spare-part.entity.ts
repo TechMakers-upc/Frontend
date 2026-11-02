@@ -81,7 +81,7 @@ export class SparePart extends Entity {
   }
 
   static assertQuantity(value: number): void {
-    if (!Number.isInteger(value) || value < 0)
+    if (!Number.isSafeInteger(value) || value < 0)
       throw new Error('Quantities are whole, non-negative numbers');
   }
 }
