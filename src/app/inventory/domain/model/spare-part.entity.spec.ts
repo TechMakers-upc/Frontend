@@ -32,5 +32,11 @@ it('does not allow consumption beyond available stock', () => {
   expect(item.stock).toBe(2);
 });
 
+it('classifies zero, low and sufficient stock', () => {
+  expect(part(0).level).toBe('out');
+  expect(part(3).level).toBe('low');
+  expect(part(4).level).toBe('ok');
+});
+
   // INSERTAR_CASOS
 });
