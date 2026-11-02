@@ -4,6 +4,8 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { filter, map } from 'rxjs';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 
+import { AlertCenter } from '../../../../notifications/application/alert-center';
+
 import { AssetStore } from '../../../../asset-management/application/asset.store';
 import { PlantScope } from '../../../../asset-management/application/plant-scope';
 import { PlantStore } from '../../../../asset-management/application/plant.store';
@@ -33,6 +35,8 @@ import {LanguageSwitcher} from '../../components/language-switcher/language-swit
   },
 })
 export class WorkspaceShell implements OnInit {
+private readonly alertCenter = inject(AlertCenter);
+
   private readonly session = inject(SessionStore);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
@@ -123,6 +127,8 @@ export class WorkspaceShell implements OnInit {
   protected reload(): void {
     const force = this.loadFailed();
     for (const store of this.stores) store.load(force);
+    this.alertCenter.refresh();
+
   }
 
   protected selectPlant(event: Event): void {
