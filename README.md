@@ -1,12 +1,15 @@
-# FixCore — Frontend Sprint 2
+# FixCore — Frontend Angular
 
-Aplicación Angular de demostración para la gestión de mantenimiento industrial del proyecto TechMakers.
+
+Aplicación Angular para la gestión de mantenimiento industrial de TechMakers. Incluye autenticación mediante Spring Boot y un modo demo independiente.
+
 
 ## Alcance de esta entrega
 
 - Navegación por tres perfiles **de demostración**: jefe de planta, gerente de operaciones y técnico.
 - Pantallas de plantas, máquinas, órdenes de trabajo, fallas, inventario, mantenimiento preventivo e indicadores.
-- Datos ficticios. No incluye autenticación real, usuarios administrables como IAM, API REST de producción ni base de datos de servidor. Esas integraciones corresponden a un sprint posterior.
+- El modo demo conserva datos ficticios. El modo autenticado consume Spring Boot, que utiliza PostgreSQL como fuente de datos.
+
 
 ## Ejecutar en desarrollo
 
@@ -49,3 +52,11 @@ El archivo `vercel.json` configura el build, la carpeta `dist/fixcore-frontend/b
 ## Nota sobre el alcance
 
 La Fake API de producción es intencionalmente local. El adaptador no autentica, no aplica permisos del lado de un servidor y no debería utilizarse como solución de producción con información real o sensible.
+
+## Integración y aceptación
+
+Consultar `docs/FRONTEND_INTEGRATION.md` para la integración REST y
+`docs/FRONTEND_ACCEPTANCE_CHECKLIST.md` para las pruebas manuales pendientes.
+La integración en Vercel/Render debe validarse con usuarios reales antes de
+cerrar el Sprint 3. `npm run build` y `npm test -- --watch=false` verifican
+compilación y pruebas unitarias, no una base de datos de producción.
