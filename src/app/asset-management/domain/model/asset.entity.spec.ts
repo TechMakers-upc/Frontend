@@ -29,5 +29,22 @@ it('trims and uppercases the registered machine code', () => {
   expect(item.name).toBe('Prensa 2');
 });
 
+it('changes status and its timestamp together', () => {
+  const item = asset();
+  item.markDown('2026-10-02T10:00:00Z');
+  expect(item.status).toBe('down');
+  expect(item.statusChangedAt).toBe('2026-10-02T10:00:00Z');
+  item.markInMaintenance('2026-10-03T10:00:00Z');
+  expect(item.status).toBe('maintenance');
+  item.markOperational('2026-10-04T10:00:00Z');
+  expect(item.status).toBe('operational');
+});
+
+it('does not reset the timestamp for an unchanged status', () => {
+  const item = asset();
+  item.markOperational('2026-11-01T00:00:00Z');
+  expect(item.statusChangedAt).toBe('2026-10-01T10:00:00Z');
+});
+
   // INSERTAR_CASOS
 });
