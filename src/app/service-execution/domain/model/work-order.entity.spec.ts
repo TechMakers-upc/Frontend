@@ -19,5 +19,12 @@ it('rejects blank technician assignments', () => {
   expect(item.technicianId).toBeNull();
 });
 
+it('starts after assignment and saves the start timestamp', () => {
+  const item = order('4');
+  item.start('2026-10-02T10:00:00Z');
+  expect(item.status).toBe('in-progress');
+  expect(item.startedAt).toBe('2026-10-02T10:00:00Z');
+});
+
   // INSERTAR_CASOS
 });
