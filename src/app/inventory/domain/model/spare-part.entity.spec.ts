@@ -51,5 +51,12 @@ it('rejects unsafe counted stock values', () => {
   expect(item.stock).toBe(8);
 });
 
-  // INSERTAR_CASOS
+it('trims names and normalizes SKUs', () => {
+  const item = part();
+  item.updateDetails({sku: ' rep-99 ', name: ' Faja ', category: 'mechanical',
+    unit: 'unit', minStock: 2, location: 'B1'});
+  expect(item.sku).toBe('REP-99');
+  expect(item.name).toBe('Faja');
+});
+
 });
