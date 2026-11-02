@@ -16,5 +16,10 @@ it('keeps plant, machine and user references as UI identifiers', () => {
   expect(item.reportedBy).toBe('4');
 });
 
-  // INSERTAR_CASOS
+it('does not send fake identifiers to the backend', () => {
+  const item = FailureApiMapper.toEntity(resource);
+  item.assetId = 'local-machine';
+  expect(() => FailureApiMapper.toReportRequest(item)).toThrow();
+});
+
 });
