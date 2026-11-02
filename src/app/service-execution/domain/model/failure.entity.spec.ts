@@ -26,5 +26,11 @@ it('leaves an incident without a stopped line for management priority', () => {
   expect(item.needsWorkOrder).toBe(true);
 });
 
+it('rejects changes to resolved incident priority', () => {
+  const item = failure();
+  item.resolve('2026-10-01T12:00:00Z');
+  expect(() => item.prioritize('high')).toThrow();
+});
+
   // INSERTAR_CASOS
 });
