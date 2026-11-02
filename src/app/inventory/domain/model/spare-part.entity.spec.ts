@@ -45,5 +45,11 @@ it('rejects negative and fractional counted stock', () => {
   expect(item.stock).toBe(8);
 });
 
+it('rejects unsafe counted stock values', () => {
+  const item = part();
+  expect(() => item.adjustTo(Number.MAX_SAFE_INTEGER + 1)).toThrow();
+  expect(item.stock).toBe(8);
+});
+
   // INSERTAR_CASOS
 });
