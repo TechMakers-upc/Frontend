@@ -2,7 +2,7 @@
   <main class="login-layout">
     <section class="login-content" aria-labelledby="login-title">
       <header class="login-header">
-        <a class="login-brand" routerLink="/start" aria-label="FixCore">
+        <a class="login-brand" routerLink="/login" aria-label="FixCore">
           <app-brand-mark [size]="32" />
           <span>FIX<span class="login-brand__accent">CORE</span></span>
         </a>
@@ -10,24 +10,18 @@
       </header>
 
       <div class="login-card">
-        <p class="login-eyebrow">{{ 'loginPreview.previewLabel' | translate }}</p>
+        <p class="login-eyebrow">{{ 'realLogin.eyebrow' | translate }}</p>
         <h1 id="login-title">{{ 'signIn.title' | translate }}</h1>
-        <p class="login-description">{{ 'loginPreview.description' | translate }}</p>
+        <p class="login-description">{{ 'realLogin.description' | translate }}</p>
 
         <form class="login-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
           <div class="login-field">
             <label for="login-email">{{ 'fields.workEmail' | translate }}</label>
-            <input
-              id="login-email"
-              type="email"
-              inputmode="email"
-              autocomplete="username"
-              maxlength="254"
-              formControlName="email"
+            <input id="login-email" type="email" inputmode="email" autocomplete="username"
+              maxlength="254" formControlName="email"
               [attr.aria-invalid]="emailErrorKey() ? 'true' : null"
               [attr.aria-describedby]="emailErrorKey() ? 'login-email-error' : null"
-              [placeholder]="'loginPreview.emailPlaceholder' | translate"
-            />
+              [placeholder]="'loginPreview.emailPlaceholder' | translate" />
             @if (emailErrorKey(); as error) {
               <p class="login-field__error" id="login-email-error" role="alert">
                 {{ error | translate: { requiredLength: 254 } }}
@@ -38,23 +32,15 @@
           <div class="login-field">
             <label for="login-password">{{ 'fields.password' | translate }}</label>
             <div class="login-password">
-              <input
-                id="login-password"
-                [type]="showPassword() ? 'text' : 'password'"
-                autocomplete="current-password"
-                maxlength="128"
-                formControlName="password"
+              <input id="login-password" [type]="showPassword() ? 'text' : 'password'"
+                autocomplete="current-password" maxlength="128" formControlName="password"
                 [attr.aria-invalid]="passwordErrorKey() ? 'true' : null"
                 [attr.aria-describedby]="passwordErrorKey() ? 'login-password-hint login-password-error' : 'login-password-hint'"
-                [placeholder]="'loginPreview.passwordPlaceholder' | translate"
-              />
-              <button
-                type="button"
-                class="login-password__toggle"
+                [placeholder]="'loginPreview.passwordPlaceholder' | translate" />
+              <button type="button" class="login-password__toggle"
                 aria-controls="login-password"
                 [attr.aria-label]="(showPassword() ? 'fields.hidePassword' : 'fields.showPassword') | translate"
-                (click)="togglePasswordVisibility()"
-              >
+                (click)="togglePasswordVisibility()">
                 {{ (showPassword() ? 'fields.hidePassword' : 'fields.showPassword') | translate }}
               </button>
             </div>
@@ -74,16 +60,9 @@
         @if (authenticationError(); as error) {
           <p class="login-field__error" role="alert">{{ error }}</p>
         }
-
         @if (authenticationSuccess()) {
-          <p role="status">Inicio de sesión correcto.</p>
+          <p role="status">{{ 'realLogin.success' | translate }}</p>
         }
-
-        <a class="login-demo-link" routerLink="/start">
-          {{ 'loginPreview.exploreDemo' | translate }}
-          <span aria-hidden="true">→</span>
-        </a>
-        <p class="login-disclaimer">{{ 'loginPreview.disclaimer' | translate }}</p>
       </div>
       <footer class="login-footer">© FixCore · TechMakers</footer>
     </section>

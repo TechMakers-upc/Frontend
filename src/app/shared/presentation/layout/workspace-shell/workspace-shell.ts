@@ -205,11 +205,6 @@ private readonly alertCenter = inject(AlertCenter);
     await this.router.navigate(target);
   }
 
-  protected async changeProfile(): Promise<void> {
-    this.session.signOut();
-    await this.router.navigateByUrl('/start');
-  }
-
   protected async returnToLogin(): Promise<void> {
     this.session.signOut();
     await this.router.navigateByUrl('/login');

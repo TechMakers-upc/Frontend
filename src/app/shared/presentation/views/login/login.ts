@@ -100,7 +100,7 @@ export class Login {
           if (error.status === 401) {
             this.authenticationError.set('Correo o contraseña incorrectos.');
           } else if (error.status === 0) {
-            this.authenticationError.set('No se pudo conectar con el servidor.');
+            this.authenticationError.set('No hay conexión con Spring Boot. Verifica que esté iniciado y que CORS permita esta dirección.');
           } else {
             this.authenticationError.set('No se pudo iniciar sesión. Inténtalo nuevamente.');
           }

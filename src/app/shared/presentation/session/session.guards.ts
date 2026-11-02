@@ -8,7 +8,7 @@ import { ROLE_HOME } from './role-presentation';
 export const signedInGuard: CanActivateFn = (_route, state) => {
   const session = inject(SessionStore);
   const queryParams = state.url === '/' ? {} : { returnUrl: state.url };
-  return session.isSignedIn() || inject(Router).createUrlTree(['/start'], { queryParams });
+  return session.isSignedIn() || inject(Router).createUrlTree(['/login'], { queryParams });
 };
 
 export const signedOutGuard: CanActivateFn = () => {
@@ -20,12 +20,12 @@ export function roleGuard(...allowed: Role[]): CanActivateFn {
   return () => {
     const role = inject(SessionStore).role();
     const router = inject(Router);
-    if (role === null) return router.createUrlTree(['/start']);
+    if (role === null) return router.createUrlTree(['/login']);
     return allowed.includes(role) || router.createUrlTree([ROLE_HOME[role]]);
   };
 }
 
 export const homeRedirectGuard: CanActivateFn = () => {
   const role = inject(SessionStore).role();
-  return inject(Router).createUrlTree([role ? ROLE_HOME[role] : '/start']);
+  return inject(Router).createUrlTree([role ? ROLE_HOME[role] : '/login']);
 };

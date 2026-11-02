@@ -208,8 +208,7 @@
     "mobile": "Bottom navigation"
   },
   "alerts": {
-      "loading": "Loading alerts...",
-
+    "loading": "Loading alerts...",
     "button": "Unread alerts: {{count}}",
     "title": "Alerts",
     "empty": "All clear. No alerts.",
@@ -684,7 +683,6 @@
     "completeConfirm": "Record completion of {{title}}.",
     "completedOn": "Completion date",
     "completed": "Maintenance {{title}} recorded."
-
   },
   "today": {
     "greeting": "Hi, {{name}}!",
@@ -922,5 +920,11 @@
     "location": "Location",
     "plant": "Plant",
     "viewDetails": "View details"
+  },
+  "realLogin": {
+    "eyebrow": "FIXCORE ACCESS",
+    "description": "Sign in with your account to manage plants, machines, work orders, and inventory.",
+    "success": "Signed in successfully.",
+    "signOut": "Sign out"
   }
 }

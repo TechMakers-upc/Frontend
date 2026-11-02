@@ -208,8 +208,7 @@
     "mobile": "Navegación inferior"
   },
   "alerts": {
-      "loading": "Cargando alertas...",
-
+    "loading": "Cargando alertas...",
     "button": "Alertas sin leer: {{count}}",
     "title": "Alertas",
     "empty": "Todo en orden. No hay alertas.",
@@ -684,7 +683,6 @@
     "completeConfirm": "Registrar la finalización de {{title}}.",
     "completedOn": "Fecha de finalización",
     "completed": "Mantenimiento {{title}} registrado."
-
   },
   "today": {
     "greeting": "¡Hola, {{name}}!",
@@ -922,5 +920,11 @@
     "location": "Ubicación",
     "plant": "Planta",
     "viewDetails": "Ver detalles"
+  },
+  "realLogin": {
+    "eyebrow": "ACCESO A FIXCORE",
+    "description": "Inicia sesión con tu cuenta para gestionar plantas, máquinas, órdenes de trabajo e inventario.",
+    "success": "Sesión iniciada correctamente.",
+    "signOut": "Cerrar sesión"
   }
 }

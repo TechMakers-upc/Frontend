@@ -42,21 +42,16 @@
       }
 
       <div class="sidebar__footer">
-        <p class="demo-mark">{{ 'brand.demoData' | translate }}</p>
-        <a class="user" routerLink="/start">
+        <div class="user">
           <span class="user__avatar" aria-hidden="true">{{ user.initials }}</span>
           <span class="user__text">
             <span class="user__name">{{ user.fullName }}</span>
             <span class="user__role">{{ 'roles.' + user.role + '.title' | translate }}</span>
           </span>
-        </a>
-        <button type="button" class="nav-link nav-link--button" (click)="changeProfile()">
-          <app-icon name="users" />
-          <span>{{ 'demoAccess.changeProfile' | translate }}</span>
-        </button>
+        </div>
         <button type="button" class="nav-link nav-link--button" (click)="returnToLogin()">
           <app-icon name="logout" />
-          <span>{{ 'demoAccess.backToLogin' | translate }}</span>
+          <span>{{ 'realLogin.signOut' | translate }}</span>
         </button>
       </div>
     </aside>
@@ -73,7 +68,6 @@
         <span class="topbar__brand">
           <app-brand-mark [size]="22" />
           <span class="wordmark wordmark--dark">FIX<span>CORE</span></span>
-          <span class="topbar__demo" [attr.title]="'brand.demoDataLong' | translate">{{ 'brand.demoShort' | translate }}</span>
         </span>
 
         <form class="code-jump" role="search" (submit)="goToCode($event)">

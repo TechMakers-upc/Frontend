@@ -5,23 +5,18 @@ import { assetManagementRoutes } from './asset-management/asset-management.route
 import { inventoryRoutes } from './inventory/inventory.routes';
 import { maintenancePlanningRoutes } from './maintenance-planning/maintenance-planning.routes';
 import { serviceExecutionRoutes } from './service-execution/service-execution.routes';
-import { homeRedirectGuard, signedInGuard } from './shared/presentation/session/session.guards';
+import { homeRedirectGuard, signedInGuard, signedOutGuard } from './shared/presentation/session/session.guards';
 
 export const routes: Routes = [
   {
     path: 'login',
     title: 'titles.signIn',
-    loadComponent: () =>
-      import('./shared/presentation/views/login/login')
-        .then((m) => m.Login),
+    canActivate: [signedOutGuard],
+    loadComponent: () => import('./shared/presentation/views/login/login').then((m) => m.Login),
   },
-  {
-    path: 'start',
-    title: 'FixCore',
-    loadComponent: () =>
-      import('./shared/presentation/views/demo-access/demo-access')
-        .then((m) => m.DemoAccess),
-  },
+  // Previous public demonstration addresses lead to the real sign-in screen.
+  { path: 'start', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'demo', redirectTo: 'login', pathMatch: 'full' },
   {
     path: '',
     canActivate: [signedInGuard],
@@ -29,12 +24,7 @@ export const routes: Routes = [
       import('./shared/presentation/layout/workspace-shell/workspace-shell')
         .then((m) => m.WorkspaceShell),
     children: [
-      {
-        path: '',
-        pathMatch: 'full',
-        canActivate: [homeRedirectGuard],
-        children: [],
-      },
+      { path: '', pathMatch: 'full', canActivate: [homeRedirectGuard], children: [] },
       ...analyticsRoutes,
       ...assetManagementRoutes,
       ...serviceExecutionRoutes,
@@ -42,5 +32,5 @@ export const routes: Routes = [
       ...inventoryRoutes,
     ],
   },
-  { path: '**', redirectTo: 'start' },
+  { path: '**', redirectTo: 'login' },
 ];

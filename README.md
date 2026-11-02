@@ -1,62 +1,55 @@
-# FixCore — Frontend Angular
+# FixCore — Frontend Angular conectado a Spring Boot
 
+Aplicación de mantenimiento industrial TechMakers. **La interfaz normal usa autenticación JWT del backend real**; el antiguo modo de demostración no está disponible desde la navegación.
 
-Aplicación Angular para la gestión de mantenimiento industrial de TechMakers. Incluye autenticación mediante Spring Boot y un modo demo independiente.
+## Requisitos
 
+- Node.js, npm y Angular según `package.json`.
+- Backend Spring Boot en `http://localhost:8080` con JDK 21.
+- PostgreSQL con base `fixcore` y usuario `fixcore_user`; Flyway administra las migraciones.
 
-## Alcance de esta entrega
+## Iniciar en desarrollo
 
-- Navegación por tres perfiles **de demostración**: jefe de planta, gerente de operaciones y técnico.
-- Pantallas de plantas, máquinas, órdenes de trabajo, fallas, inventario, mantenimiento preventivo e indicadores.
-- El modo demo conserva datos ficticios. El modo autenticado consume Spring Boot, que utiliza PostgreSQL como fuente de datos.
+En el repositorio del backend, configurar la variable `DB_PASSWORD` y ejecutar `./mvnw.cmd spring-boot:run` (Windows). El perfil `dev` carga datos de prueba **en PostgreSQL**, no en almacenamiento simulado del navegador.
 
-
-## Ejecutar en desarrollo
+En el frontend:
 
 ```powershell
 npm ci
-npm start
+npm start -- --host 127.0.0.1 --port 4300
 ```
 
-La versión de desarrollo utiliza una Fake API de JSON Server en `http://localhost:3000`. Si se dispone del archivo original `fixcore-web/server/db.json`, iniciarla por separado:
+Abrir `http://127.0.0.1:4300/login`.
 
-```powershell
-npx --yes json-server "RUTA_COMPLETA_AL_ARCHIVO\db.json" --port 3000
-```
+Credenciales predeterminadas del backend **solo en desarrollo**, si los seeders están activados y `DEMO_USERS_PASSWORD` no se ha modificado:
 
-Abrir `http://localhost:4200/demo` y elegir un perfil. La identidad del perfil es simulada; **no es autenticación**.
+| Correo | Contraseña | Rol |
+| --- | --- | --- |
+| `carla.garcia@fixcore.demo` | `FixCore2026` | Jefa de planta |
+| `victor.salazar@fixcore.demo` | `FixCore2026` | Gerente de operaciones |
+| `jose.ramirez@fixcore.demo` | `FixCore2026` | Técnico |
 
-## Compilar para producción
+Estas son cuentas reales guardadas en PostgreSQL en modo dev, con autenticación mediante JWT. No deben utilizarse como credenciales de producción.
+
+## Integración y API
+
+- Backend local: `src/environments/environment.development.ts` (`http://localhost:8080/api/v1`).
+- Backend de despliegue: `src/environments/environment.ts` (Render; debe estar disponible y tener CORS apropiado).
+- `POST /authentication/sign-in` devuelve `account` y `token`.
+- Las demás rutas autentican mediante Bearer JWT; los permisos finales se validan en Spring Security.
+- Plantas, máquinas, fallas, órdenes, repuestos, movimientos, planes, indicadores y alertas se consultan a los endpoints de Spring Boot.
+
+Para cambiar el origen del frontend en desarrollo, configurar `CORS_ALLOWED_ORIGINS` en el backend y reiniciarlo. Este paquete incluye orígenes locales `127.0.0.1`/`localhost` en puertos `4200` y `4300`.
+
+## Validación
 
 ```powershell
 npm run build
+npm test -- --watch=false
 ```
 
-La compilación de producción utiliza el archivo público de datos de ejemplo en `public/mock/db.json` y un adaptador HTTP que simula GET/POST/PUT/DELETE **solo en el navegador**. No necesita JSON Server en la computadora del visitante. Los cambios hechos por un visitante se conservan únicamente en `localStorage` de su propio navegador y **no se comparten** ni constituyen persistencia real del negocio.
+Las pruebas automáticas no certifican la integración de extremo a extremo. Después hay que comprobar `GET /actuator/health`, hacer login con cada rol y ejecutar escenarios reales: registrar máquina, reportar falla, abrir/completar OT, registrar repuestos, programar un plan y revisar métricas/alertas. Hay scripts de comprobación en el ZIP de instalación.
 
-Para reiniciar los datos de prueba de la versión desplegada, eliminar la clave `fixcore.sprint2.demo-data.v1` del almacenamiento local del sitio y actualizar la página.
+## Despliegue
 
-## Vercel
-
-El archivo `vercel.json` configura el build, la carpeta `dist/fixcore-frontend/browser` y la recarga de rutas de Angular. Revisar el sitio desplegado en sus principales rutas, incluidos `/demo`, `/dashboard`, `/assets`, `/work-orders` y `/inventory`.
-
-## Pruebas previas al Pull Request
-
-1. Ejecutar `npm run build` y `npm test`.
-2. Verificar el perfil de jefe de planta: registrar máquina y repuesto, crear orden, guardar edición y recargar.
-3. Verificar el perfil de técnico: consultar **sus órdenes asignadas**, iniciar una orden y registrar una falla.
-4. Verificar el perfil de gerente: consultar indicadores, plantas, técnicos y órdenes.
-5. Comprobar responsive en 390/400/440/768/1440 px; no debe haber desbordamiento horizontal de página.
-6. Validar ambos idiomas, enlaces directos y el funcionamiento sin `localhost:3000` tras el despliegue.
-
-## Nota sobre el alcance
-
-La Fake API de producción es intencionalmente local. El adaptador no autentica, no aplica permisos del lado de un servidor y no debería utilizarse como solución de producción con información real o sensible.
-
-## Integración y aceptación
-
-Consultar `docs/FRONTEND_INTEGRATION.md` para la integración REST y
-`docs/FRONTEND_ACCEPTANCE_CHECKLIST.md` para las pruebas manuales pendientes.
-La integración en Vercel/Render debe validarse con usuarios reales antes de
-cerrar el Sprint 3. `npm run build` y `npm test -- --watch=false` verifican
-compilación y pruebas unitarias, no una base de datos de producción.
+El proyecto mantiene `vercel.json` y la URL de backend de producción configurada actualmente. Verifica que Render esté funcionando, que las variables de la base de datos estén configuradas en el servidor y que `CORS_ALLOWED_ORIGINS` incluya la URL real de Vercel. No expongas credenciales ni secretos JWT en archivos Angular.

@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { inject, Injector } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 
@@ -7,8 +7,7 @@ import { environment } from '../../../environments/environment';
 import { SessionStore } from '../application/session.store';
 
 export const authErrorInterceptor: HttpInterceptorFn = (request, next) => {
-  const router = inject(Router);
-  const sessionStore = inject(SessionStore);
+  const injector = inject(Injector);
   const apiBaseUrl = environment.apiBaseUrl.replace(/\/$/, '');
 
   const isBackendRequest =
@@ -23,8 +22,8 @@ export const authErrorInterceptor: HttpInterceptorFn = (request, next) => {
         error.status === 401 &&
         request.headers.has('Authorization')
       ) {
-        sessionStore.signOut();
-        void router.navigateByUrl('/login');
+        injector.get(SessionStore).signOut();
+        void injector.get(Router).navigateByUrl('/login');
       }
 
       return throwError(() => error);

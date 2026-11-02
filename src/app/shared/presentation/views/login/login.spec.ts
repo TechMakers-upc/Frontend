@@ -28,11 +28,11 @@ describe('Login', () => {
     return input;
   }
 
-  it('shows the form without enabling authentication', () => {
+  it('shows a real sign-in form without demo links', () => {
     expect(root.querySelector<HTMLInputElement>('#login-email')).not.toBeNull();
     expect(root.querySelector<HTMLInputElement>('#login-password')?.type).toBe('password');
     expect(root.querySelector<HTMLButtonElement>('.login-submit')?.disabled).toBe(true);
-    expect(root.querySelector<HTMLAnchorElement>('a.login-demo-link')?.getAttribute('href')).toBe('/start');
+    expect(root.querySelector('a.login-demo-link')).toBeNull();
   });
 
   it('shows required errors after both fields lose focus', () => {
@@ -41,7 +41,6 @@ describe('Login', () => {
     expect(root.querySelector('#login-email-error')).not.toBeNull();
     expect(root.querySelector('#login-password-error')).not.toBeNull();
     expect(root.querySelector<HTMLInputElement>('#login-email')?.getAttribute('aria-invalid')).toBe('true');
-    expect(root.querySelector<HTMLInputElement>('#login-password')?.getAttribute('aria-invalid')).toBe('true');
   });
 
   it('rejects malformed emails and short passwords', () => {

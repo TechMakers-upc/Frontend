@@ -43,7 +43,8 @@ export class SessionStore {
 
     this.tokenStorage.clear();
     this.sessionStorage.clear();
-    return this.restoreDemoAccount();
+    try { sessionStorage.removeItem(DEMO_ROLE_KEY); } catch { /* Storage may be unavailable. */ }
+    return null;
   }
   selectDemoRole(role: Role): void {
     this.tokenStorage.clear();
