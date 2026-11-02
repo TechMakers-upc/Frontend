@@ -34,5 +34,10 @@ it('reports the percentage of running machines', () => {
   expect(availability([])).toBeNull();
 });
 
+it('averages completed corrective repair hours', () => {
+  expect(mttrHours([metricOrder('corrective')])).toBe(2);
+  expect(mttrHours([metricOrder('preventive')])).toBeNull();
+});
+
   // INSERTAR_CASOS
 });
