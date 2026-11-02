@@ -20,5 +20,11 @@ it('adds received stock to the current quantity', () => {
   expect(item.stock).toBe(13);
 });
 
+it('returns the adjustment delta and updates stock', () => {
+  const item = part(8);
+  expect(item.adjustTo(5)).toBe(-3);
+  expect(item.stock).toBe(5);
+});
+
   // INSERTAR_CASOS
 });
