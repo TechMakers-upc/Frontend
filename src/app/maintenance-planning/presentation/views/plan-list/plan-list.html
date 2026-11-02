@@ -73,6 +73,13 @@
         <button type="button" class="btn btn--ghost btn--sm" [disabled]="busy()" (click)="toggle(plan)">
           {{ (plan.active ? 'maintenance.suspend' : 'maintenance.reactivate') | translate }}
         </button>
+@if (plan.active && !openOrderFor(plan.id) && plan.lastCompletedAt?.slice(0, 10) !== today) {
+  <button type="button" class="btn btn--ghost btn--sm"
+          [disabled]="busy()" (click)="openCompletion(plan)">
+    {{ 'maintenance.complete' | translate }}
+  </button>
+}
+
         <button type="button" class="btn btn--ghost btn--sm"
                 [disabled]="busy()" (click)="deleting.set(plan)">
           {{ 'maintenance.delete' | translate }}
@@ -156,5 +163,24 @@
             [disabled]="busy()" (click)="remove()">
       {{ 'maintenance.delete' | translate }}
     </button>
+  </div>
+</app-dialog>
+
+<app-dialog [heading]="'maintenance.completeTitle' | translate"
+            [open]="completing() !== null"
+            (closed)="completing.set(null)">
+  <p>{{ 'maintenance.completeConfirm' | translate: { title: completing()?.title ?? '' } }}</p>
+  <div class="form-grid">
+    <label for="completed-on">{{ 'maintenance.completedOn' | translate }}</label>
+    <input #completedOn id="completed-on" type="date" [value]="today" [max]="today" />
+    <div class="form-actions">
+      <button type="button" class="btn btn--ghost" (click)="completing.set(null)">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button type="button" class="btn btn--primary" [disabled]="busy() || !completedOn.value"
+              (click)="complete(completedOn.value)">
+        {{ 'maintenance.complete' | translate }}
+      </button>
+    </div>
   </div>
 </app-dialog>

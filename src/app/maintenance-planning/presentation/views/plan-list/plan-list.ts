@@ -74,6 +74,8 @@ export class PlanList {
   });
 
   protected readonly rescheduling = signal<MaintenancePlan | null>(null);
+protected readonly completing = signal<MaintenancePlan | null>(null);
+
   protected readonly deleting = signal<MaintenancePlan | null>(null);
 
   protected readonly busy = signal(false);
@@ -125,6 +127,27 @@ export class PlanList {
       ? this.run(() => this.planStore.suspend(plan.id), 'maintenance.suspended', plan)
       : this.run(() => this.planStore.reactivate(plan.id), 'maintenance.reactivated', plan);
   }
+
+protected openCompletion(plan: MaintenancePlan): void {
+  if (!plan.active || this.openOrderFor(plan.id)) return;
+  if (plan.lastCompletedAt?.slice(0, 10) === todayDate()) return;
+  this.completing.set(plan);
+}
+
+protected async complete(completedOn: string): Promise<void> {
+  const plan = this.completing();
+  if (!plan || this.busy() || !completedOn || this.openOrderFor(plan.id)) return;
+  this.busy.set(true);
+  try {
+    await this.planStore.complete(plan.id, completedOn);
+    this.completing.set(null);
+    this.toast.success(this.translate.instant('maintenance.completed', { title: plan.title }));
+  } catch {
+    this.toast.error(this.translate.instant('common.saveError'));
+  } finally {
+    this.busy.set(false);
+  }
+}
 
   protected async remove(): Promise<void> {
     const plan = this.deleting();
