@@ -40,5 +40,15 @@ it('records trimmed work logs only during execution', () => {
   expect(item.workLog[0].note).toBe('Revisar faja');
 });
 
+it('rejects zero, fractional and unavailable work order usage', () => {
+  const item = order('4');
+  expect(() => item.registerPartUsage('12', 1, '2026-10-02')).toThrow();
+  item.start('2026-10-02T10:00:00Z');
+  expect(() => item.registerPartUsage('12', 0, '2026-10-02')).toThrow();
+  expect(() => item.registerPartUsage('12', 1.5, '2026-10-02')).toThrow();
+  item.registerPartUsage('12', 2, '2026-10-02');
+  expect(item.partsUsed[0].quantity).toBe(2);
+});
+
   // INSERTAR_CASOS
 });
