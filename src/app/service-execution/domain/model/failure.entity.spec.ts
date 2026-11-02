@@ -19,5 +19,12 @@ it('starts a stopped-line incident at critical priority', () => {
   expect(item.status).toBe('open');
 });
 
+it('leaves an incident without a stopped line for management priority', () => {
+  const item = Failure.report({plantId: '1', assetId: '9', kind: 'noise',
+    description: 'Ruido', lineStopped: false, reportedBy: '4'});
+  expect(item.priority).toBeNull();
+  expect(item.needsWorkOrder).toBe(true);
+});
+
   // INSERTAR_CASOS
 });
