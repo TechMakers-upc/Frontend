@@ -83,6 +83,9 @@ export class Asset extends Entity {
   }
 
   removeManual(index: number): void {
+    if (!Number.isSafeInteger(index) || index < 0 || index >= this.manuals.length) {
+      throw new Error('Invalid manual index');
+    }
     this.manuals = this.manuals.filter((_, i) => i !== index);
   }
 
