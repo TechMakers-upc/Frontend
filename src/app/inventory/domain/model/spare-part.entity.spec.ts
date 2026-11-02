@@ -26,5 +26,11 @@ it('returns the adjustment delta and updates stock', () => {
   expect(item.stock).toBe(5);
 });
 
+it('does not allow consumption beyond available stock', () => {
+  const item = part(2);
+  expect(() => item.consume(3)).toThrow('Not enough stock');
+  expect(item.stock).toBe(2);
+});
+
   // INSERTAR_CASOS
 });
