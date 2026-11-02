@@ -46,5 +46,12 @@ it('does not reset the timestamp for an unchanged status', () => {
   expect(item.statusChangedAt).toBe('2026-10-01T10:00:00Z');
 });
 
+it('requires a title and http(s) link for a manual', () => {
+  const item = asset();
+  expect(() => item.addManual('', 'https://example.org', '2026-10-01')).toThrow();
+  expect(() => item.addManual('Manual', 'file:///c/manual.pdf', '2026-10-01')).toThrow();
+  expect(item.manuals).toHaveLength(0);
+});
+
   // INSERTAR_CASOS
 });
