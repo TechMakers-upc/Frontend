@@ -1,5 +1,8 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 
+import { AuthTokenStorage } from '../../shared/infrastructure/auth-token.storage';
+import { AlertsApi } from '../infrastructure/alerts-api';
+
 import { AssetStore } from '../../asset-management/application/asset.store';
 import { SessionStore } from '../../shared/application/session.store';
 import { InventoryStore } from '../../inventory/application/inventory.store';
@@ -17,6 +20,30 @@ const SEEN_KEY = 'fixcore.alerts-seen';
  */
 @Injectable({ providedIn: 'root' })
 export class AlertCenter {
+private readonly tokenStorage = inject(AuthTokenStorage);
+private readonly alertsApi = inject(AlertsApi);
+private readonly remote = signal<Alert[]>([]);
+readonly loading = signal(false);
+readonly loadError = signal(false);
+readonly isRemote = computed(() => !!this.tokenStorage.read());
+
+refresh(): void {
+  if (!this.tokenStorage.read() || this.loading()) return;
+  this.loading.set(true);
+  this.loadError.set(false);
+  this.alertsApi.getAll().subscribe({
+    next: (items) => {
+      this.remote.set(items);
+      this.loading.set(false);
+    },
+    error: () => {
+      this.remote.set([]);
+      this.loadError.set(true);
+      this.loading.set(false);
+    },
+  });
+}
+
   private readonly session = inject(SessionStore);
   private readonly assets = inject(AssetStore);
   private readonly failures = inject(FailureStore);
@@ -27,6 +54,8 @@ export class AlertCenter {
   private readonly seenSignal = signal<Set<string>>(this.readSeen());
 
   readonly alerts = computed<Alert[]>(() => {
+if (this.tokenStorage.read()) return this.remote();
+
     const role = this.session.currentAccount()?.role;
     if (!role) return [];
     const today = todayDate();
