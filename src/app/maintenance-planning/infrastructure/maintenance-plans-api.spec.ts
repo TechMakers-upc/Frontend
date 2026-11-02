@@ -35,6 +35,27 @@ describe('MaintenancePlansApi', () => {
 
   afterEach(() => http.verify());
 
+it('posts a completion to Spring Boot with the selected date', async () => {
+  const plan = { id: '12' } as Parameters<MaintenancePlansApi['registerCompletion']>[0];
+  const result = firstValueFrom(api.registerCompletion(plan, '2026-11-02'));
+  const request = http.expectOne(`${environment.apiBaseUrl}/maintenance-plans/12/completions`);
+  expect(request.request.method).toBe('POST');
+  expect(request.request.body).toEqual({ completedOn: '2026-11-02' });
+  request.flush({
+    id: 12, plantId: 1, assetId: 2, title: 'Review', tasks: '',
+    frequencyDays: 30, nextDueDate: '2026-12-02', lastCompletedAt: '2026-11-02',
+    active: true, technicianId: null, standing: 'scheduled',
+  });
+  const saved = await result;
+  expect(saved.nextDueDate).toBe('2026-12-02');
+});
+
+it('rejects an invalid completion date before sending HTTP', () => {
+  const plan = { id: '12' } as Parameters<MaintenancePlansApi['registerCompletion']>[0];
+  expect(() => api.registerCompletion(plan, 'invalid')).toThrow();
+  http.expectNone(`${environment.apiBaseUrl}/maintenance-plans/12/completions`);
+});
+
   it('deletes a plan through Spring Boot when authenticated', async () => {
     const result = firstValueFrom(api.delete('12'));
 
