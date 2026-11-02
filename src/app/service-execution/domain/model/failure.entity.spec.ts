@@ -39,5 +39,12 @@ it('associates the first order and marks the incident in progress', () => {
   expect(item.status).toBe('in-progress');
 });
 
+it('does not link a second order to one incident', () => {
+  const item = failure();
+  item.attachWorkOrder('51');
+  expect(() => item.attachWorkOrder('52')).toThrow();
+  expect(item.workOrderId).toBe('51');
+});
+
   // INSERTAR_CASOS
 });
