@@ -50,5 +50,15 @@ it('rejects zero, fractional and unavailable work order usage', () => {
   expect(item.partsUsed[0].quantity).toBe(2);
 });
 
+it('closes active work with a trimmed solution', () => {
+  const item = order('4');
+  item.start('2026-10-02T10:00:00Z');
+  expect(() => item.complete(' ', '2026-10-02T12:00:00Z')).toThrow();
+  item.complete(' Reemplazo de faja ', '2026-10-02T12:00:00Z');
+  expect(item.solution).toBe('Reemplazo de faja');
+  expect(item.status).toBe('completed');
+  expect(item.repairHours()).toBe(2);
+});
+
   // INSERTAR_CASOS
 });
