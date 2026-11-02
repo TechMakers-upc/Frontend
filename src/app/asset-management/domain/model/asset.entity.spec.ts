@@ -61,5 +61,12 @@ it('adds a manual and removes it by index', () => {
   expect(item.manuals).toHaveLength(0);
 });
 
-  // INSERTAR_CASOS
+it('does not silently remove an incorrect manual index', () => {
+  const item = asset();
+  item.addManual('Manual', 'https://example.org', '2026-10-01');
+  expect(() => item.removeManual(-1)).toThrow();
+  expect(() => item.removeManual(2)).toThrow();
+  expect(item.manuals).toHaveLength(1);
+});
+
 });
