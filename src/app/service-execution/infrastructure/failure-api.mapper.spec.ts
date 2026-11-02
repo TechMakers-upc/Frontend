@@ -5,6 +5,8 @@ const resource = {
   id: 30, plantId: 1, assetId: 9, kind: 'noise', description: 'Ruido',
   lineStopped: true, priority: 'critical', status: 'open', reportedBy: 4,
   reportedAt: '2026-10-01T10:00:00Z', resolvedAt: null, workOrderId: null,
+  downtimeHours: 2,
+  needsWorkOrder: true,
 };
 
 describe('Failure API mapper', () => {
