@@ -20,5 +20,14 @@ it('refuses to save a machine without code or name', () => {
   expect(() => item.updateDetails({...details, code: 'M-01', name: ' '})).toThrow();
 });
 
+it('trims and uppercases the registered machine code', () => {
+  const item = asset();
+  item.updateDetails({code: ' p-20 ', name: ' Prensa 2 ', category: 'press',
+    criticality: 'high', location: '', brand: '', model: '', serialNumber: '',
+    installedAt: '', description: ''});
+  expect(item.code).toBe('P-20');
+  expect(item.name).toBe('Prensa 2');
+});
+
   // INSERTAR_CASOS
 });
