@@ -619,7 +619,10 @@
       "part": "Used {{qty}} × {{part}}",
       "completed": "Closed"
     },
-    "open": "Open"
+    "open": "Open",
+    "deleteTitle": "Delete work order",
+    "deletePrompt": "Are you sure you want to delete work order {{code}}? This action cannot be undone.",
+    "deleteAction": "Delete order"
   },
   "workOrderStatus": {
     "pending": "Pending",

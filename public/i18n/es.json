@@ -619,7 +619,10 @@
       "part": "Usó {{qty}} × {{part}}",
       "completed": "Cerrada"
     },
-    "open": "Abiertas"
+    "open": "Abiertas",
+    "deleteTitle": "Eliminar orden de trabajo",
+    "deletePrompt": "¿Seguro que deseas eliminar la orden {{code}}? Esta acción no se puede deshacer.",
+    "deleteAction": "Eliminar orden"
   },
   "workOrderStatus": {
     "pending": "Pendiente",

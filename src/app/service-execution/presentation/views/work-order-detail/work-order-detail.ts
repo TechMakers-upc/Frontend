@@ -66,6 +66,7 @@ export class WorkOrderDetail {
   protected readonly statusTone = WORK_ORDER_STATUS_TONE;
   protected readonly priorityTone = PRIORITY_TONE;
   protected readonly dialog = signal<DialogName>(null);
+  protected readonly confirmDeleteOpen = signal(false);
   protected readonly busy = signal(false);
 
   protected readonly order = computed(() => this.workOrderStore.find(this.id()));
@@ -152,14 +153,18 @@ export class WorkOrderDetail {
     return this.inventory.find(partId)?.stock ?? 0;
   }
 
+  protected requestDelete(): void {
+    if (!this.canDelete() || this.busy()) return;
+    this.confirmDeleteOpen.set(true);
+  }
+
   protected async deleteOrder(): Promise<void> {
     if (!this.canDelete() || this.busy()) return;
 
     const order = this.order();
 
-    if (!order || !window.confirm(`¿Eliminar la orden ${order.code}?`)) {
-      return;
-    }
+    if (!order) return;
+    this.confirmDeleteOpen.set(false);
 
     this.busy.set(true);
 
