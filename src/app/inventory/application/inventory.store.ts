@@ -45,6 +45,10 @@ export class InventoryStore extends CollectionStore<SparePart> {
       throw new Error('Plant is not accessible');
     }
 
+    if (!Number.isSafeInteger(initialStock) || initialStock < 0) {
+      throw new Error('Initial stock must be a non-negative integer');
+    }
+
     const part = new SparePart({
       id: crypto.randomUUID(),
       plantId,
