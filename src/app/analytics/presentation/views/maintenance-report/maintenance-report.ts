@@ -54,7 +54,8 @@ private readonly remoteRanking = signal<{ assetId: string; hours: number }[] | n
 
   constructor() {
     effect(() => {
-      const current = this.scope.currentPlantId() ?? this.plantStore.plants()[0]?.id ?? '';
+      const current = this.scope.currentPlantId() ??
+        (this.canPickPlant() ? this.plantStore.plants()[0]?.id ?? '' : '');
       untracked(() => {
         if (!this.plantId() || !this.canPickPlant()) this.plantId.set(current);
       });
