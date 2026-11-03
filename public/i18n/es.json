@@ -743,7 +743,10 @@
     "movements": "Movimientos",
     "noMovements": "Sin movimientos registrados.",
     "after": "quedó en {{stock}}",
-    "barLabel": "Stock {{stock}}, mínimo {{min}}"
+    "barLabel": "Stock {{stock}}, mínimo {{min}}",
+    "deleteTitle": "Eliminar repuesto",
+    "deletePrompt": "¿Seguro que deseas eliminar el repuesto {{name}}? Esta acción no se puede deshacer.",
+    "deleteAction": "Eliminar repuesto"
   },
   "partCategory": {
     "electrical": "Eléctricos",

@@ -14,9 +14,9 @@
         {{ 'common.edit' | translate }}
       </a>
       @if (canDelete()) {
-        <button type="button" class="btn btn--ghost" [disabled]="busy()" (click)="deletePart()">
+        <button type="button" class="btn btn--ghost" [disabled]="busy()" (click)="requestDelete()">
           <app-icon name="trash-2" [size]="18" />
-          Eliminar repuesto
+          {{ 'inventory.deleteAction' | translate }}
         </button>
       }
     }
@@ -102,3 +102,14 @@
 } @else {
   <app-page-header [heading]="'inventory.notFound' | translate" backLink="/inventory" />
 }
+<app-dialog [heading]="'inventory.deleteTitle' | translate" [open]="confirmDeleteOpen()" (closed)="confirmDeleteOpen.set(false)">
+  <p>{{ 'inventory.deletePrompt' | translate: { name: part()?.name ?? '' } }}</p>
+  <div class="form-actions">
+    <button type="button" class="btn btn--ghost" (click)="confirmDeleteOpen.set(false)">
+      {{ 'common.cancel' | translate }}
+    </button>
+    <button type="button" class="btn btn--primary" [disabled]="busy()" (click)="deletePart()">
+      {{ 'inventory.deleteAction' | translate }}
+    </button>
+  </div>
+</app-dialog>

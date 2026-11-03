@@ -743,7 +743,10 @@
     "movements": "Movements",
     "noMovements": "No movements recorded.",
     "after": "left at {{stock}}",
-    "barLabel": "Stock {{stock}}, minimum {{min}}"
+    "barLabel": "Stock {{stock}}, minimum {{min}}",
+    "deleteTitle": "Delete spare part",
+    "deletePrompt": "Are you sure you want to delete {{name}}? This action cannot be undone.",
+    "deleteAction": "Delete spare part"
   },
   "partCategory": {
     "electrical": "Electrical",

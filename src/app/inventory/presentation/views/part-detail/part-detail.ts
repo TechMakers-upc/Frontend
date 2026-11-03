@@ -51,6 +51,7 @@ export class PartDetail {
   protected readonly levelTone = STOCK_LEVEL_TONE;
   protected readonly movementTone = MOVEMENT_TONE;
   protected readonly dialog = signal<'entry' | 'adjust' | null>(null);
+  protected readonly confirmDeleteOpen = signal(false);
   protected readonly busy = signal(false);
 
   protected readonly part = computed(() => this.inventory.find(this.id()));
@@ -93,14 +94,18 @@ export class PartDetail {
     this.dialog.set(name);
   }
 
+  protected requestDelete(): void {
+    if (!this.canDelete() || this.busy()) return;
+    this.confirmDeleteOpen.set(true);
+  }
+
   protected async deletePart(): Promise<void> {
     if (!this.canDelete() || this.busy()) return;
 
     const part = this.part();
 
-    if (!part || !window.confirm(`¿Eliminar el repuesto "${part.name}"?`)) {
-      return;
-    }
+    if (!part) return;
+    this.confirmDeleteOpen.set(false);
 
     this.busy.set(true);
 
