@@ -129,6 +129,25 @@ export class WorkOrderForm {
     }
     const values = this.form.getRawValue();
     const technicianId = values.technicianId || null;
+
+    const selectedAsset = this.assetStore.find(values.assetId);
+
+    if (!selectedAsset || !this.scope.includes(selectedAsset.plantId)) {
+      this.form.controls.assetId.setErrors({ unauthorizedPlant: true });
+      this.form.controls.assetId.markAsTouched();
+      return;
+    }
+
+    if (technicianId && !this.directory.accounts().some(
+      (user) =>
+        user.id === technicianId &&
+        user.role === 'technician' &&
+        user.plantId === selectedAsset.plantId,
+    )) {
+      this.form.controls.technicianId.setErrors({ invalidTechnician: true });
+      this.form.controls.technicianId.markAsTouched();
+      return;
+    }
     this.saving.set(true);
     try {
       const existing = this.editing();
