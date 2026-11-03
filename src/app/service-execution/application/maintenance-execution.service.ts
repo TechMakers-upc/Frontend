@@ -91,11 +91,7 @@ export class MaintenanceExecutionService {
     order.updateDetails(input);
     const created = await this.workOrders.add(order);
     if (input.failureId) {
-      if (this.tokenStorage.read()) {
-        this.failures.load(true);
-      } else {
-        await this.failures.change(input.failureId, (draft) => draft.attachWorkOrder(created.id));
-      }
+      this.failures.load(true);
     }
     return created;
   }
