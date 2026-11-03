@@ -2,10 +2,9 @@ import { Injectable, inject } from '@angular/core';
 
 import { AssetStore } from '../../asset-management/application/asset.store';
 import { SessionStore } from '../../shared/application/session.store';
-import { AuthTokenStorage } from '../../shared/infrastructure/auth-token.storage';
 import { InventoryStore } from '../../inventory/application/inventory.store';
 import { MaintenancePlanStore } from '../../maintenance-planning/application/maintenance-plan.store';
-import { nowIso, todayDate } from '../../shared/domain/model/date-time';
+import { nowIso } from '../../shared/domain/model/date-time';
 import { Failure, FailureKind } from '../domain/model/failure.entity';
 import { Priority } from '../domain/model/priority';
 import { WorkOrder, WorkOrderType } from '../domain/model/work-order.entity';
@@ -32,7 +31,6 @@ export interface NewWorkOrder {
 @Injectable({ providedIn: 'root' })
 export class MaintenanceExecutionService {
   private readonly session = inject(SessionStore);
-  private readonly tokenStorage = inject(AuthTokenStorage);
   private readonly assets = inject(AssetStore);
   private readonly failures = inject(FailureStore);
   private readonly workOrders = inject(WorkOrderStore);
