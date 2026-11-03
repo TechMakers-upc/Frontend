@@ -75,7 +75,7 @@ export class PartDetail {
     reason: ['', [Validators.required, Validators.maxLength(120)]],
   });
   protected readonly adjustForm = this.fb.group({
-    counted: [0, [Validators.required, Validators.min(0)]],
+    counted: [0, [Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]],
     reason: ['', [Validators.required, Validators.maxLength(120)]],
   });
 
