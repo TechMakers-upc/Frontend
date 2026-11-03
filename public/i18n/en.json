@@ -20,6 +20,7 @@
     "body": "Failures, work orders and spare parts for your plant in one place, instead of scattered chats and spreadsheets."
   },
   "common": {
+    "forbidden": "You do not have permission to perform this action.",
     "unreachable": "We couldn't reach the server. Check your connection and try again.",
     "loadError": "FixCore data couldn't be loaded.",
     "saveError": "The change wasn't saved. Check the connection and try again.",

@@ -20,6 +20,7 @@
     "body": "Fallas, órdenes de trabajo y repuestos de tu planta en un solo lugar, sin chats ni hojas de Excel sueltas."
   },
   "common": {
+    "forbidden": "No tienes permisos para realizar esta accion.",
     "unreachable": "No pudimos conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.",
     "loadError": "No se pudieron cargar los datos de FixCore.",
     "saveError": "No se guardó el cambio. Revisa la conexión e inténtalo otra vez.",

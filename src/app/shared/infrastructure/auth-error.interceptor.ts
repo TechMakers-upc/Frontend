@@ -5,6 +5,8 @@ import { catchError, throwError } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { SessionStore } from '../application/session.store';
+import { ToastService } from '../application/toast.service';
+import { TranslateService } from '@ngx-translate/core';
 
 export const authErrorInterceptor: HttpInterceptorFn = (request, next) => {
   const injector = inject(Injector);
@@ -24,6 +26,10 @@ export const authErrorInterceptor: HttpInterceptorFn = (request, next) => {
       ) {
         injector.get(SessionStore).signOut();
         void injector.get(Router).navigateByUrl('/login');
+      }
+
+      if (isBackendRequest && error instanceof HttpErrorResponse && error.status === 403) {
+        injector.get(ToastService).error(injector.get(TranslateService).instant('common.forbidden'));
       }
 
       return throwError(() => error);
