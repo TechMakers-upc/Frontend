@@ -1,4 +1,4 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
 
 import { SessionStore } from '../../shared/application/session.store';
 import { PlantStore } from './plant.store';
@@ -12,6 +12,7 @@ export class PlantScope {
   private readonly plantStore = inject(PlantStore);
 
   private readonly selectedSignal = signal<string | null>(this.readSelection());
+  private previousAccountId = this.session.currentAccount()?.id ?? null;
 
   readonly canSwitch = computed(() => this.session.currentAccount()?.role === 'operations-manager');
   readonly selectedPlantId = computed(() => (this.canSwitch() ? this.selectedSignal() : null));
@@ -28,6 +29,21 @@ export class PlantScope {
   readonly currentPlantId = computed(() => (this.plantIds().length === 1 ? this.plantIds()[0]! : null));
 
   private readonly plantIdSet = computed(() => new Set(this.plantIds()));
+
+  constructor() {
+    effect(() => {
+      const accountId = this.session.currentAccount()?.id ?? null;
+      if (accountId === this.previousAccountId) return;
+
+      this.previousAccountId = accountId;
+      this.selectedSignal.set(null);
+
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch {
+      }
+    });
+  }
 
   includes(plantId: string): boolean {
     return this.plantIdSet().has(plantId);
