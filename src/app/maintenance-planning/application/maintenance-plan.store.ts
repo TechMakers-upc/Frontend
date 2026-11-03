@@ -12,6 +12,12 @@ export class MaintenancePlanStore extends CollectionStore<MaintenancePlan> {
   protected readonly api = inject(MaintenancePlansApi);
   private readonly scope = inject(PlantScope);
 
+  private assertAccessible(plan: MaintenancePlan): void {
+    if (!this.scope.includes(plan.plantId)) {
+      throw new Error('Maintenance plan is outside the selected plant');
+    }
+  }
+
   readonly inScope = computed(() =>
     this.items()
       .filter((plan) => this.scope.includes(plan.plantId))
@@ -30,6 +36,8 @@ export class MaintenancePlanStore extends CollectionStore<MaintenancePlan> {
       throw new Error(`Unknown maintenance plan ${id}`);
     }
 
+    this.assertAccessible(current);
+
     const saved = await firstValueFrom(
       this.api.suspendPlan(current),
     );
@@ -47,6 +55,8 @@ export class MaintenancePlanStore extends CollectionStore<MaintenancePlan> {
     if (!current) {
       throw new Error(`Unknown maintenance plan ${id}`);
     }
+
+    this.assertAccessible(current);
 
     const saved = await firstValueFrom(
       this.api.reactivatePlan(current),
@@ -69,6 +79,8 @@ export class MaintenancePlanStore extends CollectionStore<MaintenancePlan> {
       throw new Error(`Unknown maintenance plan ${id}`);
     }
 
+    this.assertAccessible(current);
+
     const saved = await firstValueFrom(
       this.api.reschedulePlan(current, nextDueDate),
     );
@@ -83,6 +95,7 @@ export class MaintenancePlanStore extends CollectionStore<MaintenancePlan> {
 async complete(id: string, completedOn: string): Promise<MaintenancePlan> {
   const current = this.find(id);
   if (!current) throw new Error(`Unknown maintenance plan ${id}`);
+  this.assertAccessible(current);
   if (current.lastCompletedAt?.slice(0, 10) === completedOn) {
     throw new Error('This date has already been registered');
   }
@@ -94,6 +107,10 @@ async complete(id: string, completedOn: string): Promise<MaintenancePlan> {
 }
 
   async remove(id: string): Promise<void> {
+    const current = this.find(id);
+    if (!current) throw new Error(`Unknown maintenance plan ${id}`);
+    this.assertAccessible(current);
+
     await firstValueFrom(this.api.delete(id));
 
     this.itemsSignal.update((items) =>
