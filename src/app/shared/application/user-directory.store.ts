@@ -44,13 +44,17 @@ export class UserDirectoryStore {
     const state = this.stateSignal();
     if (state === 'loading' || (state === 'ready' && !force)) return;
     this.stateSignal.set('loading');
+    const requestGeneration = ++this.generation;
     this.api.getAll().subscribe({
       next: (resources) => {
+        if (requestGeneration !== this.generation) return;
         const accounts = resources.map(UserAccountAssembler.toEntity).filter((a): a is UserAccount => a !== null);
         this.accountsSignal.set(accounts);
         this.stateSignal.set('ready');
       },
-      error: () => this.stateSignal.set('error'),
+      error: () => {
+        if (requestGeneration === this.generation) this.stateSignal.set('error');
+      },
     });
   }
 
