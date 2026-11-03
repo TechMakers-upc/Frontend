@@ -672,7 +672,9 @@
     "completeTitle": "Registrar mantenimiento realizado",
     "completeConfirm": "Registrar la finalización de {{title}}.",
     "completedOn": "Fecha de finalización",
-    "completed": "Mantenimiento {{title}} registrado."
+    "completed": "Mantenimiento {{title}} registrado.",
+    "invalidAsset": "Selecciona una máquina disponible en tu planta.",
+    "invalidTechnician": "Selecciona un técnico que pertenezca a la planta de la máquina."
   },
   "today": {
     "greeting": "¡Hola, {{name}}!",

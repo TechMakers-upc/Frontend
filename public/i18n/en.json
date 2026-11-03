@@ -672,7 +672,9 @@
     "completeTitle": "Record completed maintenance",
     "completeConfirm": "Record completion of {{title}}.",
     "completedOn": "Completion date",
-    "completed": "Maintenance {{title}} recorded."
+    "completed": "Maintenance {{title}} recorded.",
+    "invalidAsset": "Select a machine available in your plant.",
+    "invalidTechnician": "Select a technician assigned to the machine\u0027s plant."
   },
   "today": {
     "greeting": "Hi, {{name}}!",
