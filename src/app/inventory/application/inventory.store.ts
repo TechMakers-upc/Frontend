@@ -81,13 +81,9 @@ export class InventoryStore extends CollectionStore<SparePart> {
   }
 
   adjust(partId: string, counted: number, reason: string): Promise<SparePart> {
-    if (this.tokenStorage.read()) {
-      return this.applyBackendStockOperation(
-        this.api.adjustStock(partId, counted, reason),
-      );
-    }
-
-    return this.applyMovement(partId, 'adjustment', reason, null, (part) => part.adjustTo(counted));
+    return this.applyBackendStockOperation(
+      this.api.adjustStock(partId, counted, reason),
+    );
   }
 
   consume(partId: string, quantity: number, workOrderId: string | null, reason: string): Promise<SparePart> {
