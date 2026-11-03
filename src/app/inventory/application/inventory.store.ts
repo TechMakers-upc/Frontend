@@ -74,8 +74,12 @@ export class InventoryStore extends CollectionStore<SparePart> {
   async remove(id: string): Promise<void> {
     const current = this.find(id);
 
-    if (!current) {
-      throw new Error(`Unknown spare part ${id}`);
+    if (!current || !this.scope.includes(current.plantId)) {
+      throw new Error('Spare part is not accessible');
+    }
+
+    if (current.stock > 0) {
+      throw new Error('Spare part still has stock');
     }
 
     await firstValueFrom(this.api.delete(id));
