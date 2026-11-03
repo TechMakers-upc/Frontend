@@ -8,6 +8,10 @@ import { Alert } from '../domain/model/alert';
 export class AlertsApi {
   private readonly http = inject(HttpClient);
 
+  getUnreadCount(): Observable<{ unread: number }> {
+    return this.http.get<{ unread: number }>(`${environment.apiBaseUrl}/alerts/unread-count`);
+  }
+
   getAll(): Observable<Alert[]> {
     return this.http.get<Alert[]>(`${environment.apiBaseUrl}/alerts`);
   }
