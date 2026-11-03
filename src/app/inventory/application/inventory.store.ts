@@ -91,6 +91,9 @@ export class InventoryStore extends CollectionStore<SparePart> {
 
   receive(partId: string, quantity: number, reason: string): Promise<SparePart> {
     this.requirePartInScope(partId);
+    if (!Number.isSafeInteger(quantity) || quantity <= 0 || !reason.trim()) {
+      throw new Error('Invalid stock reception');
+    }
     return this.applyBackendStockOperation(
       this.api.receiveStock(partId, quantity, reason),
     );
@@ -98,6 +101,9 @@ export class InventoryStore extends CollectionStore<SparePart> {
 
   adjust(partId: string, counted: number, reason: string): Promise<SparePart> {
     this.requirePartInScope(partId);
+    if (!Number.isSafeInteger(counted) || counted < 0 || !reason.trim()) {
+      throw new Error('Invalid stock adjustment');
+    }
     return this.applyBackendStockOperation(
       this.api.adjustStock(partId, counted, reason),
     );
@@ -105,6 +111,9 @@ export class InventoryStore extends CollectionStore<SparePart> {
 
   consume(partId: string, quantity: number, workOrderId: string | null, reason: string): Promise<SparePart> {
     this.requirePartInScope(partId);
+    if (!Number.isSafeInteger(quantity) || quantity <= 0) {
+      throw new Error('Invalid stock consumption');
+    }
     return this.applyBackendStockOperation(
       this.api.consumeStock(partId, quantity, workOrderId, reason),
     );
