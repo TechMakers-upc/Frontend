@@ -1,10 +1,10 @@
 <div class="no-print">
   <app-page-header [heading]="'reports.title' | translate" [subtitle]="'reports.subtitle' | translate">
-    <button type="button" class="btn btn--ghost" (click)="downloadCsv()">
+    <button type="button" class="btn btn--ghost" [disabled]="!reportReady()" (click)="downloadCsv()">
       <app-icon name="download" [size]="18" />
       {{ 'reports.csv' | translate }}
     </button>
-    <button type="button" class="btn btn--primary" (click)="print()">
+    <button type="button" class="btn btn--primary" [disabled]="!reportReady()" (click)="print()">
       <app-icon name="printer" [size]="18" />
       {{ 'reports.pdf' | translate }}
     </button>
@@ -32,6 +32,13 @@
   </div>
 </div>
 
+@if (reportLoading()) {
+  <p class="card card__body" role="status">{{ 'reports.loading' | translate }}</p>
+} @else if (reportError()) {
+  <p class="card card__body" role="alert">{{ 'reports.loadError' | translate }}</p>
+}
+
+@if (reportReady()) {
 <article class="report card">
   <header class="report__head">
     <div class="report__brand">
@@ -127,3 +134,4 @@
 
   <footer class="report__foot muted">{{ 'reports.generated' | translate: { date: (generatedAt() | localizedDate: 'datetime') } }}</footer>
 </article>
+}

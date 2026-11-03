@@ -309,7 +309,9 @@
     "partsConsumed": "Parts consumed",
     "noParts": "No parts were consumed.",
     "failures": "Failures in the period",
-    "generated": "Generated on {{date}} with FixCore."
+    "generated": "Generated on {{date}} with FixCore.",
+    "loading": "Loading report metrics...",
+    "loadError": "Unable to load report metrics. Check your connection or selected period."
   },
   "assets": {
     "title": "Machines",

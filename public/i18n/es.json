@@ -309,7 +309,9 @@
     "partsConsumed": "Repuestos consumidos",
     "noParts": "No se consumieron repuestos.",
     "failures": "Fallas del periodo",
-    "generated": "Generado el {{date}} con FixCore."
+    "generated": "Generado el {{date}} con FixCore.",
+    "loading": "Cargando los indicadores del reporte...",
+    "loadError": "No se pudieron obtener los indicadores. Revisa la conexión o el periodo seleccionado."
   },
   "assets": {
     "title": "Máquinas",

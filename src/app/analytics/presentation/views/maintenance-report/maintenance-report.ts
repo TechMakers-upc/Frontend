@@ -49,6 +49,12 @@ protected readonly reportError = signal(false);
   protected readonly directory = inject(UserDirectoryStore);
 
   protected readonly canPickPlant = computed(() => this.session.role() === 'operations-manager');
+  protected readonly reportReady = computed(() =>
+    !this.reportLoading() &&
+    !this.reportError() &&
+    this.remoteSummary() !== null &&
+    this.remoteRanking() !== null,
+  );
   protected readonly plantId = signal<string>('');
   protected readonly from = signal(addDays(todayDate(), -30));
   protected readonly to = signal(todayDate());
@@ -156,12 +162,14 @@ private readonly loadBackendReport = effect((onCleanup) => {
   }
 
   protected print(): void {
+    if (!this.reportReady()) return;
     this.generatedAt.set(nowIso());
     window.print();
   }
 
   /** Work orders of the period as CSV, ready for Excel. */
   protected downloadCsv(): void {
+    if (!this.reportReady()) return;
     const t = (key: string) => this.translate.instant(key);
     const header = [
       t('workOrders.order'),
