@@ -49,7 +49,10 @@ export class MaintenanceExecutionService {
     lineStopped: boolean;
   }): Promise<Failure> {
     const asset = this.assets.find(input.assetId);
-    if (!asset) throw new Error('Unknown asset');
+    if (!asset || !this.assets.inScope().some((item) => item.id === asset.id)) {
+      throw new Error('Asset is not accessible');
+    }
+
     const failure = await this.failures.add(
       Failure.report({ ...input, plantId: asset.plantId, reportedBy: this.userId }),
     );

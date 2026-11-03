@@ -28,8 +28,8 @@ export class FailureStore extends CollectionStore<Failure> {
   async resolveFailure(id: string): Promise<Failure> {
     const current = this.find(id);
 
-    if (!current) {
-      throw new Error(`Unknown failure ${id}`);
+    if (!current || !this.scope.includes(current.plantId)) {
+      throw new Error('Failure is outside the selected plant');
     }
 
     if (current.isResolved) {
@@ -50,8 +50,8 @@ export class FailureStore extends CollectionStore<Failure> {
   async setPriority(id: string, priority: Priority): Promise<Failure> {
     const current = this.find(id);
 
-    if (!current) {
-      throw new Error(`Unknown failure ${id}`);
+    if (!current || !this.scope.includes(current.plantId)) {
+      throw new Error('Failure is outside the selected plant');
     }
 
     const saved = await firstValueFrom(
@@ -66,6 +66,6 @@ export class FailureStore extends CollectionStore<Failure> {
   }
 
   openFor(assetId: string): Failure[] {
-    return this.items().filter((failure) => failure.assetId === assetId && !failure.isResolved);
+    return this.inScope().filter((failure) => failure.assetId === assetId && !failure.isResolved);
   }
 }
