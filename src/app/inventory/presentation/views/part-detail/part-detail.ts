@@ -57,7 +57,10 @@ export class PartDetail {
   protected readonly part = computed(() => this.inventory.find(this.id()));
   protected readonly plant = computed(() => this.plantStore.find(this.part()?.plantId));
   protected readonly history = computed(() => this.movements.forPart(this.id()));
-  protected readonly canManage = computed(() => this.session.role() === 'plant-manager');
+  protected readonly canManage = computed(() =>
+    this.session.role() === 'plant-manager' &&
+    this.session.currentAccount()?.plantId === this.part()?.plantId,
+  );
 
   protected readonly canDelete = computed(() =>
     this.canManage() &&
