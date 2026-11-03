@@ -32,6 +32,14 @@ export class InventoryStore extends CollectionStore<SparePart> {
 
   readonly belowMinimum = computed(() => this.inScope().filter((part) => part.isBelowMinimum));
 
+  private requirePartInScope(partId: string): void {
+    const part = this.find(partId);
+
+    if (!part || !this.scope.includes(part.plantId)) {
+      throw new Error('Spare part is not accessible in the current plant');
+    }
+  }
+
   async register(plantId: string, details: SparePartDetails, initialStock: number): Promise<SparePart> {
     const part = new SparePart({
       id: crypto.randomUUID(),
@@ -70,18 +78,21 @@ export class InventoryStore extends CollectionStore<SparePart> {
   }
 
   receive(partId: string, quantity: number, reason: string): Promise<SparePart> {
+    this.requirePartInScope(partId);
     return this.applyBackendStockOperation(
       this.api.receiveStock(partId, quantity, reason),
     );
   }
 
   adjust(partId: string, counted: number, reason: string): Promise<SparePart> {
+    this.requirePartInScope(partId);
     return this.applyBackendStockOperation(
       this.api.adjustStock(partId, counted, reason),
     );
   }
 
   consume(partId: string, quantity: number, workOrderId: string | null, reason: string): Promise<SparePart> {
+    this.requirePartInScope(partId);
     return this.applyBackendStockOperation(
       this.api.consumeStock(partId, quantity, workOrderId, reason),
     );
