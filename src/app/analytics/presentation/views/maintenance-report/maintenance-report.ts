@@ -33,6 +33,8 @@ private readonly api = inject(AnalyticsApi);
 private readonly tokenStorage = inject(AuthTokenStorage);
 private readonly remoteSummary = signal<MaintenanceSummary | null>(null);
 private readonly remoteRanking = signal<{ assetId: string; hours: number }[] | null>(null);
+protected readonly reportLoading = signal(false);
+protected readonly reportError = signal(false);
 
   private readonly analytics = inject(MaintenanceAnalytics);
   private readonly scope = inject(PlantScope);
@@ -66,15 +68,42 @@ private readonly loadBackendReport = effect((onCleanup) => {
   const plantId = this.plantId();
   const from = this.from();
   const to = this.to();
-  if (!this.tokenStorage.read() || !plantId || from > to) return;
+  if (!this.tokenStorage.read() || !plantId || from > to) {
+    this.reportLoading.set(false);
+    this.reportError.set(true);
+    return;
+  }
   const period = { from: from || null, to: to || null };
   this.remoteSummary.set(null);
   this.remoteRanking.set(null);
+  this.reportLoading.set(true);
+  this.reportError.set(false);
+
+  let pending = 2;
+  const settled = () => {
+    pending -= 1;
+    if (pending === 0) this.reportLoading.set(false);
+  };
   const summary = this.api.getSummary(plantId, period).subscribe({
-    next: (value) => this.remoteSummary.set(value),
+    next: (value) => {
+      this.remoteSummary.set(value);
+      settled();
+    },
+    error: () => {
+      this.reportError.set(true);
+      settled();
+    },
   });
+
   const ranking = this.api.getDowntimeRanking(plantId, period).subscribe({
-    next: (rows) => this.remoteRanking.set(rows),
+    next: (rows) => {
+      this.remoteRanking.set(rows);
+      settled();
+    },
+    error: () => {
+      this.reportError.set(true);
+      settled();
+    },
   });
   onCleanup(() => { summary.unsubscribe(); ranking.unsubscribe(); });
 });
