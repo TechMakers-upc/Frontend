@@ -66,6 +66,7 @@ export class WorkOrderDetail {
   protected readonly statusTone = WORK_ORDER_STATUS_TONE;
   protected readonly priorityTone = PRIORITY_TONE;
   protected readonly dialog = signal<DialogName>(null);
+  protected readonly confirmDeleteOpen = signal(false);
   protected readonly busy = signal(false);
 
   protected readonly order = computed(() => this.workOrderStore.find(this.id()));
@@ -80,13 +81,16 @@ export class WorkOrderDetail {
   protected readonly overdue = computed(() => this.order()?.isOverdue(todayDate()) ?? false);
 
   private readonly me = computed(() => this.session.currentAccount());
-  protected readonly isManager = computed(() => this.me()?.role !== 'technician');
+  protected readonly isManager = computed(() =>
+    this.me()?.role === 'plant-manager' || this.me()?.role === 'operations-manager',
+  );
   protected readonly canDelete = computed(() => {
     const role = this.session.role();
     const order = this.order();
 
     return !!order &&
-      (role === 'plant-manager' || role === 'operations-manager') &&
+      (role === 'operations-manager' ||
+        (role === 'plant-manager' && this.me()?.plantId === order.plantId)) &&
       order.status === 'pending' &&
       order.failureId === null;
   });
@@ -139,6 +143,15 @@ export class WorkOrderDetail {
   protected readonly closeForm = this.fb.group({ solution: ['', [Validators.required, Validators.maxLength(800)]] });
 
   protected openDialog(name: Exclude<DialogName, null>): void {
+    if (this.busy()) return;
+
+    if (name === 'assign') {
+      if (!this.isManager() || !this.order()?.isOpen) return;
+      if (this.me()?.role === 'plant-manager' && this.order()?.plantId !== this.me()?.plantId) return;
+    } else if (!this.isAssignee() || this.order()?.status !== 'in-progress') {
+      return;
+    }
+
     if (name === 'assign') this.assignForm.reset({ technicianId: this.order()?.technicianId ?? '' });
     if (name === 'part') {
       this.partForm.reset({ partId: '', quantity: 1 });
@@ -152,41 +165,47 @@ export class WorkOrderDetail {
     return this.inventory.find(partId)?.stock ?? 0;
   }
 
+  protected requestDelete(): void {
+    if (!this.canDelete() || this.busy()) return;
+    this.confirmDeleteOpen.set(true);
+  }
+
   protected async deleteOrder(): Promise<void> {
     if (!this.canDelete() || this.busy()) return;
 
     const order = this.order();
 
-    if (!order || !window.confirm(`¿Eliminar la orden ${order.code}?`)) {
-      return;
-    }
+    if (!order) return;
+    this.confirmDeleteOpen.set(false);
 
     this.busy.set(true);
 
     try {
       await this.workOrderStore.remove(order.id);
-      this.toast.success('Orden de trabajo eliminada.');
+      this.toast.success(this.translate.instant('workOrders.deleted'));
       await this.router.navigateByUrl('/work-orders');
     } catch {
-      this.toast.error('No se pudo eliminar la orden de trabajo.');
+      this.toast.error(this.translate.instant('workOrders.deleteError'));
     } finally {
       this.busy.set(false);
     }
   }
 
   protected async start(): Promise<void> {
+    if (!this.isAssignee() || this.order()?.status !== 'pending') return;
     await this.run(() => this.execution.start(this.id()), 'workOrders.startedToast');
   }
 
   protected async addNote(): Promise<void> {
-    if (this.noteForm.invalid) {
+    if (!this.isAssignee() || this.order()?.status !== 'in-progress') return;
+    if (this.noteForm.invalid || !this.noteForm.controls.note.value.trim()) {
       this.noteForm.markAllAsTouched();
       return;
     }
     const { note } = this.noteForm.getRawValue();
     const author = this.me()!.id;
     const done = await this.run(
-      () => this.workOrderStore.addWorkLog(this.id(), note, author, nowIso()),
+      () => this.workOrderStore.addWorkLog(this.id(), note.trim(), author, nowIso()),
       'workOrders.noteSaved',
     );
     if (done) this.noteForm.reset();
@@ -198,6 +217,12 @@ export class WorkOrderDetail {
       return;
     }
     const { technicianId } = this.assignForm.getRawValue();
+
+    if (!this.plantTechnicians().some((tech) => tech.id === technicianId)) {
+      this.toast.error(this.translate.instant('workOrders.invalidTechnician'));
+      return;
+    }
+
     const done = await this.run(
       () => this.workOrderStore.assignTechnician(this.id(), technicianId),
       'workOrders.assigned',
@@ -210,7 +235,19 @@ export class WorkOrderDetail {
 
   protected async usePart(): Promise<void> {
     const { partId, quantity } = this.partForm.getRawValue();
-    this.stockShort.set(!!partId && quantity > this.maxFor(partId));
+    const order = this.order();
+
+    if (!this.isAssignee() || order?.status !== 'in-progress') return;
+
+    const part = this.inventory.find(partId);
+
+    this.stockShort.set(
+      !part ||
+      part.plantId !== order.plantId ||
+      !Number.isInteger(quantity) ||
+      quantity <= 0 ||
+      quantity > part.stock,
+    );
     if (this.partForm.invalid || this.stockShort()) {
       this.partForm.markAllAsTouched();
       return;
@@ -220,12 +257,13 @@ export class WorkOrderDetail {
   }
 
   protected async close(): Promise<void> {
-    if (this.closeForm.invalid) {
+    if (!this.isAssignee() || this.order()?.status !== 'in-progress') return;
+    if (this.closeForm.invalid || !this.closeForm.controls.solution.value.trim()) {
       this.closeForm.markAllAsTouched();
       return;
     }
     const { solution } = this.closeForm.getRawValue();
-    const done = await this.run(() => this.execution.complete(this.id(), solution), 'workOrders.closed');
+    const done = await this.run(() => this.execution.complete(this.id(), solution.trim()), 'workOrders.closed');
     if (done) this.dialog.set(null);
   }
 

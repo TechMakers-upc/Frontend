@@ -10,16 +10,14 @@
     "en": "English"
   },
   "brand": {
-    "slogan": "El núcleo de tu mantenimiento industrial",
-    "demoData": "Datos de demostración",
-    "demoDataLong": "Proyecto académico: todas las plantas, máquinas y cifras son datos de demostración.",
-    "demoShort": "Demo"
+    "slogan": "El núcleo de tu mantenimiento industrial"
   },
   "shell": {
     "headline": "Cada parada de máquina cuenta.",
     "body": "Fallas, órdenes de trabajo y repuestos de tu planta en un solo lugar, sin chats ni hojas de Excel sueltas."
   },
   "common": {
+    "forbidden": "No tienes permisos para realizar esta accion.",
     "unreachable": "No pudimos conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.",
     "loadError": "No se pudieron cargar los datos de FixCore.",
     "saveError": "No se guardó el cambio. Revisa la conexión e inténtalo otra vez.",
@@ -72,33 +70,6 @@
       "plantsUnavailable": "No se pudo cargar la lista de plantas. Recarga la página."
     }
   },
-  "demoAccess": {
-    "eyebrow": "PROTOTIPO ACADÉMICO · SPRINT 3",
-    "title": "Bienvenido a FixCore",
-    "intro": "Elige un perfil para explorar el mantenimiento industrial con datos de demostración.",
-    "selectProfile": "Selecciona tu perfil",
-    "plantManagerHint": "Máquinas, fallas y mantenimiento",
-    "operationsManagerHint": "Plantas, indicadores y reportes",
-    "technicianHint": "Órdenes, equipos y repuestos",
-    "footnote": "Acceso libre para demostración. No se requiere usuario ni contraseña.",
-    "changeProfile": "Cambiar perfil",
-    "backToLogin": "Volver al Login"
-  },
-  "loginPreview": {
-    "previewLabel": "Vista preliminar · Sprint 3",
-    "description": "Esta es la futura pantalla de inicio de sesión de FixCore. La autenticación todavía no está habilitada.",
-    "emailPlaceholder": "nombre@empresa.com",
-    "passwordPlaceholder": "Ingresa tu contraseña",
-    "unavailable": "El inicio de sesión estará disponible cuando se integre el servicio de autenticación. Por ahora puedes explorar los perfiles de demostración.",
-    "exploreDemo": "Explorar la demostración",
-    "disclaimer": "El formulario solo valida los campos en este navegador. No se envían ni se guardan credenciales.",
-    "showcaseTitle": "Mantenimiento industrial en un solo lugar",
-    "showcaseDescription": "Organiza la operación de mantenimiento y consulta información importante desde una interfaz centralizada.",
-    "featurePlants": "Gestión de plantas y máquinas",
-    "featureFailures": "Seguimiento de fallas y órdenes de trabajo",
-    "featureReports": "Indicadores y reportes de mantenimiento",
-    "viewLogin": "Ver pantalla de inicio de sesión"
-  },
   "signIn": {
     "title": "¡Hola de nuevo!",
     "noAccount": "¿Todavía no tienes cuenta?",
@@ -115,7 +86,11 @@
       "roleRequired": "Elige con qué rol vas a ingresar.",
       "invalidCredentials": "El correo o la contraseña no coinciden. Revisa ambos e inténtalo otra vez.",
       "roleMismatch": "Esta cuenta está registrada como {{role}}."
-    }
+    },
+    "invalidResponse": "El servidor devolvió una respuesta de inicio de sesión inválida.",
+    "invalidRole": "No se reconoció el perfil de esta cuenta.",
+    "loginError": "No se pudo iniciar sesión. Inténtalo nuevamente.",
+    "unexpectedError": "Ocurrió un error inesperado al iniciar sesión."
   },
   "signUp": {
     "step": "Paso {{current}} de {{total}}",
@@ -285,7 +260,9 @@
     "title": "Desempeño de técnicos",
     "subtitle": "Órdenes atendidas por cada técnico en el periodo.",
     "avgRepair": "Reparación prom.",
-    "lastActivity": "Última actividad"
+    "lastActivity": "Última actividad",
+    "loading": "Cargando el desempeño de los técnicos...",
+    "loadError": "No se pudo cargar el desempeño de los técnicos."
   },
   "reports": {
     "title": "Reportes",
@@ -308,7 +285,9 @@
     "partsConsumed": "Repuestos consumidos",
     "noParts": "No se consumieron repuestos.",
     "failures": "Fallas del periodo",
-    "generated": "Generado el {{date}} con FixCore."
+    "generated": "Generado el {{date}} con FixCore.",
+    "loading": "Cargando los indicadores del reporte...",
+    "loadError": "No se pudieron obtener los indicadores. Revisa la conexión o el periodo seleccionado."
   },
   "assets": {
     "title": "Máquinas",
@@ -436,7 +415,12 @@
     "machinesTitle": "Máquinas",
     "openOrdersTitle": "Órdenes abiertas",
     "failureHistory": "Últimas fallas",
-    "techniciansTitle": "Técnicos de la planta"
+    "techniciansTitle": "Técnicos de la planta",
+    "deleteTitle": "Eliminar planta",
+    "deletePrompt": "¿Seguro que deseas eliminar la planta {{name}}? Esta acción no se puede deshacer.",
+    "deleteAction": "Eliminar planta",
+    "deleted": "Planta eliminada correctamente.",
+    "deleteError": "No se pudo eliminar la planta. Comprueba si tiene registros relacionados."
   },
   "failures": {
     "title": "Fallas",
@@ -613,7 +597,13 @@
       "part": "Usó {{qty}} × {{part}}",
       "completed": "Cerrada"
     },
-    "open": "Abiertas"
+    "open": "Abiertas",
+    "deleteTitle": "Eliminar orden de trabajo",
+    "deletePrompt": "¿Seguro que deseas eliminar la orden {{code}}? Esta acción no se puede deshacer.",
+    "deleteAction": "Eliminar orden",
+    "deleted": "Orden de trabajo eliminada.",
+    "deleteError": "No se pudo eliminar la orden de trabajo.",
+    "invalidTechnician": "Selecciona un técnico asignado a la planta de esta orden."
   },
   "workOrderStatus": {
     "pending": "Pendiente",
@@ -682,7 +672,9 @@
     "completeTitle": "Registrar mantenimiento realizado",
     "completeConfirm": "Registrar la finalización de {{title}}.",
     "completedOn": "Fecha de finalización",
-    "completed": "Mantenimiento {{title}} registrado."
+    "completed": "Mantenimiento {{title}} registrado.",
+    "invalidAsset": "Selecciona una máquina disponible en tu planta.",
+    "invalidTechnician": "Selecciona un técnico que pertenezca a la planta de la máquina."
   },
   "today": {
     "greeting": "¡Hola, {{name}}!",
@@ -737,7 +729,12 @@
     "movements": "Movimientos",
     "noMovements": "Sin movimientos registrados.",
     "after": "quedó en {{stock}}",
-    "barLabel": "Stock {{stock}}, mínimo {{min}}"
+    "barLabel": "Stock {{stock}}, mínimo {{min}}",
+    "deleteTitle": "Eliminar repuesto",
+    "deletePrompt": "¿Seguro que deseas eliminar el repuesto {{name}}? Esta acción no se puede deshacer.",
+    "deleteAction": "Eliminar repuesto",
+    "deleted": "Repuesto eliminado correctamente.",
+    "deleteError": "No se pudo eliminar el repuesto. Comprueba si tiene movimientos asociados."
   },
   "partCategory": {
     "electrical": "Eléctricos",
@@ -925,6 +922,13 @@
     "eyebrow": "ACCESO A FIXCORE",
     "description": "Inicia sesión con tu cuenta para gestionar plantas, máquinas, órdenes de trabajo e inventario.",
     "success": "Sesión iniciada correctamente.",
-    "signOut": "Cerrar sesión"
+    "signOut": "Cerrar sesión",
+    "emailPlaceholder": "nombre@empresa.com",
+    "passwordPlaceholder": "Ingresa tu contraseña",
+    "showcaseTitle": "Mantenimiento industrial en un solo lugar",
+    "showcaseDescription": "Organiza la operación de mantenimiento y consulta información importante desde una interfaz centralizada.",
+    "featurePlants": "Gestión de plantas y máquinas",
+    "featureFailures": "Seguimiento de fallas y órdenes de trabajo",
+    "featureReports": "Indicadores y reportes de mantenimiento"
   }
 }

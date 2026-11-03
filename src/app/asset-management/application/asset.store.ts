@@ -12,6 +12,12 @@ export class AssetStore extends CollectionStore<Asset> {
   protected readonly api = inject(AssetsApi);
   private readonly scope = inject(PlantScope);
 
+  private assertAccessible(asset: Asset): void {
+    if (!this.scope.includes(asset.plantId)) {
+      throw new Error('Asset is outside the selected plant');
+    }
+  }
+
   readonly inScope = computed(() =>
     this.items()
       .filter((asset) => this.scope.includes(asset.plantId))
@@ -24,6 +30,8 @@ export class AssetStore extends CollectionStore<Asset> {
     if (!current) {
       throw new Error(`Unknown asset ${id}`);
     }
+
+    this.assertAccessible(current);
 
     const saved = await firstValueFrom(
       this.api.changeStatus(current, status, at),
@@ -39,6 +47,7 @@ export class AssetStore extends CollectionStore<Asset> {
   async addManual(id: string, title: string, url: string): Promise<Asset> {
     const current = this.find(id);
     if (!current) throw new Error(`Unknown asset ${id}`);
+    this.assertAccessible(current);
 
     const saved = await firstValueFrom(this.api.addManual(current, title, url));
 
@@ -52,6 +61,7 @@ export class AssetStore extends CollectionStore<Asset> {
   async removeManual(id: string, index: number): Promise<Asset> {
     const current = this.find(id);
     if (!current) throw new Error(`Unknown asset ${id}`);
+    this.assertAccessible(current);
 
     const saved = await firstValueFrom(this.api.removeManual(current, index));
 
@@ -63,6 +73,10 @@ export class AssetStore extends CollectionStore<Asset> {
   }
 
   async register(plantId: string, details: AssetDetails): Promise<Asset> {
+    if (!this.scope.includes(plantId)) {
+      throw new Error('Plant is not accessible');
+    }
+
     const asset = new Asset({
       id: crypto.randomUUID(),
       plantId,

@@ -33,6 +33,8 @@ private readonly api = inject(AnalyticsApi);
 private readonly tokenStorage = inject(AuthTokenStorage);
 private readonly remoteSummary = signal<MaintenanceSummary | null>(null);
 private readonly remoteRanking = signal<{ assetId: string; hours: number }[] | null>(null);
+protected readonly reportLoading = signal(false);
+protected readonly reportError = signal(false);
 
   private readonly analytics = inject(MaintenanceAnalytics);
   private readonly scope = inject(PlantScope);
@@ -47,6 +49,12 @@ private readonly remoteRanking = signal<{ assetId: string; hours: number }[] | n
   protected readonly directory = inject(UserDirectoryStore);
 
   protected readonly canPickPlant = computed(() => this.session.role() === 'operations-manager');
+  protected readonly reportReady = computed(() =>
+    !this.reportLoading() &&
+    !this.reportError() &&
+    this.remoteSummary() !== null &&
+    this.remoteRanking() !== null,
+  );
   protected readonly plantId = signal<string>('');
   protected readonly from = signal(addDays(todayDate(), -30));
   protected readonly to = signal(todayDate());
@@ -54,7 +62,8 @@ private readonly remoteRanking = signal<{ assetId: string; hours: number }[] | n
 
   constructor() {
     effect(() => {
-      const current = this.scope.currentPlantId() ?? this.plantStore.plants()[0]?.id ?? '';
+      const current = this.scope.currentPlantId() ??
+        (this.canPickPlant() ? this.plantStore.plants()[0]?.id ?? '' : '');
       untracked(() => {
         if (!this.plantId() || !this.canPickPlant()) this.plantId.set(current);
       });
@@ -65,15 +74,42 @@ private readonly loadBackendReport = effect((onCleanup) => {
   const plantId = this.plantId();
   const from = this.from();
   const to = this.to();
-  if (!this.tokenStorage.read() || !plantId || from > to) return;
+  if (!this.tokenStorage.read() || !plantId || from > to) {
+    this.reportLoading.set(false);
+    this.reportError.set(true);
+    return;
+  }
   const period = { from: from || null, to: to || null };
   this.remoteSummary.set(null);
   this.remoteRanking.set(null);
+  this.reportLoading.set(true);
+  this.reportError.set(false);
+
+  let pending = 2;
+  const settled = () => {
+    pending -= 1;
+    if (pending === 0) this.reportLoading.set(false);
+  };
   const summary = this.api.getSummary(plantId, period).subscribe({
-    next: (value) => this.remoteSummary.set(value),
+    next: (value) => {
+      this.remoteSummary.set(value);
+      settled();
+    },
+    error: () => {
+      this.reportError.set(true);
+      settled();
+    },
   });
+
   const ranking = this.api.getDowntimeRanking(plantId, period).subscribe({
-    next: (rows) => this.remoteRanking.set(rows),
+    next: (rows) => {
+      this.remoteRanking.set(rows);
+      settled();
+    },
+    error: () => {
+      this.reportError.set(true);
+      settled();
+    },
   });
   onCleanup(() => { summary.unsubscribe(); ranking.unsubscribe(); });
 });
@@ -126,12 +162,14 @@ private readonly loadBackendReport = effect((onCleanup) => {
   }
 
   protected print(): void {
+    if (!this.reportReady()) return;
     this.generatedAt.set(nowIso());
     window.print();
   }
 
   /** Work orders of the period as CSV, ready for Excel. */
   protected downloadCsv(): void {
+    if (!this.reportReady()) return;
     const t = (key: string) => this.translate.instant(key);
     const header = [
       t('workOrders.order'),
@@ -155,7 +193,10 @@ private readonly loadBackendReport = effect((onCleanup) => {
       o.completedAt?.slice(0, 16).replace('T', ' ') ?? '',
       o.repairHours()?.toFixed(1) ?? '',
     ]);
-    const escape = (cell: string) => (/[",;\n]/.test(cell) ? `"${cell.replace(/"/g, '""')}"` : cell);
+    const escape = (cell: string) => {
+      const safe = /^\s*[=+\-@]/.test(cell) ? `'${cell}` : cell;
+      return /[",;\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
+    };
     const csv = [header, ...rows].map((row) => row.map(escape).join(',')).join('\r\n');
     const blob = new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);

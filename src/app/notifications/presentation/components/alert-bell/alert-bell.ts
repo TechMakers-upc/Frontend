@@ -37,13 +37,18 @@ export class AlertBell {
     this.open.set(opening);
     if (opening) this.center.refresh();
 
-    if (!opening) this.center.markAllSeen();
+
+  }
+
+  protected selectAlert(id: string): void {
+    this.center.markSeen(id);
+    this.open.set(false);
   }
 
   protected onDocumentClick(event: MouseEvent): void {
     if (this.open() && !this.host.nativeElement.contains(event.target as Node)) {
       this.open.set(false);
-      this.center.markAllSeen();
+
     }
   }
 }

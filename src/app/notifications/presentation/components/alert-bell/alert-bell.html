@@ -29,7 +29,7 @@
       <ul class="list panel__list">
         @for (alert of center.alerts(); track alert.id) {
           <li>
-            <a class="list-row" [routerLink]="alert.link" (click)="open.set(false)">
+            <a class="list-row" [routerLink]="alert.link" (click)="selectAlert(alert.id)">
               <span class="dot" [class]="'dot dot--' + alert.severity">
                 <app-icon [name]="icons[alert.kind]" [size]="16" />
               </span>

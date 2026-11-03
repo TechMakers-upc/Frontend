@@ -2,10 +2,9 @@ import { Injectable, inject } from '@angular/core';
 
 import { AssetStore } from '../../asset-management/application/asset.store';
 import { SessionStore } from '../../shared/application/session.store';
-import { AuthTokenStorage } from '../../shared/infrastructure/auth-token.storage';
 import { InventoryStore } from '../../inventory/application/inventory.store';
 import { MaintenancePlanStore } from '../../maintenance-planning/application/maintenance-plan.store';
-import { nowIso, todayDate } from '../../shared/domain/model/date-time';
+import { nowIso } from '../../shared/domain/model/date-time';
 import { Failure, FailureKind } from '../domain/model/failure.entity';
 import { Priority } from '../domain/model/priority';
 import { WorkOrder, WorkOrderType } from '../domain/model/work-order.entity';
@@ -32,7 +31,6 @@ export interface NewWorkOrder {
 @Injectable({ providedIn: 'root' })
 export class MaintenanceExecutionService {
   private readonly session = inject(SessionStore);
-  private readonly tokenStorage = inject(AuthTokenStorage);
   private readonly assets = inject(AssetStore);
   private readonly failures = inject(FailureStore);
   private readonly workOrders = inject(WorkOrderStore);
@@ -51,17 +49,16 @@ export class MaintenanceExecutionService {
     lineStopped: boolean;
   }): Promise<Failure> {
     const asset = this.assets.find(input.assetId);
-    if (!asset) throw new Error('Unknown asset');
+    if (!asset || !this.assets.inScope().some((item) => item.id === asset.id)) {
+      throw new Error('Asset is not accessible');
+    }
+
     const failure = await this.failures.add(
       Failure.report({ ...input, plantId: asset.plantId, reportedBy: this.userId }),
     );
     if (input.lineStopped) {
-      if (this.tokenStorage.read()) {
-        // Spring Boot already marked the asset as down.
-        this.assets.load(true);
-      } else {
-        await this.assets.setStatus(asset.id, 'down', failure.reportedAt);
-      }
+      // Spring Boot updates the asset in the same backend workflow.
+      this.assets.load(true);
     }
     return failure;
   }
@@ -95,11 +92,7 @@ export class MaintenanceExecutionService {
     order.updateDetails(input);
     const created = await this.workOrders.add(order);
     if (input.failureId) {
-      if (this.tokenStorage.read()) {
-        this.failures.load(true);
-      } else {
-        await this.failures.change(input.failureId, (draft) => draft.attachWorkOrder(created.id));
-      }
+      this.failures.load(true);
     }
     return created;
   }
@@ -109,14 +102,8 @@ export class MaintenanceExecutionService {
     const at = nowIso();
     const order = await this.workOrders.startOrder(workOrderId, at);
 
-    if (this.tokenStorage.read()) {
-      this.assets.load(true);
-    } else {
-      const asset = this.assets.find(order.assetId);
-      if (asset && asset.status === 'operational') {
-        await this.assets.setStatus(asset.id, 'maintenance', at);
-      }
-    }
+    // Backend updates the equipment status when execution starts.
+    this.assets.load(true);
 
     return order;
   }
@@ -130,50 +117,23 @@ export class MaintenanceExecutionService {
     const check = order.clone();
     check.registerPartUsage(partId, quantity, at);
 
-    if (this.tokenStorage.read()) {
-      const saved = await this.workOrders.addPartUsage(workOrderId, partId, quantity, at);
-      this.inventory.load(true);
-      return saved;
-    }
-
-    await this.inventory.consume(partId, quantity, workOrderId, order.code);
-    return this.workOrders.addPartUsage(workOrderId, partId, quantity, at);
+    const saved = await this.workOrders.addPartUsage(workOrderId, partId, quantity, at);
+    this.inventory.load(true);
+    return saved;
   }
 
   /** US30: closing the order resolves its failure, frees the machine and rolls the plan forward. */
   async complete(workOrderId: string, solution: string): Promise<WorkOrder> {
-    const at = nowIso();
-    const usesBackend = !!this.tokenStorage.read();
-    const order = await this.workOrders.completeOrder(workOrderId, solution, at);
+    const order = await this.workOrders.completeOrder(
+      workOrderId,
+      solution,
+      nowIso(),
+    );
 
-    if (usesBackend) {
-      // Spring Boot performs these changes in the completion transaction.
-      if (order.failureId) this.failures.load(true);
-      if (order.planId) this.plans.load(true);
-      this.assets.load(true);
-      return order;
-    }
+    if (order.failureId) this.failures.load(true);
+    if (order.planId) this.plans.load(true);
 
-    // Preserve the existing demo workflow.
-    if (order.failureId) {
-      await this.failures.change(order.failureId, (draft) => draft.resolve(at));
-    }
-
-    if (order.planId && this.plans.find(order.planId)) {
-      await this.plans.change(order.planId, (draft) => draft.registerCompletion(todayDate()));
-    }
-
-    const stillFailing = this.failures.openFor(order.assetId).some((failure) => failure.lineStopped);
-    const otherWorkInProgress = this.workOrders
-      .items()
-      .some((other) => other.assetId === order.assetId && other.id !== order.id && other.status === 'in-progress');
-
-    const asset = this.assets.find(order.assetId);
-
-    if (asset && !stillFailing && !otherWorkInProgress) {
-      await this.assets.setStatus(asset.id, 'operational', at);
-    }
-
+    this.assets.load(true);
     return order;
   }
 }

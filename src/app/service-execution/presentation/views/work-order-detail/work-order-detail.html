@@ -11,9 +11,9 @@
       </a>
     }
     @if (canDelete()) {
-      <button type="button" class="btn btn--ghost" [disabled]="busy()" (click)="deleteOrder()">
+      <button type="button" class="btn btn--ghost" [disabled]="busy()" (click)="requestDelete()">
         <app-icon name="trash-2" [size]="18" />
-        Eliminar orden
+        {{ 'workOrders.deleteAction' | translate }}
       </button>
     }
   </app-page-header>
@@ -211,3 +211,14 @@
 } @else {
   <app-page-header [heading]="'workOrders.notFound' | translate" backLink="/work-orders" />
 }
+<app-dialog [heading]="'workOrders.deleteTitle' | translate" [open]="confirmDeleteOpen()" (closed)="confirmDeleteOpen.set(false)">
+  <p>{{ 'workOrders.deletePrompt' | translate: { code: order()?.code ?? '' } }}</p>
+  <div class="form-actions">
+    <button type="button" class="btn btn--ghost" (click)="confirmDeleteOpen.set(false)">
+      {{ 'common.cancel' | translate }}
+    </button>
+    <button type="button" class="btn btn--primary" [disabled]="busy()" (click)="deleteOrder()">
+      {{ 'workOrders.deleteAction' | translate }}
+    </button>
+  </div>
+</app-dialog>

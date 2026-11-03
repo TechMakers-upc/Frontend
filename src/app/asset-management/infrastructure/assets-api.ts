@@ -1,9 +1,8 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { BaseApi } from '../../shared/infrastructure/base-api';
-import { AuthTokenStorage } from '../../shared/infrastructure/auth-token.storage';
 import { Asset, AssetProps, AssetStatus } from '../domain/model/asset.entity';
 import { AssetApiMapper } from './asset-api.mapper';
 import { AssetApiResource } from './asset-api.models';
@@ -12,18 +11,13 @@ import { AssetApiResource } from './asset-api.models';
 export class AssetsApi extends BaseApi<Asset, AssetProps> {
   protected readonly endpointPath = environment.assetsEndpointPath;
 
-  private readonly tokenStorage = inject(AuthTokenStorage);
 
   protected toEntity(resource: AssetProps): Asset {
     return new Asset({ ...resource, manuals: resource.manuals ?? [] });
   }
 
   override getAll(): Observable<Asset[]> {
-    if (!this.tokenStorage.read()) {
-      return this.http.get<AssetProps[]>('/demo-api/assets').pipe(
-        map((items) => items.map((item) => this.toEntity(item))),
-      );
-    }
+
 
     return this.http.get<AssetApiResource[]>(this.url).pipe(
       map((items) => items.map((item) => AssetApiMapper.toEntity(item))),
@@ -31,14 +25,7 @@ export class AssetsApi extends BaseApi<Asset, AssetProps> {
   }
 
   override create(entity: Asset): Observable<Asset> {
-    if (!this.tokenStorage.read()) {
-      return this.http.post<AssetProps>(
-        '/demo-api/assets',
-        { ...entity },
-      ).pipe(
-        map((resource) => this.toEntity(resource)),
-      );
-    }
+
 
     return this.http.post<AssetApiResource>(
       this.url,
@@ -49,14 +36,7 @@ export class AssetsApi extends BaseApi<Asset, AssetProps> {
   }
 
   override update(entity: Asset): Observable<Asset> {
-    if (!this.tokenStorage.read()) {
-      return this.http.put<AssetProps>(
-        `/demo-api/assets/${entity.id}`,
-        { ...entity },
-      ).pipe(
-        map((resource) => this.toEntity(resource)),
-      );
-    }
+
 
     return this.http.put<AssetApiResource>(
       `${this.url}/${entity.id}`,
@@ -67,27 +47,13 @@ export class AssetsApi extends BaseApi<Asset, AssetProps> {
   }
 
   override delete(id: string): Observable<void> {
-    if (!this.tokenStorage.read()) {
-      return this.http.delete<void>(`/demo-api/assets/${id}`);
-    }
+
 
     return this.http.delete<void>(`${this.url}/${id}`);
   }
 
   changeStatus(asset: Asset, status: AssetStatus, at: string): Observable<Asset> {
-    if (!this.tokenStorage.read()) {
-      const draft = asset.clone();
 
-      if (status === 'down') {
-        draft.markDown(at);
-      } else if (status === 'maintenance') {
-        draft.markInMaintenance(at);
-      } else {
-        draft.markOperational(at);
-      }
-
-      return this.update(draft);
-    }
 
     return this.http.patch<AssetApiResource>(
       `${this.url}/${asset.id}/status`,
@@ -98,11 +64,7 @@ export class AssetsApi extends BaseApi<Asset, AssetProps> {
   }
 
   addManual(asset: Asset, title: string, url: string): Observable<Asset> {
-    if (!this.tokenStorage.read()) {
-      const draft = asset.clone();
-      draft.addManual(title, url, new Date().toISOString());
-      return this.update(draft);
-    }
+
 
     return this.http.post<AssetApiResource>(
       `${this.url}/${asset.id}/manuals`,
@@ -113,11 +75,7 @@ export class AssetsApi extends BaseApi<Asset, AssetProps> {
   }
 
   removeManual(asset: Asset, index: number): Observable<Asset> {
-    if (!this.tokenStorage.read()) {
-      const draft = asset.clone();
-      draft.removeManual(index);
-      return this.update(draft);
-    }
+
 
     return this.http.delete<AssetApiResource>(
       `${this.url}/${asset.id}/manuals/${index}`,

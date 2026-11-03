@@ -1,8 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { AuthenticationApi } from '../../../infrastructure/authentication-api';
 import { SessionStore } from '../../../application/session.store';
@@ -25,6 +25,8 @@ export class Login {
   private readonly tokenStorage = inject(AuthTokenStorage);
   private readonly sessionStore = inject(SessionStore);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly translate = inject(TranslateService);
 
   protected readonly showPassword = signal(false);
   protected readonly isSubmitting = signal(false);
@@ -65,17 +67,18 @@ export class Login {
     this.authenticationSuccess.set(false);
     this.isSubmitting.set(true);
 
-    const credentials = this.form.getRawValue();
+    const raw = this.form.getRawValue();
+    const credentials = { email: raw.email.trim().toLowerCase(), password: raw.password };
 
     this.authenticationApi.signIn(credentials).subscribe({
       next: (response) => {
-        if (!response.token) {
-          this.authenticationError.set('El servidor no devolvió un token válido.');
+        if (!response.token?.trim() || !response.account?.id || !response.account?.role || !response.account?.fullName) {
+          this.authenticationError.set(this.translate.instant('signIn.invalidResponse'));
         } else {
           const role = response.account.role.toLowerCase().replaceAll('_', '-');
 
           if (!isRole(role)) {
-            this.authenticationError.set('El usuario tiene un rol no reconocido.');
+            this.authenticationError.set(this.translate.instant('signIn.invalidRole'));
           } else {
             const account = new UserAccount(
               String(response.account.id),
@@ -86,11 +89,19 @@ export class Login {
               response.account.jobTitle,
             );
 
-            this.tokenStorage.write(response.token);
+            this.tokenStorage.write(response.token.trim());
             this.sessionStore.signIn(account);
             this.authenticationSuccess.set(true);
             this.form.controls.password.reset();
-            void this.router.navigateByUrl(ROLE_HOME[role]);
+            const requested = this.route.snapshot.queryParamMap.get('returnUrl');
+            const destination =
+              requested?.startsWith('/') &&
+              !requested.startsWith('//') &&
+              !requested.includes('\\')
+                ? requested
+                : ROLE_HOME[role];
+
+            void this.router.navigateByUrl(destination);
           }
         }
         this.isSubmitting.set(false);
@@ -98,14 +109,14 @@ export class Login {
       error: (error: unknown) => {
         if (error instanceof HttpErrorResponse) {
           if (error.status === 401) {
-            this.authenticationError.set('Correo o contraseña incorrectos.');
+            this.authenticationError.set(this.translate.instant('signIn.errors.invalidCredentials'));
           } else if (error.status === 0) {
-            this.authenticationError.set('No hay conexión con Spring Boot. Verifica que esté iniciado y que CORS permita esta dirección.');
+            this.authenticationError.set(this.translate.instant('common.unreachable'));
           } else {
-            this.authenticationError.set('No se pudo iniciar sesión. Inténtalo nuevamente.');
+            this.authenticationError.set(this.translate.instant('signIn.loginError'));
           }
         } else {
-          this.authenticationError.set('Ocurrió un error inesperado.');
+          this.authenticationError.set(this.translate.instant('signIn.unexpectedError'));
         }
         this.isSubmitting.set(false);
       },

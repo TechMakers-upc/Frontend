@@ -2,12 +2,9 @@ import { Injectable, computed, inject } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 
 import { PlantScope } from '../../asset-management/application/plant-scope';
-import { SessionStore } from '../../shared/application/session.store';
-import { AuthTokenStorage } from '../../shared/infrastructure/auth-token.storage';
 import { CollectionStore } from '../../shared/application/collection.store';
-import { nowIso } from '../../shared/domain/model/date-time';
 import { SparePart, SparePartDetails } from '../domain/model/spare-part.entity';
-import { MovementType, StockMovement } from '../domain/model/stock-movement.entity';
+import { StockMovement } from '../domain/model/stock-movement.entity';
 import { SparePartsApi, StockMovementsApi } from '../infrastructure/inventory-api';
 
 @Injectable({ providedIn: 'root' })
@@ -25,8 +22,6 @@ export class StockMovementStore extends CollectionStore<StockMovement> {
 export class InventoryStore extends CollectionStore<SparePart> {
   protected readonly api = inject(SparePartsApi);
   private readonly scope = inject(PlantScope);
-  private readonly session = inject(SessionStore);
-  private readonly tokenStorage = inject(AuthTokenStorage);
   private readonly movements = inject(StockMovementStore);
 
   readonly inScope = computed(() =>
@@ -37,28 +32,40 @@ export class InventoryStore extends CollectionStore<SparePart> {
 
   readonly belowMinimum = computed(() => this.inScope().filter((part) => part.isBelowMinimum));
 
+  private requirePartInScope(partId: string): void {
+    const part = this.find(partId);
+
+    if (!part || !this.scope.includes(part.plantId)) {
+      throw new Error('Spare part is not accessible in the current plant');
+    }
+  }
+
   async register(plantId: string, details: SparePartDetails, initialStock: number): Promise<SparePart> {
-    const part = new SparePart({ id: crypto.randomUUID(), plantId, stock: 0, ...details });
-    part.updateDetails(details);
-
-    if (this.tokenStorage.read()) {
-      const created = await firstValueFrom(
-        this.api.createWithInitialStock(part, initialStock),
-      );
-
-      this.itemsSignal.update((items) => [...items, created]);
-
-      if (initialStock > 0) {
-        this.movements.load(true);
-      }
-
-      return created;
+    if (!this.scope.includes(plantId)) {
+      throw new Error('Plant is not accessible');
     }
 
-    const created = await this.add(part);
+    if (!Number.isSafeInteger(initialStock) || initialStock < 0) {
+      throw new Error('Initial stock must be a non-negative integer');
+    }
+
+    const part = new SparePart({
+      id: crypto.randomUUID(),
+      plantId,
+      stock: 0,
+      ...details,
+    });
+
+    part.updateDetails(details);
+
+    const created = await firstValueFrom(
+      this.api.createWithInitialStock(part, initialStock),
+    );
+
+    this.itemsSignal.update((items) => [...items, created]);
 
     if (initialStock > 0) {
-      return this.receive(created.id, initialStock, 'initial-stock');
+      this.movements.load(true);
     }
 
     return created;
@@ -67,8 +74,12 @@ export class InventoryStore extends CollectionStore<SparePart> {
   async remove(id: string): Promise<void> {
     const current = this.find(id);
 
-    if (!current) {
-      throw new Error(`Unknown spare part ${id}`);
+    if (!current || !this.scope.includes(current.plantId)) {
+      throw new Error('Spare part is not accessible');
+    }
+
+    if (current.stock > 0) {
+      throw new Error('Spare part still has stock');
     }
 
     await firstValueFrom(this.api.delete(id));
@@ -79,39 +90,33 @@ export class InventoryStore extends CollectionStore<SparePart> {
   }
 
   receive(partId: string, quantity: number, reason: string): Promise<SparePart> {
-    if (this.tokenStorage.read()) {
-      return this.applyBackendStockOperation(
-        this.api.receiveStock(partId, quantity, reason),
-      );
+    this.requirePartInScope(partId);
+    if (!Number.isSafeInteger(quantity) || quantity <= 0 || !reason.trim()) {
+      throw new Error('Invalid stock reception');
     }
-
-    return this.applyMovement(partId, 'entry', reason, null, (part) => {
-      part.receive(quantity);
-      return quantity;
-    });
+    return this.applyBackendStockOperation(
+      this.api.receiveStock(partId, quantity, reason),
+    );
   }
 
   adjust(partId: string, counted: number, reason: string): Promise<SparePart> {
-    if (this.tokenStorage.read()) {
-      return this.applyBackendStockOperation(
-        this.api.adjustStock(partId, counted, reason),
-      );
+    this.requirePartInScope(partId);
+    if (!Number.isSafeInteger(counted) || counted < 0 || !reason.trim()) {
+      throw new Error('Invalid stock adjustment');
     }
-
-    return this.applyMovement(partId, 'adjustment', reason, null, (part) => part.adjustTo(counted));
+    return this.applyBackendStockOperation(
+      this.api.adjustStock(partId, counted, reason),
+    );
   }
 
   consume(partId: string, quantity: number, workOrderId: string | null, reason: string): Promise<SparePart> {
-    if (this.tokenStorage.read()) {
-      return this.applyBackendStockOperation(
-        this.api.consumeStock(partId, quantity, workOrderId, reason),
-      );
+    this.requirePartInScope(partId);
+    if (!Number.isSafeInteger(quantity) || quantity <= 0) {
+      throw new Error('Invalid stock consumption');
     }
-
-    return this.applyMovement(partId, 'consumption', reason, workOrderId, (part) => {
-      part.consume(quantity);
-      return -quantity;
-    });
+    return this.applyBackendStockOperation(
+      this.api.consumeStock(partId, quantity, workOrderId, reason),
+    );
   }
 
   private async applyBackendStockOperation(
@@ -129,31 +134,5 @@ export class InventoryStore extends CollectionStore<SparePart> {
     return saved;
   }
 
-  private async applyMovement(
-    partId: string,
-    type: MovementType,
-    reason: string,
-    workOrderId: string | null,
-    mutate: (draft: SparePart) => number,
-  ): Promise<SparePart> {
-    let delta = 0;
-    const saved = await this.change(partId, (draft) => {
-      delta = mutate(draft);
-    });
-    await this.movements.add(
-      new StockMovement({
-        id: crypto.randomUUID(),
-        plantId: saved.plantId,
-        partId,
-        type,
-        quantity: delta,
-        stockAfter: saved.stock,
-        reason,
-        at: nowIso(),
-        userId: this.session.currentAccount()?.id ?? '',
-        workOrderId,
-      }),
-    );
-    return saved;
-  }
+
 }

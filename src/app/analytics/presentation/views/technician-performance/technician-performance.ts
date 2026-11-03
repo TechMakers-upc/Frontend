@@ -27,6 +27,8 @@ export class TechnicianPerformance {
 private readonly api = inject(AnalyticsApi);
 private readonly tokenStorage = inject(AuthTokenStorage);
 private readonly remote = signal<Record<string, TechnicianMetrics>>({});
+protected readonly loading = signal(false);
+protected readonly failed = signal(false);
 
   private readonly analytics = inject(MaintenanceAnalytics);
   private readonly directory = inject(UserDirectoryStore);
@@ -42,11 +44,34 @@ private readonly remote = signal<Record<string, TechnicianMetrics>>({});
 private readonly fetchPerformance = effect((onCleanup) => {
   const technicians = this.directory.techniciansInScope();
   const period = this.period();
-  if (!this.tokenStorage.read()) return;
+  if (!this.tokenStorage.read()) {
+    this.loading.set(false);
+    return;
+  }
+
   this.remote.set({});
-  const requests = technicians.map((tech) => this.api.getTechnicianPerformance(tech.id, period).subscribe({
-    next: (stats) => this.remote.update((rows) => ({ ...rows, [tech.id]: stats })),
-  }));
+  this.failed.set(false);
+
+  let pending = technicians.length;
+  this.loading.set(pending > 0);
+
+  const settled = () => {
+    pending -= 1;
+    if (pending === 0) this.loading.set(false);
+  };
+
+  const requests = technicians.map((tech) =>
+    this.api.getTechnicianPerformance(tech.id, period).subscribe({
+      next: (stats) => {
+        this.remote.update((rows) => ({ ...rows, [tech.id]: stats }));
+        settled();
+      },
+      error: () => {
+        this.failed.set(true);
+        settled();
+      },
+    }),
+  );
   onCleanup(() => requests.forEach((request) => request.unsubscribe()));
 });
 

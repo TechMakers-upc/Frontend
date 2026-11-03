@@ -1,9 +1,8 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { BaseApi } from '../../shared/infrastructure/base-api';
-import { AuthTokenStorage } from '../../shared/infrastructure/auth-token.storage';
 import { MaintenancePlan, MaintenancePlanProps } from '../domain/model/maintenance-plan.entity';
 import { MaintenancePlanApiMapper } from './maintenance-plan-api.mapper';
 import {
@@ -17,21 +16,13 @@ import {
 export class MaintenancePlansApi extends BaseApi<MaintenancePlan, MaintenancePlanProps> {
   protected readonly endpointPath = environment.maintenancePlansEndpointPath;
 
-  private readonly tokenStorage = inject(AuthTokenStorage);
 
   protected toEntity(resource: MaintenancePlanProps): MaintenancePlan {
     return new MaintenancePlan(resource);
   }
 
   override create(entity: MaintenancePlan): Observable<MaintenancePlan> {
-    if (!this.tokenStorage.read()) {
-      return this.http.post<MaintenancePlanProps>(
-        '/demo-api/maintenance-plans',
-        { ...entity },
-      ).pipe(
-        map((resource) => this.toEntity(resource)),
-      );
-    }
+
 
     return this.http.post<MaintenancePlanApiResource>(
       this.url,
@@ -42,14 +33,7 @@ export class MaintenancePlansApi extends BaseApi<MaintenancePlan, MaintenancePla
   }
 
   override update(entity: MaintenancePlan): Observable<MaintenancePlan> {
-    if (!this.tokenStorage.read()) {
-      return this.http.put<MaintenancePlanProps>(
-        `/demo-api/maintenance-plans/${entity.id}`,
-        { ...entity },
-      ).pipe(
-        map((resource) => this.toEntity(resource)),
-      );
-    }
+
 
     return this.http.put<MaintenancePlanApiResource>(
       `${this.url}/${entity.id}`,
@@ -60,11 +44,7 @@ export class MaintenancePlansApi extends BaseApi<MaintenancePlan, MaintenancePla
   }
 
   suspendPlan(plan: MaintenancePlan): Observable<MaintenancePlan> {
-    if (!this.tokenStorage.read()) {
-      const draft = plan.clone();
-      draft.suspend();
-      return this.update(draft);
-    }
+
 
     return this.http.post<MaintenancePlanApiResource>(
       `${this.url}/${plan.id}/suspension`,
@@ -75,11 +55,7 @@ export class MaintenancePlansApi extends BaseApi<MaintenancePlan, MaintenancePla
   }
 
   reactivatePlan(plan: MaintenancePlan): Observable<MaintenancePlan> {
-    if (!this.tokenStorage.read()) {
-      const draft = plan.clone();
-      draft.reactivate();
-      return this.update(draft);
-    }
+
 
     return this.http.post<MaintenancePlanApiResource>(
       `${this.url}/${plan.id}/reactivation`,
@@ -96,9 +72,7 @@ export class MaintenancePlansApi extends BaseApi<MaintenancePlan, MaintenancePla
     const draft = plan.clone();
     draft.reschedule(nextDueDate);
 
-    if (!this.tokenStorage.read()) {
-      return this.update(draft);
-    }
+
 
     const request: RescheduleMaintenancePlanRequest = {
       nextDueDate: draft.nextDueDate,
@@ -117,11 +91,7 @@ registerCompletion(plan: MaintenancePlan, completedOn: string): Observable<Maint
     throw new Error('A valid completion date is required');
   }
 
-  if (!this.tokenStorage.read()) {
-    const draft = plan.clone();
-    draft.registerCompletion(completedOn);
-    return this.update(draft);
-  }
+
 
   const request: RegisterPlanCompletionRequest = { completedOn };
   return this.http.post<MaintenancePlanApiResource>(
@@ -131,19 +101,13 @@ registerCompletion(plan: MaintenancePlan, completedOn: string): Observable<Maint
 }
 
   override delete(id: string): Observable<void> {
-    if (!this.tokenStorage.read()) {
-      return this.http.delete<void>(`/demo-api/maintenance-plans/${id}`);
-    }
+
 
     return this.http.delete<void>(`${this.url}/${id}`);
   }
 
   override getAll(): Observable<MaintenancePlan[]> {
-    if (!this.tokenStorage.read()) {
-      return this.http.get<MaintenancePlanProps[]>('/demo-api/maintenance-plans').pipe(
-        map((items) => items.map((item) => this.toEntity(item))),
-      );
-    }
+
 
     return this.http.get<MaintenancePlanApiResource[]>(this.url).pipe(
       map((items) => items.map((item) => MaintenancePlanApiMapper.toEntity(item))),

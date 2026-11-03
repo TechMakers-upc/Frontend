@@ -25,6 +25,12 @@ export class WorkOrderStore extends CollectionStore<WorkOrder> {
       ),
   );
 
+  private assertAccessible(order: WorkOrder): void {
+    if (!this.scope.includes(order.plantId)) {
+      throw new Error('Work order is outside the selected plant');
+    }
+  }
+
   /** Orders assigned to the signed-in technician (US27). */
   readonly mine = computed(() => {
     const id = this.session.currentAccount()?.id;
@@ -37,6 +43,8 @@ export class WorkOrderStore extends CollectionStore<WorkOrder> {
     if (!current) {
       throw new Error(`Unknown work order ${id}`);
     }
+
+    this.assertAccessible(current);
 
     if (current.status !== 'pending' || current.failureId !== null) {
       throw new Error('Only pending work orders without a failure can be deleted');
@@ -59,6 +67,14 @@ export class WorkOrderStore extends CollectionStore<WorkOrder> {
 
     if (!current) {
       throw new Error(`Unknown work order ${id}`);
+    }
+
+    this.assertAccessible(current);
+
+    if (!Number.isSafeInteger(quantity) || quantity <= 0 ||
+        current.status !== 'in-progress' ||
+        current.technicianId !== this.session.currentAccount()?.id) {
+      throw new Error('Part usage is not permitted');
     }
 
     const saved = await firstValueFrom(
@@ -84,6 +100,15 @@ export class WorkOrderStore extends CollectionStore<WorkOrder> {
       throw new Error(`Unknown work order ${id}`);
     }
 
+    this.assertAccessible(current);
+
+    if (current.status !== 'in-progress' ||
+        current.technicianId !== this.session.currentAccount()?.id ||
+        authorId !== this.session.currentAccount()?.id ||
+        !note.trim()) {
+      throw new Error('Work log is not permitted');
+    }
+
     const saved = await firstValueFrom(
       this.api.logWork(current, note, authorId, at),
     );
@@ -106,6 +131,14 @@ export class WorkOrderStore extends CollectionStore<WorkOrder> {
       throw new Error(`Unknown work order ${id}`);
     }
 
+    this.assertAccessible(current);
+
+    if (current.status !== 'in-progress' ||
+        current.technicianId !== this.session.currentAccount()?.id ||
+        !solution.trim()) {
+      throw new Error('Order completion is not permitted');
+    }
+
     const saved = await firstValueFrom(
       this.api.completeOrder(current, solution, at),
     );
@@ -124,6 +157,13 @@ export class WorkOrderStore extends CollectionStore<WorkOrder> {
       throw new Error(`Unknown work order ${id}`);
     }
 
+    this.assertAccessible(current);
+
+    if (current.status !== 'pending' ||
+        current.technicianId !== this.session.currentAccount()?.id) {
+      throw new Error('Order start is not permitted');
+    }
+
     const saved = await firstValueFrom(
       this.api.startOrder(current, at),
     );
@@ -140,6 +180,12 @@ export class WorkOrderStore extends CollectionStore<WorkOrder> {
 
     if (!current) {
       throw new Error(`Unknown work order ${id}`);
+    }
+
+    this.assertAccessible(current);
+
+    if (this.session.role() === 'technician' || !current.isOpen) {
+      throw new Error('Order assignment is not permitted');
     }
 
     const saved = await firstValueFrom(

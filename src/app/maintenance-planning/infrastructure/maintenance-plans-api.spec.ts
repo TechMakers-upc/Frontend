@@ -73,13 +73,13 @@ it('rejects an invalid completion date before sending HTTP', () => {
     await result;
   });
 
-  it('uses the demo API when there is no JWT', async () => {
+  it('uses the backend API even when a JWT is missing', async () => {
     token = null;
 
     const result = firstValueFrom(api.delete('demo-12'));
 
     const request = http.expectOne(
-      '/demo-api/maintenance-plans/demo-12',
+      environment.apiBaseUrl + '/maintenance-plans/demo-12',
     );
 
     expect(request.request.method).toBe('DELETE');

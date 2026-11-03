@@ -5,7 +5,6 @@ import { Router } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { AssetStore } from '../../../../asset-management/application/asset.store';
-import { SessionStore } from '../../../../shared/application/session.store';
 import { UserDirectoryStore } from '../../../../shared/application/user-directory.store';
 import { ToastService } from '../../../../shared/application/toast.service';
 import { addDays, todayDate } from '../../../../shared/domain/model/date-time';
@@ -24,7 +23,6 @@ import { FREQUENCY_PRESETS, MaintenancePlanDetails } from '../../../domain/model
 export class PlanForm {
   private readonly planStore = inject(MaintenancePlanStore);
   private readonly assetStore = inject(AssetStore);
-  private readonly session = inject(SessionStore);
   private readonly toast = inject(ToastService);
   private readonly translate = inject(TranslateService);
   protected readonly directory = inject(UserDirectoryStore);
@@ -36,7 +34,7 @@ export class PlanForm {
   protected readonly presets = FREQUENCY_PRESETS;
   protected readonly saving = signal(false);
   protected readonly assets = this.assetStore.inScope;
-  protected readonly editing = computed(() => this.planStore.find(this.id()));
+  protected readonly editing = computed(() => this.planStore.inScope().find((plan) => plan.id === this.id()));
 
   protected readonly form = inject(FormBuilder).nonNullable.group({
     assetId: ['', Validators.required],
@@ -73,6 +71,23 @@ export class PlanForm {
       this.form.markAllAsTouched();
       return;
     }
+    const asset = this.assets().find((item) => item.id === values.assetId);
+
+    if (!asset) {
+      this.toast.error(this.translate.instant('maintenance.invalidAsset'));
+      return;
+    }
+
+    if (values.technicianId) {
+      const technician = this.directory.find(values.technicianId);
+
+      if (!technician || technician.role !== 'technician' ||
+          technician.plantId !== asset.plantId) {
+        this.toast.error(this.translate.instant('maintenance.invalidTechnician'));
+        return;
+      }
+    }
+
     const details: MaintenancePlanDetails = {
       assetId: values.assetId,
       title: values.title,
@@ -87,7 +102,7 @@ export class PlanForm {
       if (existing) {
         await this.planStore.change(existing.id, (draft) => draft.updateDetails(details));
       } else {
-        const plantId = this.assetStore.find(details.assetId)?.plantId ?? this.session.currentAccount()!.plantId!;
+        const plantId = asset.plantId;
         await this.planStore.schedule(plantId, details);
       }
       this.toast.success(this.translate.instant(existing ? 'maintenance.updated' : 'maintenance.created', { title: details.title }));

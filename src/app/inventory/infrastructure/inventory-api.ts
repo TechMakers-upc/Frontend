@@ -26,14 +26,7 @@ export class SparePartsApi extends BaseApi<SparePart, SparePartProps> {
   }
 
   override create(entity: SparePart): Observable<SparePart> {
-    if (!this.tokenStorage.read()) {
-      return this.http.post<SparePartProps>(
-        '/demo-api/spare-parts',
-        { ...entity },
-      ).pipe(
-        map((resource) => this.toEntity(resource)),
-      );
-    }
+
 
     return this.http.post<SparePartApiResource>(
       this.url,
@@ -47,9 +40,7 @@ export class SparePartsApi extends BaseApi<SparePart, SparePartProps> {
     entity: SparePart,
     initialStock: number,
   ): Observable<SparePart> {
-    if (!this.tokenStorage.read()) {
-      return this.create(entity);
-    }
+
 
     return this.http.post<SparePartApiResource>(
       this.url,
@@ -60,14 +51,7 @@ export class SparePartsApi extends BaseApi<SparePart, SparePartProps> {
   }
 
   override update(entity: SparePart): Observable<SparePart> {
-    if (!this.tokenStorage.read()) {
-      return this.http.put<SparePartProps>(
-        `/demo-api/spare-parts/${entity.id}`,
-        { ...entity },
-      ).pipe(
-        map((resource) => this.toEntity(resource)),
-      );
-    }
+
 
     return this.http.put<SparePartApiResource>(
       `${this.url}/${entity.id}`,
@@ -179,19 +163,13 @@ export class SparePartsApi extends BaseApi<SparePart, SparePartProps> {
   }
 
   override delete(id: string): Observable<void> {
-    if (!this.tokenStorage.read()) {
-      return this.http.delete<void>(`/demo-api/spare-parts/${id}`);
-    }
+
 
     return this.http.delete<void>(`${this.url}/${id}`);
   }
 
   override getAll(): Observable<SparePart[]> {
-    if (!this.tokenStorage.read()) {
-      return this.http.get<SparePartProps[]>('/demo-api/spare-parts').pipe(
-        map((items) => items.map((item) => this.toEntity(item))),
-      );
-    }
+
 
     return this.http.get<SparePartApiResource[]>(this.url).pipe(
       map((items) => items.map((item) => SparePartApiMapper.toEntity(item))),
@@ -209,25 +187,12 @@ export class StockMovementsApi extends BaseApi<StockMovement, StockMovementProps
     return new StockMovement(resource);
   }
 
-  override create(entity: StockMovement): Observable<StockMovement> {
-    if (this.tokenStorage.read()) {
-      throw new Error('Backend stock movements are created through stock operations');
-    }
-
-    return this.http.post<StockMovementProps>(
-      '/demo-api/stock-movements',
-      { ...entity },
-    ).pipe(
-      map((resource) => this.toEntity(resource)),
-    );
+  override create(_entity: StockMovement): Observable<StockMovement> {
+    throw new Error('Stock movements must be created through backend stock operations');
   }
 
   override getAll(): Observable<StockMovement[]> {
-    if (!this.tokenStorage.read()) {
-      return this.http.get<StockMovementProps[]>('/demo-api/stock-movements').pipe(
-        map((items) => items.map((item) => this.toEntity(item))),
-      );
-    }
+
 
     return this.http.get<StockMovementApiResource[]>(this.url).pipe(
       map((items) => items.map((item) => StockMovementApiMapper.toEntity(item))),

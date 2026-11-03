@@ -51,17 +51,22 @@ export class PartDetail {
   protected readonly levelTone = STOCK_LEVEL_TONE;
   protected readonly movementTone = MOVEMENT_TONE;
   protected readonly dialog = signal<'entry' | 'adjust' | null>(null);
+  protected readonly confirmDeleteOpen = signal(false);
   protected readonly busy = signal(false);
 
   protected readonly part = computed(() => this.inventory.find(this.id()));
   protected readonly plant = computed(() => this.plantStore.find(this.part()?.plantId));
   protected readonly history = computed(() => this.movements.forPart(this.id()));
-  protected readonly canManage = computed(() => this.session.role() === 'plant-manager');
+  protected readonly canManage = computed(() =>
+    this.session.role() === 'plant-manager' &&
+    this.session.currentAccount()?.plantId === this.part()?.plantId,
+  );
 
   protected readonly canDelete = computed(() =>
     this.canManage() &&
     this.movements.state() === 'ready' &&
-    this.history().length === 0,
+    this.history().length === 0 &&
+    this.part()?.stock === 0,
   );
   protected readonly fill = computed(() => {
     const part = this.part();
@@ -71,11 +76,11 @@ export class PartDetail {
 
   private readonly fb = inject(FormBuilder).nonNullable;
   protected readonly entryForm = this.fb.group({
-    quantity: [1, [Validators.required, Validators.min(1)]],
+    quantity: [1, [Validators.required, Validators.min(1), Validators.pattern(/^\d+$/)]],
     reason: ['', [Validators.required, Validators.maxLength(120)]],
   });
   protected readonly adjustForm = this.fb.group({
-    counted: [0, [Validators.required, Validators.min(0)]],
+    counted: [0, [Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]],
     reason: ['', [Validators.required, Validators.maxLength(120)]],
   });
 
@@ -88,9 +93,15 @@ export class PartDetail {
   }
 
   protected open(name: 'entry' | 'adjust'): void {
+    if (!this.canManage() || this.busy()) return;
     this.entryForm.reset({ quantity: 1, reason: '' });
     this.adjustForm.reset({ counted: this.part()?.stock ?? 0, reason: '' });
     this.dialog.set(name);
+  }
+
+  protected requestDelete(): void {
+    if (!this.canDelete() || this.busy()) return;
+    this.confirmDeleteOpen.set(true);
   }
 
   protected async deletePart(): Promise<void> {
@@ -98,24 +109,24 @@ export class PartDetail {
 
     const part = this.part();
 
-    if (!part || !window.confirm(`¿Eliminar el repuesto "${part.name}"?`)) {
-      return;
-    }
+    if (!part) return;
+    this.confirmDeleteOpen.set(false);
 
     this.busy.set(true);
 
     try {
       await this.inventory.remove(part.id);
-      this.toast.success('Repuesto eliminado correctamente.');
+      this.toast.success(this.translate.instant('inventory.deleted'));
       await this.router.navigateByUrl('/inventory');
     } catch {
-      this.toast.error('No se pudo eliminar el repuesto.');
+      this.toast.error(this.translate.instant('inventory.deleteError'));
     } finally {
       this.busy.set(false);
     }
   }
 
   protected async receive(): Promise<void> {
+    if (!this.canManage() || this.busy()) return;
     if (this.entryForm.invalid) {
       this.entryForm.markAllAsTouched();
       return;
@@ -128,6 +139,7 @@ export class PartDetail {
   }
 
   protected async adjust(): Promise<void> {
+    if (!this.canManage() || this.busy()) return;
     if (this.adjustForm.invalid) {
       this.adjustForm.markAllAsTouched();
       return;

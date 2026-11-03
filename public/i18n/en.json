@@ -10,16 +10,14 @@
     "en": "English"
   },
   "brand": {
-    "slogan": "The core of your industrial maintenance",
-    "demoData": "Demo data",
-    "demoDataLong": "Academic project: every plant, machine and figure is demo data.",
-    "demoShort": "Demo"
+    "slogan": "The core of your industrial maintenance"
   },
   "shell": {
     "headline": "Every machine stop counts.",
     "body": "Failures, work orders and spare parts for your plant in one place, instead of scattered chats and spreadsheets."
   },
   "common": {
+    "forbidden": "You do not have permission to perform this action.",
     "unreachable": "We couldn't reach the server. Check your connection and try again.",
     "loadError": "FixCore data couldn't be loaded.",
     "saveError": "The change wasn't saved. Check the connection and try again.",
@@ -72,33 +70,6 @@
       "plantsUnavailable": "The plant list couldn't load. Reload the page."
     }
   },
-  "demoAccess": {
-    "eyebrow": "ACADEMIC PROTOTYPE · SPRINT 3",
-    "title": "Welcome to FixCore",
-    "intro": "Choose a profile to explore industrial maintenance using demonstration data.",
-    "selectProfile": "Choose your profile",
-    "plantManagerHint": "Machines, failures and maintenance",
-    "operationsManagerHint": "Plants, metrics and reports",
-    "technicianHint": "Work orders, equipment and spare parts",
-    "footnote": "Open demo access. No username or password required.",
-    "changeProfile": "Change profile",
-    "backToLogin": "Back to Login"
-  },
-  "loginPreview": {
-    "previewLabel": "Preview · Sprint 3",
-    "description": "This is the upcoming FixCore sign-in screen. Authentication is not enabled yet.",
-    "emailPlaceholder": "name@company.com",
-    "passwordPlaceholder": "Enter your password",
-    "unavailable": "Sign-in will be available when the authentication service is integrated. For now, you can explore the demonstration profiles.",
-    "exploreDemo": "Explore the demo",
-    "disclaimer": "The form only validates the fields in your browser. Credentials are not sent or stored.",
-    "showcaseTitle": "Industrial maintenance in one place",
-    "showcaseDescription": "Organize maintenance operations and access important information from a central interface.",
-    "featurePlants": "Plant and machine management",
-    "featureFailures": "Failure and work order tracking",
-    "featureReports": "Maintenance metrics and reports",
-    "viewLogin": "View the sign-in screen"
-  },
   "signIn": {
     "title": "Welcome back!",
     "noAccount": "Don't have an account yet?",
@@ -115,7 +86,11 @@
       "roleRequired": "Choose the role you're logging in as.",
       "invalidCredentials": "Email and password don't match. Check both and try again.",
       "roleMismatch": "This account is registered as {{role}}."
-    }
+    },
+    "invalidResponse": "The server returned an invalid sign-in response.",
+    "invalidRole": "This account has an unrecognized role.",
+    "loginError": "Unable to sign in. Please try again.",
+    "unexpectedError": "An unexpected error occurred while signing in."
   },
   "signUp": {
     "step": "Step {{current}} of {{total}}",
@@ -285,7 +260,9 @@
     "title": "Technician performance",
     "subtitle": "Orders handled by each technician in the period.",
     "avgRepair": "Avg. repair",
-    "lastActivity": "Last activity"
+    "lastActivity": "Last activity",
+    "loading": "Loading technician performance...",
+    "loadError": "Unable to load technician performance."
   },
   "reports": {
     "title": "Reports",
@@ -308,7 +285,9 @@
     "partsConsumed": "Parts consumed",
     "noParts": "No parts were consumed.",
     "failures": "Failures in the period",
-    "generated": "Generated on {{date}} with FixCore."
+    "generated": "Generated on {{date}} with FixCore.",
+    "loading": "Loading report metrics...",
+    "loadError": "Unable to load report metrics. Check your connection or selected period."
   },
   "assets": {
     "title": "Machines",
@@ -436,7 +415,12 @@
     "machinesTitle": "Machines",
     "openOrdersTitle": "Open orders",
     "failureHistory": "Latest failures",
-    "techniciansTitle": "Plant technicians"
+    "techniciansTitle": "Plant technicians",
+    "deleteTitle": "Delete plant",
+    "deletePrompt": "Are you sure you want to delete {{name}}? This action cannot be undone.",
+    "deleteAction": "Delete plant",
+    "deleted": "Plant deleted successfully.",
+    "deleteError": "Unable to delete the plant. Check for related records."
   },
   "failures": {
     "title": "Failures",
@@ -613,7 +597,13 @@
       "part": "Used {{qty}} × {{part}}",
       "completed": "Closed"
     },
-    "open": "Open"
+    "open": "Open",
+    "deleteTitle": "Delete work order",
+    "deletePrompt": "Are you sure you want to delete work order {{code}}? This action cannot be undone.",
+    "deleteAction": "Delete order",
+    "deleted": "Work order deleted.",
+    "deleteError": "Unable to delete the work order.",
+    "invalidTechnician": "Select a technician assigned to this work order\u0027s plant."
   },
   "workOrderStatus": {
     "pending": "Pending",
@@ -682,7 +672,9 @@
     "completeTitle": "Record completed maintenance",
     "completeConfirm": "Record completion of {{title}}.",
     "completedOn": "Completion date",
-    "completed": "Maintenance {{title}} recorded."
+    "completed": "Maintenance {{title}} recorded.",
+    "invalidAsset": "Select a machine available in your plant.",
+    "invalidTechnician": "Select a technician assigned to the machine\u0027s plant."
   },
   "today": {
     "greeting": "Hi, {{name}}!",
@@ -737,7 +729,12 @@
     "movements": "Movements",
     "noMovements": "No movements recorded.",
     "after": "left at {{stock}}",
-    "barLabel": "Stock {{stock}}, minimum {{min}}"
+    "barLabel": "Stock {{stock}}, minimum {{min}}",
+    "deleteTitle": "Delete spare part",
+    "deletePrompt": "Are you sure you want to delete {{name}}? This action cannot be undone.",
+    "deleteAction": "Delete spare part",
+    "deleted": "Spare part deleted successfully.",
+    "deleteError": "Unable to delete the spare part. Check whether it has stock movements."
   },
   "partCategory": {
     "electrical": "Electrical",
@@ -925,6 +922,13 @@
     "eyebrow": "FIXCORE ACCESS",
     "description": "Sign in with your account to manage plants, machines, work orders, and inventory.",
     "success": "Signed in successfully.",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "emailPlaceholder": "name@company.com",
+    "passwordPlaceholder": "Enter your password",
+    "showcaseTitle": "Industrial maintenance in one place",
+    "showcaseDescription": "Organize maintenance operations and access important information from a central interface.",
+    "featurePlants": "Plant and machine management",
+    "featureFailures": "Failure and work order tracking",
+    "featureReports": "Maintenance metrics and reports"
   }
 }

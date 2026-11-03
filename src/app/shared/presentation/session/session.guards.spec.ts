@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, provideRouter, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 
 import { SessionStore } from '../../application/session.store';
+import { UserAccount } from '../../domain/model/user-account.entity';
 import { homeRedirectGuard, roleGuard, signedInGuard } from './session.guards';
 
 describe('Authenticated session guards', () => {
@@ -27,7 +28,7 @@ describe('Authenticated session guards', () => {
   });
 
   it('redirects unauthorized accounts to their own home', () => {
-    session.selectDemoRole('technician');
+    session.signIn(new UserAccount('3', 'Tecnico', '', 'technician', '1', 'Tecnico'));
     const result = TestBed.runInInjectionContext(() =>
       roleGuard('plant-manager')({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
     );
@@ -39,7 +40,7 @@ describe('Authenticated session guards', () => {
     const state = {} as RouterStateSnapshot;
     const guest = TestBed.runInInjectionContext(() => homeRedirectGuard(route, state));
     expect(router.serializeUrl(guest as UrlTree)).toBe('/login');
-    session.selectDemoRole('operations-manager');
+    session.signIn(new UserAccount('2', 'Operaciones', '', 'operations-manager', null, 'Gerente'));
     const selected = TestBed.runInInjectionContext(() => homeRedirectGuard(route, state));
     expect(router.serializeUrl(selected as UrlTree)).toBe('/overview');
   });
