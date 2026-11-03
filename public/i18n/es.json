@@ -437,7 +437,10 @@
     "machinesTitle": "Máquinas",
     "openOrdersTitle": "Órdenes abiertas",
     "failureHistory": "Últimas fallas",
-    "techniciansTitle": "Técnicos de la planta"
+    "techniciansTitle": "Técnicos de la planta",
+    "deleteTitle": "Eliminar planta",
+    "deletePrompt": "¿Seguro que deseas eliminar la planta {{name}}? Esta acción no se puede deshacer.",
+    "deleteAction": "Eliminar planta"
   },
   "failures": {
     "title": "Fallas",

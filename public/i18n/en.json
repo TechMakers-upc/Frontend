@@ -437,7 +437,10 @@
     "machinesTitle": "Machines",
     "openOrdersTitle": "Open orders",
     "failureHistory": "Latest failures",
-    "techniciansTitle": "Plant technicians"
+    "techniciansTitle": "Plant technicians",
+    "deleteTitle": "Delete plant",
+    "deletePrompt": "Are you sure you want to delete {{name}}? This action cannot be undone.",
+    "deleteAction": "Delete plant"
   },
   "failures": {
     "title": "Failures",

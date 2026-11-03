@@ -5,9 +5,9 @@
       {{ 'common.edit' | translate }}
     </a>
     @if (canDelete()) {
-      <button type="button" class="btn btn--ghost" (click)="deletePlant()">
+      <button type="button" class="btn btn--ghost" (click)="requestDelete()">
         <app-icon name="trash-2" [size]="18" />
-        Eliminar planta
+        {{ 'plants.deleteAction' | translate }}
       </button>
     }
     <a class="btn btn--primary" routerLink="/work-orders" (click)="focus()">{{ 'plants.viewOrders' | translate }}</a>
@@ -101,3 +101,14 @@
 } @else {
   <app-page-header [heading]="'plants.notFound' | translate" backLink="/plants" />
 }
+<app-dialog [heading]="'plants.deleteTitle' | translate" [open]="confirmOpen()" (closed)="confirmOpen.set(false)">
+  <p>{{ 'plants.deletePrompt' | translate: { name: plant()?.name ?? '' } }}</p>
+  <div class="form-actions">
+    <button type="button" class="btn btn--ghost" (click)="confirmOpen.set(false)">
+      {{ 'common.cancel' | translate }}
+    </button>
+    <button type="button" class="btn btn--primary" (click)="deletePlant()">
+      {{ 'plants.deleteAction' | translate }}
+    </button>
+  </div>
+</app-dialog>
