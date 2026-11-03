@@ -186,14 +186,15 @@ export class WorkOrderDetail {
   }
 
   protected async addNote(): Promise<void> {
-    if (this.noteForm.invalid) {
+    if (!this.isAssignee() || this.order()?.status !== 'in-progress') return;
+    if (this.noteForm.invalid || !this.noteForm.controls.note.value.trim()) {
       this.noteForm.markAllAsTouched();
       return;
     }
     const { note } = this.noteForm.getRawValue();
     const author = this.me()!.id;
     const done = await this.run(
-      () => this.workOrderStore.addWorkLog(this.id(), note, author, nowIso()),
+      () => this.workOrderStore.addWorkLog(this.id(), note.trim(), author, nowIso()),
       'workOrders.noteSaved',
     );
     if (done) this.noteForm.reset();
@@ -245,12 +246,13 @@ export class WorkOrderDetail {
   }
 
   protected async close(): Promise<void> {
-    if (this.closeForm.invalid) {
+    if (!this.isAssignee() || this.order()?.status !== 'in-progress') return;
+    if (this.closeForm.invalid || !this.closeForm.controls.solution.value.trim()) {
       this.closeForm.markAllAsTouched();
       return;
     }
     const { solution } = this.closeForm.getRawValue();
-    const done = await this.run(() => this.execution.complete(this.id(), solution), 'workOrders.closed');
+    const done = await this.run(() => this.execution.complete(this.id(), solution.trim()), 'workOrders.closed');
     if (done) this.dialog.set(null);
   }
 
