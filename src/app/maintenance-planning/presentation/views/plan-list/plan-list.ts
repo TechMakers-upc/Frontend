@@ -105,14 +105,22 @@ protected readonly completing = signal<MaintenancePlan | null>(null);
     return daysUntil(plan.nextDueDate, this.today);
   }
 
+  protected canManagePlan(plan: MaintenancePlan): boolean {
+    return this.canManage() &&
+      this.planStore.inScope().some((item) => item.id === plan.id);
+  }
+
   protected openReschedule(plan: MaintenancePlan): void {
+    if (!this.canManagePlan(plan) || this.busy()) return;
     this.rescheduleForm.reset({ date: plan.nextDueDate < this.today ? this.today : plan.nextDueDate });
     this.rescheduling.set(plan);
   }
 
   protected async reschedule(): Promise<void> {
     const plan = this.rescheduling();
-    if (!plan || this.rescheduleForm.invalid) {
+    if (!plan || !this.canManagePlan(plan) || this.busy() ||
+        this.rescheduleForm.invalid ||
+        this.rescheduleForm.controls.date.value < this.today) {
       this.rescheduleForm.markAllAsTouched();
       return;
     }
@@ -123,20 +131,22 @@ protected readonly completing = signal<MaintenancePlan | null>(null);
   }
 
   protected toggle(plan: MaintenancePlan): Promise<boolean> {
+    if (!this.canManagePlan(plan) || this.busy()) return Promise.resolve(false);
+
     return plan.active
       ? this.run(() => this.planStore.suspend(plan.id), 'maintenance.suspended', plan)
       : this.run(() => this.planStore.reactivate(plan.id), 'maintenance.reactivated', plan);
   }
 
 protected openCompletion(plan: MaintenancePlan): void {
-  if (!plan.active || this.openOrderFor(plan.id)) return;
+  if (!this.canManagePlan(plan) || this.busy() || !plan.active || this.openOrderFor(plan.id)) return;
   if (plan.lastCompletedAt?.slice(0, 10) === todayDate()) return;
   this.completing.set(plan);
 }
 
 protected async complete(completedOn: string): Promise<void> {
   const plan = this.completing();
-  if (!plan || this.busy() || !completedOn || this.openOrderFor(plan.id)) return;
+  if (!plan || !this.canManagePlan(plan) || this.busy() || !completedOn || completedOn > todayDate() || this.openOrderFor(plan.id)) return;
   this.busy.set(true);
   try {
     await this.planStore.complete(plan.id, completedOn);
@@ -151,7 +161,7 @@ protected async complete(completedOn: string): Promise<void> {
 
   protected async remove(): Promise<void> {
     const plan = this.deleting();
-    if (!plan || this.busy()) return;
+    if (!plan || !this.canManagePlan(plan) || this.busy()) return;
 
     this.busy.set(true);
 
