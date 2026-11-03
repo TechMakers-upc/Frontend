@@ -746,7 +746,9 @@
     "barLabel": "Stock {{stock}}, minimum {{min}}",
     "deleteTitle": "Delete spare part",
     "deletePrompt": "Are you sure you want to delete {{name}}? This action cannot be undone.",
-    "deleteAction": "Delete spare part"
+    "deleteAction": "Delete spare part",
+    "deleted": "Spare part deleted successfully.",
+    "deleteError": "Unable to delete the spare part. Check whether it has stock movements."
   },
   "partCategory": {
     "electrical": "Electrical",

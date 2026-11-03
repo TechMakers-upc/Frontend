@@ -746,7 +746,9 @@
     "barLabel": "Stock {{stock}}, mínimo {{min}}",
     "deleteTitle": "Eliminar repuesto",
     "deletePrompt": "¿Seguro que deseas eliminar el repuesto {{name}}? Esta acción no se puede deshacer.",
-    "deleteAction": "Eliminar repuesto"
+    "deleteAction": "Eliminar repuesto",
+    "deleted": "Repuesto eliminado correctamente.",
+    "deleteError": "No se pudo eliminar el repuesto. Comprueba si tiene movimientos asociados."
   },
   "partCategory": {
     "electrical": "Eléctricos",

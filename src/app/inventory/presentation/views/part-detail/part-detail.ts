@@ -111,10 +111,10 @@ export class PartDetail {
 
     try {
       await this.inventory.remove(part.id);
-      this.toast.success('Repuesto eliminado correctamente.');
+      this.toast.success(this.translate.instant('inventory.deleted'));
       await this.router.navigateByUrl('/inventory');
     } catch {
-      this.toast.error('No se pudo eliminar el repuesto.');
+      this.toast.error(this.translate.instant('inventory.deleteError'));
     } finally {
       this.busy.set(false);
     }
