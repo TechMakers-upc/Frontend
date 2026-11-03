@@ -41,12 +41,16 @@ export abstract class CollectionStore<TEntity extends AggregateRoot> {
     const state = this.stateSignal();
     if (state === 'loading' || (state === 'ready' && !force)) return;
     this.stateSignal.set('loading');
+    const requestGeneration = ++this.generation;
     this.api.getAll().subscribe({
       next: (items) => {
+        if (requestGeneration !== this.generation) return;
         this.itemsSignal.set(items);
         this.stateSignal.set('ready');
       },
-      error: () => this.stateSignal.set('error'),
+      error: () => {
+        if (requestGeneration === this.generation) this.stateSignal.set('error');
+      },
     });
   }
 
