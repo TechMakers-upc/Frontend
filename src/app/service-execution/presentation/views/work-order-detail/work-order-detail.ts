@@ -87,7 +87,8 @@ export class WorkOrderDetail {
     const order = this.order();
 
     return !!order &&
-      (role === 'plant-manager' || role === 'operations-manager') &&
+      (role === 'operations-manager' ||
+        (role === 'plant-manager' && this.me()?.plantId === order.plantId)) &&
       order.status === 'pending' &&
       order.failureId === null;
   });
