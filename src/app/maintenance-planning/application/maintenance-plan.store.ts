@@ -2,6 +2,7 @@ import { Injectable, computed, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
 import { PlantScope } from '../../asset-management/application/plant-scope';
+import { AssetStore } from '../../asset-management/application/asset.store';
 import { CollectionStore } from '../../shared/application/collection.store';
 import { nowIso, todayDate } from '../../shared/domain/model/date-time';
 import { MaintenancePlan, MaintenancePlanDetails } from '../domain/model/maintenance-plan.entity';
@@ -11,6 +12,7 @@ import { MaintenancePlansApi } from '../infrastructure/maintenance-plans-api';
 export class MaintenancePlanStore extends CollectionStore<MaintenancePlan> {
   protected readonly api = inject(MaintenancePlansApi);
   private readonly scope = inject(PlantScope);
+  private readonly assets = inject(AssetStore);
 
   private assertAccessible(plan: MaintenancePlan): void {
     if (!this.scope.includes(plan.plantId)) {
@@ -119,6 +121,12 @@ async complete(id: string, completedOn: string): Promise<MaintenancePlan> {
   }
 
   async schedule(plantId: string, details: MaintenancePlanDetails): Promise<MaintenancePlan> {
+    const asset = this.assets.find(details.assetId);
+
+    if (!this.scope.includes(plantId) || !asset || asset.plantId !== plantId) {
+      throw new Error('Invalid plant or machine for maintenance plan');
+    }
+
     const plan = new MaintenancePlan({
       id: crypto.randomUUID(),
       plantId,
