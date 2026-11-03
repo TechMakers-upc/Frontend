@@ -2,12 +2,9 @@ import { Injectable, computed, inject } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 
 import { PlantScope } from '../../asset-management/application/plant-scope';
-import { SessionStore } from '../../shared/application/session.store';
-import { AuthTokenStorage } from '../../shared/infrastructure/auth-token.storage';
 import { CollectionStore } from '../../shared/application/collection.store';
-import { nowIso } from '../../shared/domain/model/date-time';
 import { SparePart, SparePartDetails } from '../domain/model/spare-part.entity';
-import { MovementType, StockMovement } from '../domain/model/stock-movement.entity';
+import { StockMovement } from '../domain/model/stock-movement.entity';
 import { SparePartsApi, StockMovementsApi } from '../infrastructure/inventory-api';
 
 @Injectable({ providedIn: 'root' })
@@ -25,8 +22,6 @@ export class StockMovementStore extends CollectionStore<StockMovement> {
 export class InventoryStore extends CollectionStore<SparePart> {
   protected readonly api = inject(SparePartsApi);
   private readonly scope = inject(PlantScope);
-  private readonly session = inject(SessionStore);
-  private readonly tokenStorage = inject(AuthTokenStorage);
   private readonly movements = inject(StockMovementStore);
 
   readonly inScope = computed(() =>
@@ -107,31 +102,5 @@ export class InventoryStore extends CollectionStore<SparePart> {
     return saved;
   }
 
-  private async applyMovement(
-    partId: string,
-    type: MovementType,
-    reason: string,
-    workOrderId: string | null,
-    mutate: (draft: SparePart) => number,
-  ): Promise<SparePart> {
-    let delta = 0;
-    const saved = await this.change(partId, (draft) => {
-      delta = mutate(draft);
-    });
-    await this.movements.add(
-      new StockMovement({
-        id: crypto.randomUUID(),
-        plantId: saved.plantId,
-        partId,
-        type,
-        quantity: delta,
-        stockAfter: saved.stock,
-        reason,
-        at: nowIso(),
-        userId: this.session.currentAccount()?.id ?? '',
-        workOrderId,
-      }),
-    );
-    return saved;
-  }
+
 }
