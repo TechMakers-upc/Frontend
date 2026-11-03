@@ -71,7 +71,7 @@ export class PartDetail {
 
   private readonly fb = inject(FormBuilder).nonNullable;
   protected readonly entryForm = this.fb.group({
-    quantity: [1, [Validators.required, Validators.min(1)]],
+    quantity: [1, [Validators.required, Validators.min(1), Validators.pattern(/^\d+$/)]],
     reason: ['', [Validators.required, Validators.maxLength(120)]],
   });
   protected readonly adjustForm = this.fb.group({
