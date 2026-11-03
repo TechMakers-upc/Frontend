@@ -9,8 +9,8 @@ export type LoadState = 'idle' | 'loading' | 'ready' | 'error';
 
 export abstract class CollectionStore<TEntity extends AggregateRoot> {
   protected abstract readonly api: BaseApi<TEntity, object>;
-  private readonly session = inject(SessionStore);
-  private previousAccountId = this.session.currentAccount()?.id ?? null;
+  private readonly sessionContext = inject(SessionStore);
+  private previousAccountId = this.sessionContext.currentAccount()?.id ?? null;
   private generation = 0;
 
   protected readonly itemsSignal = signal<TEntity[]>([]);
@@ -22,7 +22,7 @@ export abstract class CollectionStore<TEntity extends AggregateRoot> {
 
   constructor() {
     effect(() => {
-      const accountId = this.session.currentAccount()?.id ?? null;
+      const accountId = this.sessionContext.currentAccount()?.id ?? null;
 
       if (accountId === this.previousAccountId) return;
 
