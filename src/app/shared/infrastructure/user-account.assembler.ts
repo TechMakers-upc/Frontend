@@ -6,11 +6,11 @@ export class UserAccountAssembler {
   static toEntity(resource: StoredUserAccount): UserAccount | null {
     if (!isRole(resource.role)) return null;
     return new UserAccount(
-      resource.id,
+      String(resource.id),
       resource.fullName,
       resource.email,
       resource.role,
-      resource.plantId,
+      resource.plantId === null ? null : String(resource.plantId),
       resource.jobTitle,
     );
   }
