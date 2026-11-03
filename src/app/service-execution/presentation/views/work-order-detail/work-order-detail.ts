@@ -170,10 +170,10 @@ export class WorkOrderDetail {
 
     try {
       await this.workOrderStore.remove(order.id);
-      this.toast.success('Orden de trabajo eliminada.');
+      this.toast.success(this.translate.instant('workOrders.deleted'));
       await this.router.navigateByUrl('/work-orders');
     } catch {
-      this.toast.error('No se pudo eliminar la orden de trabajo.');
+      this.toast.error(this.translate.instant('workOrders.deleteError'));
     } finally {
       this.busy.set(false);
     }

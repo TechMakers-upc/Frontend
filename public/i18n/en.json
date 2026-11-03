@@ -622,7 +622,9 @@
     "open": "Open",
     "deleteTitle": "Delete work order",
     "deletePrompt": "Are you sure you want to delete work order {{code}}? This action cannot be undone.",
-    "deleteAction": "Delete order"
+    "deleteAction": "Delete order",
+    "deleted": "Work order deleted.",
+    "deleteError": "Unable to delete the work order."
   },
   "workOrderStatus": {
     "pending": "Pending",
