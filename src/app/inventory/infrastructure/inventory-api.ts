@@ -187,17 +187,8 @@ export class StockMovementsApi extends BaseApi<StockMovement, StockMovementProps
     return new StockMovement(resource);
   }
 
-  override create(entity: StockMovement): Observable<StockMovement> {
-    if (this.tokenStorage.read()) {
-      throw new Error('Backend stock movements are created through stock operations');
-    }
-
-    return this.http.post<StockMovementProps>(
-      '/demo-api/stock-movements',
-      { ...entity },
-    ).pipe(
-      map((resource) => this.toEntity(resource)),
-    );
+  override create(_entity: StockMovement): Observable<StockMovement> {
+    throw new Error('Stock movements must be created through backend stock operations');
   }
 
   override getAll(): Observable<StockMovement[]> {
