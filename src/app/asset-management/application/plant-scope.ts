@@ -21,7 +21,8 @@ export class PlantScope {
     if (!account) return [];
     if (!this.canSwitch()) return account.plantId ? [account.plantId] : [];
     const selected = this.selectedSignal();
-    return selected ? [selected] : this.plantStore.items().map((plant) => plant.id);
+    const available = this.plantStore.items().map((plant) => plant.id);
+    return selected && available.includes(selected) ? [selected] : available;
   });
 
   readonly currentPlantId = computed(() => (this.plantIds().length === 1 ? this.plantIds()[0]! : null));
@@ -33,6 +34,8 @@ export class PlantScope {
   }
 
   select(plantId: string | null): void {
+    if (!this.canSwitch()) return;
+    if (plantId && !this.plantStore.items().some((plant) => plant.id === plantId)) return;
     this.selectedSignal.set(plantId);
     try {
       if (plantId) localStorage.setItem(STORAGE_KEY, plantId);
