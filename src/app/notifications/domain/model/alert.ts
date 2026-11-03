@@ -2,6 +2,7 @@ export type AlertKind = 'critical-failure' | 'maintenance-overdue' | 'maintenanc
 
 export interface Alert {
   id: string;
+  read?: boolean;
   kind: AlertKind;
   severity: 'down' | 'warn' | 'info';
   /** Translation params for `alerts.<kind>`. */
