@@ -155,7 +155,10 @@ private readonly loadBackendReport = effect((onCleanup) => {
       o.completedAt?.slice(0, 16).replace('T', ' ') ?? '',
       o.repairHours()?.toFixed(1) ?? '',
     ]);
-    const escape = (cell: string) => (/[",;\n]/.test(cell) ? `"${cell.replace(/"/g, '""')}"` : cell);
+    const escape = (cell: string) => {
+      const safe = /^\s*[=+\-@]/.test(cell) ? `'${cell}` : cell;
+      return /[",;\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
+    };
     const csv = [header, ...rows].map((row) => row.map(escape).join(',')).join('\r\n');
     const blob = new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
