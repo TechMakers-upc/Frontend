@@ -36,4 +36,20 @@ describe('AlertsApi', () => {
     request.flush({}, { status: 401, statusText: 'Unauthorized' });
     await rejected;
   });
+
+  it('reads the unread count from the backend', async () => {
+    const result = firstValueFrom(api.getUnreadCount());
+    const request = http.expectOne(`${environment.apiBaseUrl}/alerts/unread-count`);
+    expect(request.request.method).toBe('GET');
+    request.flush({ unread: 3 });
+    expect((await result).unread).toBe(3);
+  });
+
+  it('marks a visible alert as read', async () => {
+    const result = firstValueFrom(api.markRead('a-1'));
+    const request = http.expectOne(`${environment.apiBaseUrl}/alerts/a-1/read`);
+    expect(request.request.method).toBe('PATCH');
+    request.flush(null, { status: 204, statusText: 'No Content' });
+    await result;
+  });
 });
