@@ -56,12 +56,8 @@ export class MaintenanceExecutionService {
       Failure.report({ ...input, plantId: asset.plantId, reportedBy: this.userId }),
     );
     if (input.lineStopped) {
-      if (this.tokenStorage.read()) {
-        // Spring Boot already marked the asset as down.
-        this.assets.load(true);
-      } else {
-        await this.assets.setStatus(asset.id, 'down', failure.reportedAt);
-      }
+      // Spring Boot updates the asset in the same backend workflow.
+      this.assets.load(true);
     }
     return failure;
   }
