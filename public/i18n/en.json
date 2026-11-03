@@ -286,7 +286,9 @@
     "title": "Technician performance",
     "subtitle": "Orders handled by each technician in the period.",
     "avgRepair": "Avg. repair",
-    "lastActivity": "Last activity"
+    "lastActivity": "Last activity",
+    "loading": "Loading technician performance...",
+    "loadError": "Unable to load technician performance."
   },
   "reports": {
     "title": "Reports",

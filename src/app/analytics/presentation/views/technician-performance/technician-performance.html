@@ -1,7 +1,7 @@
 <app-page-header [heading]="'performance.title' | translate" [subtitle]="'performance.subtitle' | translate">
   <label>
     <span class="visually-hidden">{{ 'reports.period' | translate }}</span>
-    <select class="select-inline" (change)="range.set($any($event.target).value)">
+    <select class="select-inline" [value]="range()" (change)="range.set($any($event.target).value)">
       <option value="30">{{ 'reports.last30' | translate }}</option>
       <option value="90">{{ 'reports.last90' | translate }}</option>
       <option value="all">{{ 'reports.allTime' | translate }}</option>
@@ -9,6 +9,11 @@
   </label>
 </app-page-header>
 
+@if (loading()) {
+  <p class="card card__body" role="status">{{ 'performance.loading' | translate }}</p>
+} @else if (failed()) {
+  <p class="card card__body" role="alert">{{ 'performance.loadError' | translate }}</p>
+} @else {
 <section class="card table-wrap">
   <table class="table mobile-cards">
     <caption class="visually-hidden">{{ 'performance.title' | translate }}</caption>
@@ -43,3 +48,4 @@
     </tbody>
   </table>
 </section>
+}

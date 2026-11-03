@@ -286,7 +286,9 @@
     "title": "Desempeño de técnicos",
     "subtitle": "Órdenes atendidas por cada técnico en el periodo.",
     "avgRepair": "Reparación prom.",
-    "lastActivity": "Última actividad"
+    "lastActivity": "Última actividad",
+    "loading": "Cargando el desempeño de los técnicos...",
+    "loadError": "No se pudo cargar el desempeño de los técnicos."
   },
   "reports": {
     "title": "Reportes",
