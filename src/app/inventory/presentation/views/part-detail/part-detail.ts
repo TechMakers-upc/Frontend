@@ -65,7 +65,8 @@ export class PartDetail {
   protected readonly canDelete = computed(() =>
     this.canManage() &&
     this.movements.state() === 'ready' &&
-    this.history().length === 0,
+    this.history().length === 0 &&
+    this.part()?.stock === 0,
   );
   protected readonly fill = computed(() => {
     const part = this.part();
