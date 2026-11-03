@@ -624,7 +624,8 @@
     "deletePrompt": "¿Seguro que deseas eliminar la orden {{code}}? Esta acción no se puede deshacer.",
     "deleteAction": "Eliminar orden",
     "deleted": "Orden de trabajo eliminada.",
-    "deleteError": "No se pudo eliminar la orden de trabajo."
+    "deleteError": "No se pudo eliminar la orden de trabajo.",
+    "invalidTechnician": "Selecciona un técnico asignado a la planta de esta orden."
   },
   "workOrderStatus": {
     "pending": "Pendiente",

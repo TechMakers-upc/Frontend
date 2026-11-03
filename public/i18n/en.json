@@ -624,7 +624,8 @@
     "deletePrompt": "Are you sure you want to delete work order {{code}}? This action cannot be undone.",
     "deleteAction": "Delete order",
     "deleted": "Work order deleted.",
-    "deleteError": "Unable to delete the work order."
+    "deleteError": "Unable to delete the work order.",
+    "invalidTechnician": "Select a technician assigned to this work order\u0027s plant."
   },
   "workOrderStatus": {
     "pending": "Pending",

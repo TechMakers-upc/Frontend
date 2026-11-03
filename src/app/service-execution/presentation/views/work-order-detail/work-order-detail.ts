@@ -204,6 +204,12 @@ export class WorkOrderDetail {
       return;
     }
     const { technicianId } = this.assignForm.getRawValue();
+
+    if (!this.plantTechnicians().some((tech) => tech.id === technicianId)) {
+      this.toast.error(this.translate.instant('workOrders.invalidTechnician'));
+      return;
+    }
+
     const done = await this.run(
       () => this.workOrderStore.assignTechnician(this.id(), technicianId),
       'workOrders.assigned',
