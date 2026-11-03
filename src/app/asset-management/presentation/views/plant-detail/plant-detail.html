@@ -107,7 +107,7 @@
     <button type="button" class="btn btn--ghost" (click)="confirmOpen.set(false)">
       {{ 'common.cancel' | translate }}
     </button>
-    <button type="button" class="btn btn--primary" (click)="deletePlant()">
+    <button type="button" class="btn btn--primary" [disabled]="busy()" (click)="deletePlant()">
       {{ 'plants.deleteAction' | translate }}
     </button>
   </div>

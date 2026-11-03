@@ -440,7 +440,9 @@
     "techniciansTitle": "Técnicos de la planta",
     "deleteTitle": "Eliminar planta",
     "deletePrompt": "¿Seguro que deseas eliminar la planta {{name}}? Esta acción no se puede deshacer.",
-    "deleteAction": "Eliminar planta"
+    "deleteAction": "Eliminar planta",
+    "deleted": "Planta eliminada correctamente.",
+    "deleteError": "No se pudo eliminar la planta. Comprueba si tiene registros relacionados."
   },
   "failures": {
     "title": "Fallas",

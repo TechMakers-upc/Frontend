@@ -440,7 +440,9 @@
     "techniciansTitle": "Plant technicians",
     "deleteTitle": "Delete plant",
     "deletePrompt": "Are you sure you want to delete {{name}}? This action cannot be undone.",
-    "deleteAction": "Delete plant"
+    "deleteAction": "Delete plant",
+    "deleted": "Plant deleted successfully.",
+    "deleteError": "Unable to delete the plant. Check for related records."
   },
   "failures": {
     "title": "Failures",
