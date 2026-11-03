@@ -38,27 +38,23 @@ export class InventoryStore extends CollectionStore<SparePart> {
   readonly belowMinimum = computed(() => this.inScope().filter((part) => part.isBelowMinimum));
 
   async register(plantId: string, details: SparePartDetails, initialStock: number): Promise<SparePart> {
-    const part = new SparePart({ id: crypto.randomUUID(), plantId, stock: 0, ...details });
+    const part = new SparePart({
+      id: crypto.randomUUID(),
+      plantId,
+      stock: 0,
+      ...details,
+    });
+
     part.updateDetails(details);
 
-    if (this.tokenStorage.read()) {
-      const created = await firstValueFrom(
-        this.api.createWithInitialStock(part, initialStock),
-      );
+    const created = await firstValueFrom(
+      this.api.createWithInitialStock(part, initialStock),
+    );
 
-      this.itemsSignal.update((items) => [...items, created]);
-
-      if (initialStock > 0) {
-        this.movements.load(true);
-      }
-
-      return created;
-    }
-
-    const created = await this.add(part);
+    this.itemsSignal.update((items) => [...items, created]);
 
     if (initialStock > 0) {
-      return this.receive(created.id, initialStock, 'initial-stock');
+      this.movements.load(true);
     }
 
     return created;
