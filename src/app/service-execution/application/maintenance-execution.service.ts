@@ -116,14 +116,9 @@ export class MaintenanceExecutionService {
     const check = order.clone();
     check.registerPartUsage(partId, quantity, at);
 
-    if (this.tokenStorage.read()) {
-      const saved = await this.workOrders.addPartUsage(workOrderId, partId, quantity, at);
-      this.inventory.load(true);
-      return saved;
-    }
-
-    await this.inventory.consume(partId, quantity, workOrderId, order.code);
-    return this.workOrders.addPartUsage(workOrderId, partId, quantity, at);
+    const saved = await this.workOrders.addPartUsage(workOrderId, partId, quantity, at);
+    this.inventory.load(true);
+    return saved;
   }
 
   /** US30: closing the order resolves its failure, frees the machine and rolls the plan forward. */
