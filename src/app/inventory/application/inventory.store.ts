@@ -41,6 +41,10 @@ export class InventoryStore extends CollectionStore<SparePart> {
   }
 
   async register(plantId: string, details: SparePartDetails, initialStock: number): Promise<SparePart> {
+    if (!this.scope.includes(plantId)) {
+      throw new Error('Plant is not accessible');
+    }
+
     const part = new SparePart({
       id: crypto.randomUUID(),
       plantId,
