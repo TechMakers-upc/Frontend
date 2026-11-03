@@ -222,7 +222,19 @@ export class WorkOrderDetail {
 
   protected async usePart(): Promise<void> {
     const { partId, quantity } = this.partForm.getRawValue();
-    this.stockShort.set(!!partId && quantity > this.maxFor(partId));
+    const order = this.order();
+
+    if (!this.isAssignee() || order?.status !== 'in-progress') return;
+
+    const part = this.inventory.find(partId);
+
+    this.stockShort.set(
+      !part ||
+      part.plantId !== order.plantId ||
+      !Number.isInteger(quantity) ||
+      quantity <= 0 ||
+      quantity > part.stock,
+    );
     if (this.partForm.invalid || this.stockShort()) {
       this.partForm.markAllAsTouched();
       return;
