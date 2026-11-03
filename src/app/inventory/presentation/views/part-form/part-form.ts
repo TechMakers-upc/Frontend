@@ -51,7 +51,7 @@ export class PartForm {
     name: ['', [Validators.required, Validators.maxLength(80)]],
     category: ['mechanical' as PartCategory, Validators.required],
     unit: ['unit' as PartUnit, Validators.required],
-    minStock: [1, [Validators.required, Validators.min(0)]],
+    minStock: [1, [Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]],
     initialStock: [0, [Validators.required, Validators.min(0)]],
     location: ['', Validators.maxLength(60)],
   });
