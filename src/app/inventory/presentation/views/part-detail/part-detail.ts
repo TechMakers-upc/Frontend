@@ -92,6 +92,7 @@ export class PartDetail {
   }
 
   protected open(name: 'entry' | 'adjust'): void {
+    if (!this.canManage() || this.busy()) return;
     this.entryForm.reset({ quantity: 1, reason: '' });
     this.adjustForm.reset({ counted: this.part()?.stock ?? 0, reason: '' });
     this.dialog.set(name);
@@ -124,6 +125,7 @@ export class PartDetail {
   }
 
   protected async receive(): Promise<void> {
+    if (!this.canManage() || this.busy()) return;
     if (this.entryForm.invalid) {
       this.entryForm.markAllAsTouched();
       return;
@@ -136,6 +138,7 @@ export class PartDetail {
   }
 
   protected async adjust(): Promise<void> {
+    if (!this.canManage() || this.busy()) return;
     if (this.adjustForm.invalid) {
       this.adjustForm.markAllAsTouched();
       return;
