@@ -181,6 +181,7 @@ export class WorkOrderDetail {
   }
 
   protected async start(): Promise<void> {
+    if (!this.isAssignee() || this.order()?.status !== 'pending') return;
     await this.run(() => this.execution.start(this.id()), 'workOrders.startedToast');
   }
 
