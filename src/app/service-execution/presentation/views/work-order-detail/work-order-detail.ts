@@ -81,7 +81,9 @@ export class WorkOrderDetail {
   protected readonly overdue = computed(() => this.order()?.isOverdue(todayDate()) ?? false);
 
   private readonly me = computed(() => this.session.currentAccount());
-  protected readonly isManager = computed(() => this.me()?.role !== 'technician');
+  protected readonly isManager = computed(() =>
+    this.me()?.role === 'plant-manager' || this.me()?.role === 'operations-manager',
+  );
   protected readonly canDelete = computed(() => {
     const role = this.session.role();
     const order = this.order();
@@ -141,6 +143,15 @@ export class WorkOrderDetail {
   protected readonly closeForm = this.fb.group({ solution: ['', [Validators.required, Validators.maxLength(800)]] });
 
   protected openDialog(name: Exclude<DialogName, null>): void {
+    if (this.busy()) return;
+
+    if (name === 'assign') {
+      if (!this.isManager() || !this.order()?.isOpen) return;
+      if (this.me()?.role === 'plant-manager' && this.order()?.plantId !== this.me()?.plantId) return;
+    } else if (!this.isAssignee() || this.order()?.status !== 'in-progress') {
+      return;
+    }
+
     if (name === 'assign') this.assignForm.reset({ technicianId: this.order()?.technicianId ?? '' });
     if (name === 'part') {
       this.partForm.reset({ partId: '', quantity: 1 });
