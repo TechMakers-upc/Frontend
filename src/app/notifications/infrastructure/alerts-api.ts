@@ -15,4 +15,11 @@ export class AlertsApi {
   getAll(): Observable<Alert[]> {
     return this.http.get<Alert[]>(`${environment.apiBaseUrl}/alerts`);
   }
+
+  markRead(id: string): Observable<void> {
+    return this.http.patch<void>(
+      `${environment.apiBaseUrl}/alerts/${encodeURIComponent(id)}/read`,
+      {},
+    );
+  }
 }
