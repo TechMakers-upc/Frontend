@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { AuthenticationApi } from '../../../infrastructure/authentication-api';
@@ -25,6 +25,7 @@ export class Login {
   private readonly tokenStorage = inject(AuthTokenStorage);
   private readonly sessionStore = inject(SessionStore);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly translate = inject(TranslateService);
 
   protected readonly showPassword = signal(false);
@@ -92,7 +93,15 @@ export class Login {
             this.sessionStore.signIn(account);
             this.authenticationSuccess.set(true);
             this.form.controls.password.reset();
-            void this.router.navigateByUrl(ROLE_HOME[role]);
+            const requested = this.route.snapshot.queryParamMap.get('returnUrl');
+            const destination =
+              requested?.startsWith('/') &&
+              !requested.startsWith('//') &&
+              !requested.includes('\\')
+                ? requested
+                : ROLE_HOME[role];
+
+            void this.router.navigateByUrl(destination);
           }
         }
         this.isSubmitting.set(false);
