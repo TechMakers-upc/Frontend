@@ -2,6 +2,7 @@ import { Injectable, computed, effect, inject, signal } from '@angular/core';
 
 
 import { AuthTokenStorage } from '../../shared/infrastructure/auth-token.storage';
+import { SessionStore } from '../../shared/application/session.store';
 import { AnalyticsApi } from '../infrastructure/analytics-api';
 
 import { AssetStore } from '../../asset-management/application/asset.store';
@@ -68,6 +69,7 @@ export class MaintenanceAnalytics {
   private readonly directory = inject(UserDirectoryStore);
 
 private readonly tokenStorage = inject(AuthTokenStorage);
+private readonly session = inject(SessionStore);
 private readonly analyticsApi = inject(AnalyticsApi);
 private readonly remoteSummary = signal<MaintenanceSummary | null>(null);
 private readonly remoteRanking = signal<{ assetId: string; hours: number }[] | null>(null);
@@ -76,7 +78,7 @@ readonly remoteState = signal<'idle' | 'loading' | 'ready' | 'error'>('idle');
 constructor() {
   effect((onCleanup) => {
     const plantIds = this.scope.plantIds();
-    if (!this.tokenStorage.read()) return;
+    if (!this.tokenStorage.read() || this.session.role() === 'technician') return;
     const selected = plantIds.length === 1 ? plantIds[0] : null;
     this.remoteSummary.set(null);
     this.remoteRanking.set(null);
