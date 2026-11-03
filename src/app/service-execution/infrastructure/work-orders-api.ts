@@ -1,9 +1,8 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { BaseApi } from '../../shared/infrastructure/base-api';
-import { AuthTokenStorage } from '../../shared/infrastructure/auth-token.storage';
 import { WorkOrder, WorkOrderProps } from '../domain/model/work-order.entity';
 import { WorkOrderApiMapper } from './work-order-api.mapper';
 import { WorkOrderApiResource } from './work-order-api.models';
@@ -12,7 +11,6 @@ import { WorkOrderApiResource } from './work-order-api.models';
 export class WorkOrdersApi extends BaseApi<WorkOrder, WorkOrderProps> {
   protected readonly endpointPath = environment.workOrdersEndpointPath;
 
-  private readonly tokenStorage = inject(AuthTokenStorage);
 
   protected toEntity(resource: WorkOrderProps): WorkOrder {
     return new WorkOrder({
@@ -23,11 +21,7 @@ export class WorkOrdersApi extends BaseApi<WorkOrder, WorkOrderProps> {
   }
 
   override getAll(): Observable<WorkOrder[]> {
-    if (!this.tokenStorage.read()) {
-      return this.http.get<WorkOrderProps[]>('/demo-api/work-orders').pipe(
-        map((items) => items.map((item) => this.toEntity(item))),
-      );
-    }
+
 
     return this.http.get<WorkOrderApiResource[]>(this.url).pipe(
       map((items) => items.map((item) => WorkOrderApiMapper.toEntity(item))),
@@ -35,14 +29,7 @@ export class WorkOrdersApi extends BaseApi<WorkOrder, WorkOrderProps> {
   }
 
   override update(entity: WorkOrder): Observable<WorkOrder> {
-    if (!this.tokenStorage.read()) {
-      return this.http.put<WorkOrderProps>(
-        `/demo-api/work-orders/${entity.id}`,
-        { ...entity },
-      ).pipe(
-        map((resource) => this.toEntity(resource)),
-      );
-    }
+
 
     return this.http.put<WorkOrderApiResource>(
       `${this.url}/${entity.id}`,
@@ -62,11 +49,7 @@ export class WorkOrdersApi extends BaseApi<WorkOrder, WorkOrderProps> {
       throw new Error('Quantity must be a positive integer');
     }
 
-    if (!this.tokenStorage.read()) {
-      const draft = order.clone();
-      draft.registerPartUsage(partId, quantity, at);
-      return this.update(draft);
-    }
+
 
     const id = Number(partId);
 
@@ -94,11 +77,7 @@ export class WorkOrdersApi extends BaseApi<WorkOrder, WorkOrderProps> {
       throw new Error('A work note is required');
     }
 
-    if (!this.tokenStorage.read()) {
-      const draft = order.clone();
-      draft.logWork(trimmedNote, authorId, at);
-      return this.update(draft);
-    }
+
 
     return this.http.post<WorkOrderApiResource>(
       `${this.url}/${order.id}/work-logs`,
@@ -119,11 +98,7 @@ export class WorkOrdersApi extends BaseApi<WorkOrder, WorkOrderProps> {
       throw new Error('A work order solution is required');
     }
 
-    if (!this.tokenStorage.read()) {
-      const draft = order.clone();
-      draft.complete(trimmedSolution, at);
-      return this.update(draft);
-    }
+
 
     return this.http.post<WorkOrderApiResource>(
       `${this.url}/${order.id}/completion`,
@@ -134,11 +109,7 @@ export class WorkOrdersApi extends BaseApi<WorkOrder, WorkOrderProps> {
   }
 
   startOrder(order: WorkOrder, at: string): Observable<WorkOrder> {
-    if (!this.tokenStorage.read()) {
-      const draft = order.clone();
-      draft.start(at);
-      return this.update(draft);
-    }
+
 
     return this.http.post<WorkOrderApiResource>(
       `${this.url}/${order.id}/start`,
@@ -149,11 +120,7 @@ export class WorkOrdersApi extends BaseApi<WorkOrder, WorkOrderProps> {
   }
 
   assignTechnician(order: WorkOrder, technicianId: string): Observable<WorkOrder> {
-    if (!this.tokenStorage.read()) {
-      const draft = order.clone();
-      draft.assign(technicianId);
-      return this.update(draft);
-    }
+
 
     const id = Number(technicianId);
 
@@ -170,22 +137,13 @@ export class WorkOrdersApi extends BaseApi<WorkOrder, WorkOrderProps> {
   }
 
   override delete(id: string): Observable<void> {
-    if (!this.tokenStorage.read()) {
-      return this.http.delete<void>(`/demo-api/work-orders/${id}`);
-    }
+
 
     return this.http.delete<void>(`${this.url}/${id}`);
   }
 
   override create(entity: WorkOrder): Observable<WorkOrder> {
-    if (!this.tokenStorage.read()) {
-      return this.http.post<WorkOrderProps>(
-        '/demo-api/work-orders',
-        { ...entity },
-      ).pipe(
-        map((resource) => this.toEntity(resource)),
-      );
-    }
+
 
     return this.http.post<WorkOrderApiResource>(
       this.url,
