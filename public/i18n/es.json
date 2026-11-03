@@ -116,7 +116,11 @@
       "roleRequired": "Elige con qué rol vas a ingresar.",
       "invalidCredentials": "El correo o la contraseña no coinciden. Revisa ambos e inténtalo otra vez.",
       "roleMismatch": "Esta cuenta está registrada como {{role}}."
-    }
+    },
+    "invalidResponse": "El servidor devolvió una respuesta de inicio de sesión inválida.",
+    "invalidRole": "No se reconoció el perfil de esta cuenta.",
+    "loginError": "No se pudo iniciar sesión. Inténtalo nuevamente.",
+    "unexpectedError": "Ocurrió un error inesperado al iniciar sesión."
   },
   "signUp": {
     "step": "Paso {{current}} de {{total}}",

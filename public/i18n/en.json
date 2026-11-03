@@ -116,7 +116,11 @@
       "roleRequired": "Choose the role you're logging in as.",
       "invalidCredentials": "Email and password don't match. Check both and try again.",
       "roleMismatch": "This account is registered as {{role}}."
-    }
+    },
+    "invalidResponse": "The server returned an invalid sign-in response.",
+    "invalidRole": "This account has an unrecognized role.",
+    "loginError": "Unable to sign in. Please try again.",
+    "unexpectedError": "An unexpected error occurred while signing in."
   },
   "signUp": {
     "step": "Step {{current}} of {{total}}",
