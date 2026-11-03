@@ -1,10 +1,10 @@
 export interface UserAccountResource {
-  id: string;
+  id: string | number;
   fullName: string;
   email: string;
   password: string;
   role: string;
-  plantId: string | null;
+  plantId: string | number | null;
   jobTitle: string;
 }
 
