@@ -41,6 +41,11 @@ export class PlantDetail {
 
   protected readonly statusTone = ASSET_STATUS_TONE;
   protected readonly plant = computed(() => this.plantStore.find(this.id()));
+  protected readonly canEdit = computed(() =>
+    this.sessionStore.role() === 'operations-manager' ||
+    (this.sessionStore.role() === 'plant-manager' &&
+      this.sessionStore.currentAccount()?.plantId === this.id()),
+  );
   protected readonly canDelete = computed(() => this.sessionStore.role() === 'operations-manager');
   protected readonly confirmOpen = signal(false);
   protected readonly busy = signal(false);

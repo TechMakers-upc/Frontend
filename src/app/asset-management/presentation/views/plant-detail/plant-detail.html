@@ -1,9 +1,11 @@
 @if (plant(); as plant) {
   <app-page-header [heading]="plant.name" [meta]="plant.city + (plant.address ? ' · ' + plant.address : '')" backLink="/plants">
-    <a class="btn btn--ghost" [routerLink]="['/plants', plant.id, 'edit']">
-      <app-icon name="pencil" [size]="18" />
-      {{ 'common.edit' | translate }}
-    </a>
+    @if (canEdit()) {
+      <a class="btn btn--ghost" [routerLink]="['/plants', plant.id, 'edit']">
+        <app-icon name="pencil" [size]="18" />
+        {{ 'common.edit' | translate }}
+      </a>
+    }
     @if (canDelete()) {
       <button type="button" class="btn btn--ghost" (click)="requestDelete()">
         <app-icon name="trash-2" [size]="18" />
