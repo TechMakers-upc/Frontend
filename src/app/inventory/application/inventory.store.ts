@@ -75,16 +75,9 @@ export class InventoryStore extends CollectionStore<SparePart> {
   }
 
   receive(partId: string, quantity: number, reason: string): Promise<SparePart> {
-    if (this.tokenStorage.read()) {
-      return this.applyBackendStockOperation(
-        this.api.receiveStock(partId, quantity, reason),
-      );
-    }
-
-    return this.applyMovement(partId, 'entry', reason, null, (part) => {
-      part.receive(quantity);
-      return quantity;
-    });
+    return this.applyBackendStockOperation(
+      this.api.receiveStock(partId, quantity, reason),
+    );
   }
 
   adjust(partId: string, counted: number, reason: string): Promise<SparePart> {
