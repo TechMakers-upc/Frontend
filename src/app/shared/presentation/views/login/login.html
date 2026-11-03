@@ -21,7 +21,7 @@
               maxlength="254" formControlName="email"
               [attr.aria-invalid]="emailErrorKey() ? 'true' : null"
               [attr.aria-describedby]="emailErrorKey() ? 'login-email-error' : null"
-              [placeholder]="'loginPreview.emailPlaceholder' | translate" />
+              [placeholder]="'realLogin.emailPlaceholder' | translate" />
             @if (emailErrorKey(); as error) {
               <p class="login-field__error" id="login-email-error" role="alert">
                 {{ error | translate: { requiredLength: 254 } }}
@@ -36,7 +36,7 @@
                 autocomplete="current-password" maxlength="128" formControlName="password"
                 [attr.aria-invalid]="passwordErrorKey() ? 'true' : null"
                 [attr.aria-describedby]="passwordErrorKey() ? 'login-password-hint login-password-error' : 'login-password-hint'"
-                [placeholder]="'loginPreview.passwordPlaceholder' | translate" />
+                [placeholder]="'realLogin.passwordPlaceholder' | translate" />
               <button type="button" class="login-password__toggle"
                 aria-controls="login-password"
                 [attr.aria-label]="(showPassword() ? 'fields.hidePassword' : 'fields.showPassword') | translate"
@@ -67,7 +67,7 @@
       <footer class="login-footer">© FixCore · TechMakers</footer>
     </section>
 
-    <aside class="login-showcase" [attr.aria-label]="'loginPreview.showcaseTitle' | translate">
+    <aside class="login-showcase" [attr.aria-label]="'realLogin.showcaseTitle' | translate">
       <div class="login-showcase__visual" aria-hidden="true">
         <div class="login-showcase__orbit login-showcase__orbit--one"></div>
         <div class="login-showcase__orbit login-showcase__orbit--two"></div>
@@ -75,12 +75,12 @@
       </div>
       <div class="login-showcase__copy">
         <p class="login-showcase__eyebrow">FIXCORE</p>
-        <h2>{{ 'loginPreview.showcaseTitle' | translate }}</h2>
-        <p>{{ 'loginPreview.showcaseDescription' | translate }}</p>
+        <h2>{{ 'realLogin.showcaseTitle' | translate }}</h2>
+        <p>{{ 'realLogin.showcaseDescription' | translate }}</p>
         <ul>
-          <li>{{ 'loginPreview.featurePlants' | translate }}</li>
-          <li>{{ 'loginPreview.featureFailures' | translate }}</li>
-          <li>{{ 'loginPreview.featureReports' | translate }}</li>
+          <li>{{ 'realLogin.featurePlants' | translate }}</li>
+          <li>{{ 'realLogin.featureFailures' | translate }}</li>
+          <li>{{ 'realLogin.featureReports' | translate }}</li>
         </ul>
       </div>
     </aside>

@@ -10,10 +10,7 @@
     "en": "English"
   },
   "brand": {
-    "slogan": "El núcleo de tu mantenimiento industrial",
-    "demoData": "Datos de demostración",
-    "demoDataLong": "Proyecto académico: todas las plantas, máquinas y cifras son datos de demostración.",
-    "demoShort": "Demo"
+    "slogan": "El núcleo de tu mantenimiento industrial"
   },
   "shell": {
     "headline": "Cada parada de máquina cuenta.",
@@ -72,33 +69,6 @@
       "plantRequired": "Elige la planta donde trabajas.",
       "plantsUnavailable": "No se pudo cargar la lista de plantas. Recarga la página."
     }
-  },
-  "demoAccess": {
-    "eyebrow": "PROTOTIPO ACADÉMICO · SPRINT 3",
-    "title": "Bienvenido a FixCore",
-    "intro": "Elige un perfil para explorar el mantenimiento industrial con datos de demostración.",
-    "selectProfile": "Selecciona tu perfil",
-    "plantManagerHint": "Máquinas, fallas y mantenimiento",
-    "operationsManagerHint": "Plantas, indicadores y reportes",
-    "technicianHint": "Órdenes, equipos y repuestos",
-    "footnote": "Acceso libre para demostración. No se requiere usuario ni contraseña.",
-    "changeProfile": "Cambiar perfil",
-    "backToLogin": "Volver al Login"
-  },
-  "loginPreview": {
-    "previewLabel": "Vista preliminar · Sprint 3",
-    "description": "Esta es la futura pantalla de inicio de sesión de FixCore. La autenticación todavía no está habilitada.",
-    "emailPlaceholder": "nombre@empresa.com",
-    "passwordPlaceholder": "Ingresa tu contraseña",
-    "unavailable": "El inicio de sesión estará disponible cuando se integre el servicio de autenticación. Por ahora puedes explorar los perfiles de demostración.",
-    "exploreDemo": "Explorar la demostración",
-    "disclaimer": "El formulario solo valida los campos en este navegador. No se envían ni se guardan credenciales.",
-    "showcaseTitle": "Mantenimiento industrial en un solo lugar",
-    "showcaseDescription": "Organiza la operación de mantenimiento y consulta información importante desde una interfaz centralizada.",
-    "featurePlants": "Gestión de plantas y máquinas",
-    "featureFailures": "Seguimiento de fallas y órdenes de trabajo",
-    "featureReports": "Indicadores y reportes de mantenimiento",
-    "viewLogin": "Ver pantalla de inicio de sesión"
   },
   "signIn": {
     "title": "¡Hola de nuevo!",
@@ -950,6 +920,13 @@
     "eyebrow": "ACCESO A FIXCORE",
     "description": "Inicia sesión con tu cuenta para gestionar plantas, máquinas, órdenes de trabajo e inventario.",
     "success": "Sesión iniciada correctamente.",
-    "signOut": "Cerrar sesión"
+    "signOut": "Cerrar sesión",
+    "emailPlaceholder": "nombre@empresa.com",
+    "passwordPlaceholder": "Ingresa tu contraseña",
+    "showcaseTitle": "Mantenimiento industrial en un solo lugar",
+    "showcaseDescription": "Organiza la operación de mantenimiento y consulta información importante desde una interfaz centralizada.",
+    "featurePlants": "Gestión de plantas y máquinas",
+    "featureFailures": "Seguimiento de fallas y órdenes de trabajo",
+    "featureReports": "Indicadores y reportes de mantenimiento"
   }
 }
