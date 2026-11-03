@@ -66,11 +66,12 @@ export class Login {
     this.authenticationSuccess.set(false);
     this.isSubmitting.set(true);
 
-    const credentials = this.form.getRawValue();
+    const raw = this.form.getRawValue();
+    const credentials = { email: raw.email.trim().toLowerCase(), password: raw.password };
 
     this.authenticationApi.signIn(credentials).subscribe({
       next: (response) => {
-        if (!response.token) {
+        if (!response.token?.trim() || !response.account?.id || !response.account?.role || !response.account?.fullName) {
           this.authenticationError.set(this.translate.instant('signIn.invalidResponse'));
         } else {
           const role = response.account.role.toLowerCase().replaceAll('_', '-');
@@ -87,7 +88,7 @@ export class Login {
               response.account.jobTitle,
             );
 
-            this.tokenStorage.write(response.token);
+            this.tokenStorage.write(response.token.trim());
             this.sessionStore.signIn(account);
             this.authenticationSuccess.set(true);
             this.form.controls.password.reset();
