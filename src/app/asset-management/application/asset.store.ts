@@ -63,6 +63,10 @@ export class AssetStore extends CollectionStore<Asset> {
   }
 
   async register(plantId: string, details: AssetDetails): Promise<Asset> {
+    if (!this.scope.includes(plantId)) {
+      throw new Error('Plant is not accessible');
+    }
+
     const asset = new Asset({
       id: crypto.randomUUID(),
       plantId,
